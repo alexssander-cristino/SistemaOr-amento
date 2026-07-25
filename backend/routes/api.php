@@ -24,3 +24,28 @@ Route::apiResource('orcamentos', OrcamentoController::class);
 Route::apiResource('orcamento-servicos', OrcamentoServicoController::class);
 
 Route::apiResource('pagamentos', PagamentoController::class);
+
+use App\Http\Controllers\Api\AuthController;
+
+
+Route::post('/login',[AuthController::class,'login']);
+
+
+Route::post('/register',[AuthController::class,'register']);
+
+
+
+Route::middleware('auth:sanctum')->group(function(){
+
+
+    Route::get('/usuario',function(){
+
+        return auth()->user();
+
+    });
+
+
+    Route::post('/logout',[AuthController::class,'logout']);
+
+
+});

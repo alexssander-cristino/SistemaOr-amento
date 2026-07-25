@@ -7,11 +7,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
 <title>
 @yield('title') - EventManager
 </title>
-
 
 
 <style>
@@ -35,7 +33,40 @@ body{
 
 background:#f5f6fa;
 
-display:flex;
+}
+
+
+
+/* =====================
+BOTÃO MOBILE
+===================== */
+
+
+.mobile-btn{
+
+display:none;
+
+position:fixed;
+
+top:15px;
+
+left:15px;
+
+z-index:1000;
+
+background:#2563eb;
+
+color:white;
+
+border:none;
+
+padding:12px 15px;
+
+font-size:22px;
+
+border-radius:10px;
+
+cursor:pointer;
 
 }
 
@@ -50,7 +81,6 @@ SIDEBAR
 
 .sidebar{
 
-
 width:270px;
 
 height:100vh;
@@ -63,16 +93,23 @@ padding:25px;
 
 position:fixed;
 
+left:0;
+
+top:0;
+
 overflow-y:auto;
 
+transition:.3s;
+
+z-index:999;
 
 }
 
 
 
 
-.logo{
 
+.logo{
 
 font-size:22px;
 
@@ -82,17 +119,13 @@ text-align:center;
 
 margin-bottom:25px;
 
-
 }
 
 
 
 
 
-/* =====================
-USUARIO
-===================== */
-
+/* USUARIO */
 
 
 .user-panel{
@@ -111,9 +144,7 @@ margin-bottom:25px;
 
 
 
-
 .user-header{
-
 
 display:flex;
 
@@ -121,15 +152,11 @@ align-items:center;
 
 gap:12px;
 
-
 }
 
 
 
-
-
 .avatar{
-
 
 width:55px;
 
@@ -137,9 +164,9 @@ height:55px;
 
 border-radius:50%;
 
-background:#2563eb;
-
 overflow:hidden;
+
+background:#2563eb;
 
 display:flex;
 
@@ -149,14 +176,11 @@ justify-content:center;
 
 flex-shrink:0;
 
-
 }
 
 
 
-
 .avatar img{
-
 
 width:100%;
 
@@ -164,20 +188,15 @@ height:100%;
 
 object-fit:cover;
 
-
 }
 
 
 
 .avatar span{
 
-
 font-size:24px;
 
 font-weight:bold;
-
-color:white;
-
 
 }
 
@@ -187,9 +206,7 @@ color:white;
 
 .user-data{
 
-
 overflow:hidden;
-
 
 }
 
@@ -197,18 +214,13 @@ overflow:hidden;
 
 .user-data h3{
 
-
 font-size:16px;
-
-margin-bottom:5px;
-
 
 }
 
 
 
 .user-data p{
-
 
 font-size:12px;
 
@@ -220,26 +232,20 @@ text-overflow:ellipsis;
 
 white-space:nowrap;
 
-max-width:150px;
-
-
 }
 
 
 
 
 
-/* BOTÕES DA CONTA */
+/* BOTÕES */
 
 
 .account-buttons{
 
-
 margin-top:15px;
 
-
 }
-
 
 
 
@@ -247,7 +253,11 @@ margin-top:15px;
 .account-buttons button{
 
 
-display:block;
+display:flex;
+
+justify-content:center;
+
+align-items:center;
 
 width:100%;
 
@@ -259,69 +269,42 @@ border:none;
 
 margin-top:8px;
 
-text-align:center;
+cursor:pointer;
 
 text-decoration:none;
 
-cursor:pointer;
-
 font-size:14px;
 
-
 }
-
-
 
 
 
 .profile-btn{
 
-
 background:#475569;
 
 color:white;
 
-
 }
-
 
 
 
 .change-btn{
 
-
 background:#2563eb;
 
 color:white;
 
-
 }
-
 
 
 
 .logout-btn{
 
-
 background:#dc2626;
 
 color:white;
 
-
-}
-
-
-
-
-
-.profile-btn:hover,
-.change-btn:hover,
-.logout-btn:hover{
-
-
-opacity:.85;
-
-
 }
 
 
@@ -329,11 +312,7 @@ opacity:.85;
 
 
 
-
-/* =====================
-MENU
-===================== */
-
+/* MENU */
 
 
 .sidebar a.menu{
@@ -353,9 +332,7 @@ border-radius:8px;
 
 transition:.3s;
 
-
 }
-
 
 
 
@@ -378,7 +355,7 @@ transform:translateX(5px);
 
 
 /* =====================
-CONTEUDO
+CONTEÚDO
 ===================== */
 
 
@@ -389,7 +366,7 @@ margin-left:270px;
 
 padding:30px;
 
-width:100%;
+width:calc(100% - 270px);
 
 
 }
@@ -419,6 +396,7 @@ box-shadow:0 5px 15px #0001;
 
 
 
+
 /* CARDS */
 
 
@@ -433,7 +411,6 @@ gap:20px;
 
 
 }
-
 
 
 
@@ -453,14 +430,12 @@ box-shadow:0 5px 15px #0001;
 
 
 
-
 .card h2{
-
 
 font-size:35px;
 
-
 }
+
 
 
 
@@ -481,9 +456,9 @@ border-radius:15px;
 
 box-shadow:0 5px 15px #0001;
 
+overflow-x:auto;
 
 }
-
 
 
 
@@ -494,9 +469,7 @@ width:100%;
 
 border-collapse:collapse;
 
-
 }
-
 
 
 
@@ -519,8 +492,8 @@ padding:12px;
 
 text-align:left;
 
-
 }
+
 
 
 
@@ -543,12 +516,9 @@ color:white;
 
 border-radius:8px;
 
-text-decoration:none;
-
 border:none;
 
 cursor:pointer;
-
 
 }
 
@@ -557,19 +527,159 @@ cursor:pointer;
 
 
 /* =====================
-MOBILE
+TABLET
 ===================== */
 
 
-@media(max-width:768px){
+@media(max-width:900px){
+
 
 
 .sidebar{
 
 
-width:80px;
+left:-270px;
+
+
+}
+
+
+
+.sidebar.active{
+
+
+left:0;
+
+
+}
+
+
+
+.mobile-btn{
+
+
+display:block;
+
+
+}
+
+
+
+.content{
+
+
+margin-left:0;
+
+width:100%;
+
+padding:20px;
+
+padding-top:80px;
+
+
+}
+
+
+
+.cards{
+
+
+grid-template-columns:1fr;
+
+
+}
+
+
+
+.header h1{
+
+
+font-size:22px;
+
+}
+
+
+
+.table-box{
+
+
+overflow-x:auto;
+
+}
+
+
+
+table{
+
+
+min-width:700px;
+
+}
+
+
+
+}
+
+
+
+
+
+
+/* =====================
+CELULAR PEQUENO
+===================== */
+
+
+@media(max-width:480px){
+
+
+
+.content{
+
 
 padding:15px;
+
+padding-top:75px;
+
+}
+
+
+
+.card{
+
+
+padding:18px;
+
+}
+
+
+
+.card h2{
+
+
+font-size:28px;
+
+
+}
+
+
+
+.user-header{
+
+
+gap:8px;
+
+
+}
+
+
+
+.avatar{
+
+
+width:45px;
+
+height:45px;
 
 
 }
@@ -579,33 +689,7 @@ padding:15px;
 .logo{
 
 
-font-size:14px;
-
-
-}
-
-
-
-
-.user-data,
-.account-buttons a,
-.account-buttons button{
-
-
-font-size:0;
-
-
-}
-
-
-
-
-.content{
-
-
-margin-left:80px;
-
-padding:15px;
+font-size:18px;
 
 
 }
@@ -613,6 +697,7 @@ padding:15px;
 
 
 }
+
 
 
 
@@ -625,14 +710,22 @@ padding:15px;
 
 
 
-
 <body>
 
 
 
 
+<button class="mobile-btn" onclick="abrirMenu()">
 
-<div class="sidebar">
+☰
+
+</button>
+
+
+
+
+
+<div class="sidebar" id="sidebar">
 
 
 
@@ -647,25 +740,19 @@ padding:15px;
 
 
 
-
 <div class="user-panel">
-
 
 
 <div class="user-header">
 
 
-
 <div class="avatar">
-
 
 
 @if(auth()->user()->foto)
 
-
 <img 
-src="{{ asset('storage/'.auth()->user()->foto) }}"
-alt="Foto">
+src="{{ asset('storage/'.auth()->user()->foto) }}">
 
 
 @else
@@ -681,10 +768,7 @@ alt="Foto">
 @endif
 
 
-
 </div>
-
-
 
 
 
@@ -709,9 +793,7 @@ alt="Foto">
 </div>
 
 
-
 </div>
-
 
 
 
@@ -727,19 +809,6 @@ class="profile-btn">
 👤 Minha Conta
 
 </a>
-
-
-
-
-<a href="{{ route('login') }}"
-class="change-btn">
-
-🔄 Trocar Conta
-
-</a>
-
-
-
 
 
 
@@ -760,15 +829,11 @@ action="{{ route('logout') }}">
 </form>
 
 
-
-
 </div>
 
 
 
 </div>
-
-
 
 
 
@@ -858,6 +923,28 @@ action="{{ route('logout') }}">
 
 
 
+
+
+
+
+
+<script>
+
+
+function abrirMenu(){
+
+
+document
+.getElementById('sidebar')
+.classList
+.toggle('active');
+
+
+}
+
+
+
+</script>
 
 
 
