@@ -1,118 +1,91 @@
 @extends('admin.layout')
 
-
 @section('title','Orçamentos')
-
 
 @section('content')
 
-
 <div class="header">
 
-<h1>
-💰 Orçamentos
-</h1>
+    <h1>💰 Orçamentos</h1>
 
-<p>
-Geração de orçamento baseado nos serviços contratados no evento
-</p>
+    <p>Geração de orçamento baseada nos serviços vinculados ao evento.</p>
 
 </div>
 
 
+
+@if(session('success'))
+
+<div class="alert-success">
+    {{ session('success') }}
+</div>
+
+@endif
+
+
+@if(session('error'))
+
+<div class="alert-error">
+    {{ session('error') }}
+</div>
+
+@endif
 
 
 
 <div class="table-box">
 
+    <h2>➕ Novo Orçamento</h2>
 
-<h2>
-➕ Novo Orçamento
-</h2>
+    <form method="POST" action="{{ route('admin.orcamentos.store') }}">
 
+        @csrf
 
+        <label>Evento</label>
 
-<form method="POST"
-action="{{ route('admin.orcamentos.store') }}">
+        <select name="evento_id" required>
 
+            <option value="">Selecione um evento</option>
 
-@csrf
+            @foreach($eventos as $evento)
 
+                @if(!$evento->orcamento)
 
+                <option value="{{ $evento->id }}">
 
-<label>
-Evento
-</label>
+                    {{ optional($evento->categoria)->nome }}
 
+                    -
 
-<select name="evento_id" required>
+                    {{ optional($evento->cliente)->nome }}
 
+                    -
 
-<option value="">
-Selecione o evento
-</option>
+                    {{ date('d/m/Y',strtotime($evento->data)) }}
 
+                </option>
 
+                @endif
 
-@foreach($eventos as $evento)
+            @endforeach
 
+        </select>
 
-<option value="{{ $evento->id }}">
+        <div class="info">
 
+            O orçamento utilizará automaticamente os serviços cadastrados neste evento.
 
-{{ optional($evento->categoria)->nome ?? 'Evento' }}
+        </div>
 
--
+        <button class="btn">
 
-{{ optional($evento->cliente)->nome ?? 'Cliente' }}
+            💾 Gerar Orçamento
 
--
+        </button>
 
-{{ date('d/m/Y', strtotime($evento->data)) }}
-
-
-</option>
-
-
-@endforeach
-
-
-
-</select>
-
-
-
-
-
-<div class="info">
-
-
-ℹ️ Os serviços utilizados no orçamento são os serviços cadastrados no evento.
-
+    </form>
 
 </div>
-
-
-
-
-
-<button class="btn">
-
-💾 Gerar Orçamento
-
-</button>
-
-
-
-</form>
-
-
-</div>
-
-
-
-
-
 
 
 
@@ -120,530 +93,258 @@ Selecione o evento
 
 
 
-
-
-
-
-
 <div class="table-box">
 
-
-<h2>
-📋 Orçamentos Criados
-</h2>
-
-
-
-
+<h2>📋 Orçamentos Criados</h2>
 
 <table>
-
 
 <thead>
 
 <tr>
 
-<th>
-Cliente
-</th>
-
-
-<th>
-Evento
-</th>
-
-
-<th>
-Data
-</th>
-
-
-<th>
-Serviços
-</th>
-
-
-<th>
-Valor Total
-</th>
-
-
-<th>
-Status
-</th>
-
-
-<th>
-Ações
-</th>
-
+<th>Cliente</th>
+<th>Evento</th>
+<th>Data</th>
+<th>Serviços</th>
+<th>Total</th>
+<th>Status</th>
+<th>Ações</th>
 
 </tr>
 
-
 </thead>
-
-
-
-
 
 <tbody>
 
-
-
 @forelse($orcamentos as $orcamento)
-
-
 
 <tr>
 
-
-
 <td>
 
-{{ optional($orcamento->evento->cliente)->nome ?? 'Cliente removido' }}
+{{ optional($orcamento->evento->cliente)->nome }}
 
 </td>
 
-
-
-
-
 <td>
 
-{{ optional($orcamento->evento->categoria)->nome ?? 'Evento' }}
+{{ optional($orcamento->evento->categoria)->nome }}
 
 </td>
 
-
-
-
-
 <td>
 
-{{ date(
-'d/m/Y',
-strtotime($orcamento->evento->data)
-) }}
+{{ date('d/m/Y',strtotime($orcamento->evento->data)) }}
 
 </td>
 
-
-
-
-
-
-
 <td>
 
-
-@if($orcamento->itens->count())
-
+@if($orcamento->evento && $orcamento->evento->servicos->count())
 
 <ul>
 
-
-@foreach($orcamento->itens as $item)
-
+@foreach($orcamento->evento->servicos as $item)
 
 <li>
 
-
-{{ optional($item->servico)->nome ?? 'Serviço removido' }}
-
+{{ optional($item->servico)->nome }}
 
 </li>
 
-
 @endforeach
-
 
 </ul>
 
-
-
 @else
-
 
 Nenhum serviço
 
-
 @endif
 
-
-
 </td>
-
-
-
-
-
-
 
 <td>
 
-
-R$
-
-{{ number_format(
-$orcamento->valor_total,
-2,
-',',
-'.'
-) }}
-
-
+R$ {{ number_format($orcamento->valor_total,2,',','.') }}
 
 </td>
 
-
-
-
-
-
 <td>
-
-
-<span class="status">
 
 {{ ucfirst($orcamento->status) }}
 
-</span>
-
-
 </td>
-
-
-
-
-
-
-
 
 <td>
 
-
-
 <a
-
-href="{{ route(
-'admin.orcamentos.pdf',
-$orcamento->id
-) }}"
-
-class="btn-pdf"
-
->
+href="{{ route('admin.orcamentos.pdf',$orcamento->id) }}"
+class="btn-pdf">
 
 📄 PDF
 
 </a>
 
-
-
-
-
-
-
 <form
-
 method="POST"
-
-action="{{ route(
-'admin.orcamentos.destroy',
-$orcamento->id
-) }}"
-
-class="delete-form"
-
->
-
+action="{{ route('admin.orcamentos.destroy',$orcamento->id) }}"
+class="delete-form">
 
 @csrf
-
 @method('DELETE')
 
-
-
 <button
-
 class="btn-delete"
-
-onclick="return confirm('Excluir orçamento?')"
-
->
+onclick="return confirm('Excluir orçamento?')">
 
 🗑️
 
 </button>
 
-
-
 </form>
-
-
-
 
 </td>
 
-
-
-
-
 </tr>
 
-
-
-
-
 @empty
-
 
 <tr>
 
 <td colspan="7">
 
-Nenhum orçamento criado.
+Nenhum orçamento cadastrado.
 
 </td>
 
 </tr>
 
-
-
 @endforelse
-
-
-
 
 </tbody>
 
-
 </table>
-
 
 </div>
 
 
 
-
-
-
-
 <style>
-
 
 .table-box{
 
-background:white;
-
+background:#fff;
 padding:25px;
-
 border-radius:15px;
-
 margin-bottom:20px;
 
 }
 
-
-
-
 form{
 
 display:flex;
-
 flex-direction:column;
-
 gap:15px;
 
 }
 
-
-
-
-
 select{
 
 padding:12px;
-
 border-radius:10px;
-
 border:1px solid #ccc;
 
-font-size:16px;
-
 }
-
-
-
 
 .info{
 
-background:#ecf0f1;
-
+background:#eef4ff;
 padding:15px;
-
 border-radius:10px;
 
 }
 
+.alert-success{
 
-
-
-
-.btn{
-
-
-background:#2ecc71;
-
-color:white;
-
-border:none;
-
-padding:12px 20px;
-
+background:#d4edda;
+color:#155724;
+padding:15px;
 border-radius:10px;
-
-font-size:16px;
-
-cursor:pointer;
-
+margin-bottom:20px;
 
 }
 
+.alert-error{
 
+background:#f8d7da;
+color:#721c24;
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
 
-
+}
 
 table{
 
-
 width:100%;
-
 border-collapse:collapse;
 
-
 }
-
-
-
 
 th{
 
-
 background:#eee;
-
-padding:15px;
-
-text-align:left;
-
+padding:12px;
 
 }
-
-
-
 
 td{
 
-
-padding:15px;
-
+padding:12px;
 border-bottom:1px solid #ddd;
 
-
 }
 
+.btn{
 
-
-
-
-ul{
-
-
-margin:0;
-
-padding-left:20px;
-
+background:#2ecc71;
+color:#fff;
+border:none;
+padding:12px;
+border-radius:10px;
+cursor:pointer;
 
 }
-
-
-
-
-.status{
-
-
-background:#f1c40f;
-
-padding:6px 12px;
-
-border-radius:20px;
-
-
-}
-
-
-
-
-
 
 .btn-pdf{
 
-
 background:#3498db;
-
-color:white;
-
+color:#fff;
 padding:8px 15px;
-
+text-decoration:none;
 border-radius:8px;
 
-text-decoration:none;
-
-
 }
-
-
-
-
 
 .delete-form{
 
-
 display:inline;
 
-
 }
-
-
-
 
 .btn-delete{
 
-
 background:#e74c3c;
-
-color:white;
-
+color:#fff;
 border:none;
-
 padding:8px 12px;
-
 border-radius:8px;
-
 cursor:pointer;
-
 
 }
 
-
-
-
-
 </style>
-
-
-
-
 
 @endsection

@@ -2,196 +2,149 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Orcamento;
 use App\Models\Evento;
-use App\Models\Servico;
+use App\Models\Orcamento;
 use App\Models\OrcamentoServico;
 use Illuminate\Http\Request;
-
 
 class AdminOrcamentoController extends Controller
 {
 
-
     public function index()
     {
+        return view('admin.orcamentos', [
 
-
-        return view('admin.orcamentos',[
-
-
-            'eventos'=>Evento::with([
-
+            'eventos' => Evento::with([
                 'cliente',
                 'categoria',
                 'servicos.servico'
-
             ])
             ->orderBy('data')
             ->get(),
 
-
-
-            'servicos'=>Servico::with('categoria')
-            ->orderBy('nome')
-            ->get(),
-
-
-
-            'orcamentos'=>Orcamento::with([
-
+            'orcamentos' => Orcamento::with([
                 'evento.cliente',
                 'evento.categoria',
+                'evento.servicos.servico',
                 'itens.servico'
-
             ])
-            ->orderBy(
-                'created_at',
-                'desc'
-            )
+            ->orderBy('created_at', 'desc')
             ->get()
 
-
-
         ]);
-
-
     }
-
-
-
 
 
 
     public function store(Request $request)
     {
 
+        $request->validate([
 
-        $dados = $request->validate([
-
-
-            'evento_id'=>[
+            'evento_id' => [
                 'required',
                 'exists:eventos,id'
-            ],
-
-
-            'servicos'=>[
-                'required',
-                'array',
-                'min:1'
-            ],
-
-
-            'servicos.*'=>[
-                'exists:servicos,id'
             ]
-
 
         ]);
 
 
+        $evento = Evento::with([
+            'servicos.servico'
+        ])->findOrFail($request->evento_id);
+
+
+
+        // Verifica se o evento possui serviços
+
+        if ($evento->servicos->count() == 0) {
+
+            return redirect()
+                ->route('admin.orcamentos')
+                ->with(
+                    'error',
+                    'Este evento não possui serviços cadastrados.'
+                );
+
+        }
+
+
+
+        // Impede criar dois orçamentos para o mesmo evento
+
+        $existe = Orcamento::where(
+            'evento_id',
+            $evento->id
+        )->first();
+
+
+        if ($existe) {
+
+            return redirect()
+                ->route('admin.orcamentos')
+                ->with(
+                    'error',
+                    'Já existe um orçamento para este evento.'
+                );
+
+        }
 
 
 
         $valorTotal = 0;
 
 
+        foreach ($evento->servicos as $item) {
 
-        foreach($request->servicos as $id)
-        {
-
-
-            $servico = Servico::findOrFail($id);
-
-
-            $valorTotal += $servico->valor;
-
+            $valorTotal += $item->subtotal;
 
         }
 
 
 
-
-
-
         $orcamento = Orcamento::create([
 
+            'evento_id' => $evento->id,
 
-            'evento_id'=>$request->evento_id,
+            'desconto' => 0,
 
+            'valor_total' => $valorTotal,
 
-            'desconto'=>0,
-
-
-            'valor_total'=>$valorTotal,
-
-
-            'status'=>'pendente'
-
+            'status' => 'pendente'
 
         ]);
 
 
 
 
-
-
-
-        foreach($request->servicos as $id)
-        {
-
-
-            $servico = Servico::findOrFail($id);
-
-
+        foreach ($evento->servicos as $item) {
 
             OrcamentoServico::create([
 
+                'orcamento_id' => $orcamento->id,
 
-                'orcamento_id'=>$orcamento->id,
+                'servico_id' => $item->servico_id,
 
+                'quantidade' => $item->quantidade,
 
-                'servicio_id'=>$servico->id,
+                'valor_unitario' => $item->valor_unitario,
 
-
-                'servico_id'=>$servico->id,
-
-
-                'quantidade'=>1,
-
-
-                'valor_unitario'=>$servico->valor,
-
-
-                'subtotal'=>$servico->valor
-
+                'subtotal' => $item->subtotal
 
             ]);
-
 
         }
 
 
 
-
-
         return redirect()
-
             ->route('admin.orcamentos')
-
             ->with(
-
                 'success',
-
                 'Orçamento criado com sucesso!'
-
             );
 
-
     }
-
-
 
 
 
@@ -199,29 +152,25 @@ class AdminOrcamentoController extends Controller
     public function destroy($id)
     {
 
-
         $orcamento = Orcamento::findOrFail($id);
+
+
+        OrcamentoServico::where(
+            'orcamento_id',
+            $orcamento->id
+        )->delete();
 
 
         $orcamento->delete();
 
 
-
         return redirect()
-
             ->route('admin.orcamentos')
-
             ->with(
-
                 'success',
-
-                'Orçamento removido!'
-
+                'Orçamento removido com sucesso!'
             );
 
-
     }
-
-
 
 }

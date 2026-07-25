@@ -7,97 +7,81 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
 <title>
 @yield('title') - EventManager
 </title>
 
 
+
 <style>
 
+
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+
+margin:0;
+
+padding:0;
+
+box-sizing:border-box;
+
+font-family:Arial, Helvetica, sans-serif;
+
 }
+
 
 
 body{
 
-    background:#f5f6fa;
+background:#f5f6fa;
 
-    display:flex;
+display:flex;
 
 }
 
 
 
+
+
 /* =====================
-   MENU LATERAL
+SIDEBAR
 ===================== */
 
 
 .sidebar{
 
-    width:250px;
 
-    height:100vh;
+width:270px;
 
-    background:#1e293b;
+height:100vh;
 
-    color:white;
+background:#1e293b;
 
-    padding:25px;
+color:white;
 
-    position:fixed;
+padding:25px;
 
-    overflow-y:auto;
+position:fixed;
+
+overflow-y:auto;
+
 
 }
+
 
 
 
 .logo{
 
-    font-size:24px;
 
-    font-weight:bold;
+font-size:22px;
 
-    margin-bottom:40px;
+font-weight:bold;
 
-    text-align:center;
+text-align:center;
 
-}
+margin-bottom:25px;
 
-
-
-.sidebar a{
-
-    display:block;
-
-    color:#cbd5e1;
-
-    text-decoration:none;
-
-    padding:14px;
-
-    margin-bottom:10px;
-
-    border-radius:8px;
-
-    transition:0.3s;
-
-}
-
-
-
-.sidebar a:hover{
-
-    background:#334155;
-
-    color:white;
-
-    transform:translateX(5px);
 
 }
 
@@ -106,17 +90,307 @@ body{
 
 
 /* =====================
-   CONTEÚDO
+USUARIO
+===================== */
+
+
+
+.user-panel{
+
+
+background:#334155;
+
+padding:15px;
+
+border-radius:15px;
+
+margin-bottom:25px;
+
+
+}
+
+
+
+
+.user-header{
+
+
+display:flex;
+
+align-items:center;
+
+gap:12px;
+
+
+}
+
+
+
+
+
+.avatar{
+
+
+width:55px;
+
+height:55px;
+
+border-radius:50%;
+
+background:#2563eb;
+
+overflow:hidden;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+flex-shrink:0;
+
+
+}
+
+
+
+
+.avatar img{
+
+
+width:100%;
+
+height:100%;
+
+object-fit:cover;
+
+
+}
+
+
+
+.avatar span{
+
+
+font-size:24px;
+
+font-weight:bold;
+
+color:white;
+
+
+}
+
+
+
+
+
+.user-data{
+
+
+overflow:hidden;
+
+
+}
+
+
+
+.user-data h3{
+
+
+font-size:16px;
+
+margin-bottom:5px;
+
+
+}
+
+
+
+.user-data p{
+
+
+font-size:12px;
+
+color:#cbd5e1;
+
+overflow:hidden;
+
+text-overflow:ellipsis;
+
+white-space:nowrap;
+
+max-width:150px;
+
+
+}
+
+
+
+
+
+/* BOTÕES DA CONTA */
+
+
+.account-buttons{
+
+
+margin-top:15px;
+
+
+}
+
+
+
+
+.account-buttons a,
+.account-buttons button{
+
+
+display:block;
+
+width:100%;
+
+padding:10px;
+
+border-radius:8px;
+
+border:none;
+
+margin-top:8px;
+
+text-align:center;
+
+text-decoration:none;
+
+cursor:pointer;
+
+font-size:14px;
+
+
+}
+
+
+
+
+
+.profile-btn{
+
+
+background:#475569;
+
+color:white;
+
+
+}
+
+
+
+
+.change-btn{
+
+
+background:#2563eb;
+
+color:white;
+
+
+}
+
+
+
+
+.logout-btn{
+
+
+background:#dc2626;
+
+color:white;
+
+
+}
+
+
+
+
+
+.profile-btn:hover,
+.change-btn:hover,
+.logout-btn:hover{
+
+
+opacity:.85;
+
+
+}
+
+
+
+
+
+
+
+/* =====================
+MENU
+===================== */
+
+
+
+.sidebar a.menu{
+
+
+display:block;
+
+color:#cbd5e1;
+
+text-decoration:none;
+
+padding:13px;
+
+margin-bottom:8px;
+
+border-radius:8px;
+
+transition:.3s;
+
+
+}
+
+
+
+
+.sidebar a.menu:hover{
+
+
+background:#334155;
+
+color:white;
+
+transform:translateX(5px);
+
+
+}
+
+
+
+
+
+
+
+/* =====================
+CONTEUDO
 ===================== */
 
 
 .content{
 
-    margin-left:250px;
 
-    padding:30px;
+margin-left:270px;
 
-    width:100%;
+padding:30px;
+
+width:100%;
+
 
 }
 
@@ -126,15 +400,17 @@ body{
 
 .header{
 
-    background:white;
 
-    padding:20px;
+background:white;
 
-    border-radius:12px;
+padding:20px;
 
-    margin-bottom:25px;
+border-radius:12px;
 
-    box-shadow:0 5px 15px #0001;
+margin-bottom:25px;
+
+box-shadow:0 5px 15px #0001;
+
 
 }
 
@@ -142,42 +418,47 @@ body{
 
 
 
-/* =====================
-   CARDS
-===================== */
+
+/* CARDS */
 
 
 .cards{
 
-    display:grid;
 
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+display:grid;
 
-    gap:20px;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+
+gap:20px;
+
 
 }
+
 
 
 
 .card{
 
-    background:white;
 
-    padding:25px;
+background:white;
 
-    border-radius:15px;
+padding:25px;
 
-    box-shadow:0 5px 15px #0001;
+border-radius:15px;
+
+box-shadow:0 5px 15px #0001;
+
 
 }
+
 
 
 
 .card h2{
 
-    font-size:35px;
 
-    margin-bottom:10px;
+font-size:35px;
+
 
 }
 
@@ -185,40 +466,47 @@ body{
 
 
 
-/* =====================
-   TABELAS
-===================== */
+
+/* TABELAS */
 
 
 .table-box{
 
-    background:white;
 
-    padding:25px;
+background:white;
 
-    border-radius:15px;
+padding:25px;
 
-    box-shadow:0 5px 15px #0001;
+border-radius:15px;
+
+box-shadow:0 5px 15px #0001;
+
 
 }
+
 
 
 
 table{
 
-    width:100%;
 
-    border-collapse:collapse;
+width:100%;
+
+border-collapse:collapse;
+
 
 }
 
 
 
+
 th{
 
-    background:#1e293b;
 
-    color:white;
+background:#1e293b;
+
+color:white;
+
 
 }
 
@@ -226,17 +514,11 @@ th{
 
 td,th{
 
-    padding:12px;
 
-    text-align:left;
+padding:12px;
 
-}
+text-align:left;
 
-
-
-tr:nth-child(even){
-
-    background:#f1f5f9;
 
 }
 
@@ -244,38 +526,29 @@ tr:nth-child(even){
 
 
 
-/* =====================
-   BOTÕES
-===================== */
+
+/* BOTÕES */
 
 
 .btn{
 
-    display:inline-block;
 
-    padding:10px 18px;
+display:inline-block;
 
-    background:#2563eb;
+padding:10px 18px;
 
-    color:white;
+background:#2563eb;
 
-    border-radius:8px;
+color:white;
 
-    text-decoration:none;
+border-radius:8px;
 
-    margin-bottom:15px;
+text-decoration:none;
 
-    border:none;
+border:none;
 
-    cursor:pointer;
+cursor:pointer;
 
-}
-
-
-
-.btn:hover{
-
-    background:#1d4ed8;
 
 }
 
@@ -284,7 +557,7 @@ tr:nth-child(even){
 
 
 /* =====================
-   MOBILE
+MOBILE
 ===================== */
 
 
@@ -293,49 +566,55 @@ tr:nth-child(even){
 
 .sidebar{
 
-    width:80px;
 
-    padding:15px;
+width:80px;
+
+padding:15px;
+
 
 }
+
 
 
 .logo{
 
-    font-size:18px;
+
+font-size:14px;
+
 
 }
 
 
 
-.sidebar a{
 
-    font-size:0;
-
-    text-align:center;
-
-}
+.user-data,
+.account-buttons a,
+.account-buttons button{
 
 
+font-size:0;
 
-.sidebar a::first-letter{
-
-    font-size:25px;
 
 }
+
 
 
 
 .content{
 
-    margin-left:80px;
 
-    padding:15px;
+margin-left:80px;
+
+padding:15px;
+
 
 }
 
 
+
 }
+
+
 
 
 
@@ -346,7 +625,9 @@ tr:nth-child(even){
 
 
 
+
 <body>
+
 
 
 
@@ -357,71 +638,210 @@ tr:nth-child(even){
 
 <div class="logo">
 
-🎉 Sistema De Eventos
+🎉 EventManager
 
 </div>
 
 
 
 
-<a href="/admin">
+
+
+
+<div class="user-panel">
+
+
+
+<div class="user-header">
+
+
+
+<div class="avatar">
+
+
+
+@if(auth()->user()->foto)
+
+
+<img 
+src="{{ asset('storage/'.auth()->user()->foto) }}"
+alt="Foto">
+
+
+@else
+
+
+<span>
+
+{{ strtoupper(substr(auth()->user()->name,0,1)) }}
+
+</span>
+
+
+@endif
+
+
+
+</div>
+
+
+
+
+
+
+<div class="user-data">
+
+
+<h3>
+
+{{ auth()->user()->name }}
+
+</h3>
+
+
+<p>
+
+{{ auth()->user()->email }}
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="account-buttons">
+
+
+<a href="{{ route('perfil') }}"
+class="profile-btn">
+
+👤 Minha Conta
+
+</a>
+
+
+
+
+<a href="{{ route('login') }}"
+class="change-btn">
+
+🔄 Trocar Conta
+
+</a>
+
+
+
+
+
+
+<form method="POST"
+action="{{ route('logout') }}">
+
+
+@csrf
+
+
+<button class="logout-btn">
+
+🚪 Sair
+
+</button>
+
+
+</form>
+
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<a class="menu" href="/admin">
+
 📊 Dashboard
+
 </a>
 
 
 
+<a class="menu" href="/admin/categorias">
 
-<a href="/admin/categorias">
 📂 Categorias
+
 </a>
 
 
 
-<a href="/admin/clientes">
+<a class="menu" href="/admin/clientes">
+
 👥 Clientes
+
 </a>
 
 
 
+<a class="menu" href="/admin/eventos">
 
-<a href="/admin/eventos">
 📅 Eventos
+
 </a>
 
 
 
+<a class="menu" href="/admin/eventos/lista">
 
-<a href="/admin/eventos/lista">
 📋 Lista de Eventos
+
 </a>
 
 
 
+<a class="menu" href="/admin/servicos">
 
-<a href="/admin/servicos">
 📦 Serviços
+
 </a>
 
 
 
+<a class="menu" href="/admin/categorias-eventos">
 
-
-
-<a href="/admin/categorias-eventos">
 🎉 Tipos de Evento
+
 </a>
 
 
 
+<a class="menu" href="/admin/orcamentos">
 
-<a href="/admin/orcamentos">
 💰 Orçamentos
-</a>
 
+</a>
 
 
 
 </div>
+
 
 
 
@@ -435,6 +855,7 @@ tr:nth-child(even){
 
 
 </div>
+
 
 
 
