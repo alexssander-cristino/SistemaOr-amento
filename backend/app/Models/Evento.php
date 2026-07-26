@@ -3,43 +3,68 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Evento extends Model
 {
-    use HasFactory;
 
 
-    protected $fillable = [
+protected $fillable = [
 
-        'cliente_id',
-        'categoria_evento_id',
-        'data',
-        'hora',
-        'local',
-        'quantidade_convidados',
-        'observacoes'
+    'cliente_id',
+    'tipo',
+    'data',
+    'hora',
+    'local',
+    'quantidade_convidados',
+    'observacoes'
 
-    ];
+];
 
 
 
-    public function cliente()
+
+
+public function cliente()
 {
-    return $this->belongsTo(Cliente::class);
+
+return $this->belongsTo(
+    Cliente::class
+);
+
 }
 
 
-public function categoria()
-{
-    return $this->belongsTo(CategoriaEvento::class);
-}
+
+
 
 
 public function servicos()
 {
-    return $this->hasMany(EventoServico::class);
+
+return $this->belongsToMany(
+
+    Servico::class,
+
+    'evento_servicos'
+
+);
+
 }
+
+
+
+
+
+
+public function orcamento()
+{
+
+return $this->hasOne(
+    Orcamento::class
+);
+
+}
+
 
 
 }

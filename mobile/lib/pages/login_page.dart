@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
 
-
 class LoginPage extends StatefulWidget {
-
 
   const LoginPage({super.key});
 
@@ -12,360 +10,290 @@ class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
 
-
 }
-
 
 
 
 class _LoginPageState extends State<LoginPage>{
 
 
+  final emailController = TextEditingController();
 
-final emailController = TextEditingController();
-
-final senhaController = TextEditingController();
-
+  final senhaController = TextEditingController();
 
 
 
-
-Future<void> login() async{
-
-
-if(emailController.text.isEmpty ||
-   senhaController.text.isEmpty){
+  Future<void> login() async{
 
 
-
-ScaffoldMessenger.of(context).showSnackBar(
-
-const SnackBar(
-
-content:Text(
-"Preencha todos os campos"
-)
-
-)
-
-);
+    if(emailController.text.isEmpty ||
+       senhaController.text.isEmpty){
 
 
-return;
+      ScaffoldMessenger.of(context).showSnackBar(
+
+        const SnackBar(
+
+          content: Text(
+            "Preencha todos os campos"
+          )
+
+        )
+
+      );
 
 
-}
+      return;
+
+    }
 
 
 
 
-String? token = await ApiService.login(
 
-
-emailController.text,
-
-
-senhaController.text
-
-
+    final token = await ApiService.login(
+  emailController.text.trim(),
+  senhaController.text.trim(),
 );
 
 
 
 
 
-if(token != null){
+    if(token != null){
 
 
+      Navigator.pushReplacementNamed(
 
-Navigator.pushReplacementNamed(
+        context,
 
-context,
+        '/home'
 
-'/home'
+      );
 
-);
 
+    }else{
 
 
-}else{
+      ScaffoldMessenger.of(context).showSnackBar(
 
+        const SnackBar(
 
+          content: Text(
+            "Email ou senha inválidos"
+          )
 
-ScaffoldMessenger.of(context).showSnackBar(
+        )
 
-const SnackBar(
+      );
 
-content:Text(
-"Email ou senha inválidos"
-)
 
-)
+    }
 
-);
 
+  }
 
-}
 
 
 
 
-}
+  @override
+  Widget build(BuildContext context){
 
 
+    return Scaffold(
 
 
+      backgroundColor: Colors.grey[100],
 
 
 
-@override
-Widget build(BuildContext context){
+      body: Center(
 
 
-return Scaffold(
+        child: Container(
 
 
-backgroundColor:Colors.grey[100],
+          width:350,
 
 
+          padding: const EdgeInsets.all(25),
 
-body:Center(
 
 
-child:Container(
+          decoration: BoxDecoration(
 
+            color: Colors.white,
 
-width:350,
+            borderRadius: BorderRadius.circular(20),
 
 
-padding:const EdgeInsets.all(25),
+            boxShadow:[
 
+              BoxShadow(
 
+                blurRadius:10,
 
-decoration:BoxDecoration(
+                color: Colors.black12
 
+              )
 
-color:Colors.white,
+            ]
 
+          ),
 
-borderRadius:BorderRadius.circular(20),
 
 
 
-boxShadow:[
+          child: Column(
 
 
-BoxShadow(
+            mainAxisSize: MainAxisSize.min,
 
-blurRadius:10,
 
-color:Colors.black12
+            children:[
 
-)
 
 
-]
+              const Text(
 
+                "🎉 EventManager",
 
-),
+                style: TextStyle(
 
+                  fontSize:25,
 
+                  fontWeight:FontWeight.bold
 
+                ),
 
-child:Column(
+              ),
 
 
 
-mainAxisSize:MainAxisSize.min,
+              const SizedBox(height:30),
 
 
 
-children:[
 
+              TextField(
 
+                controller: emailController,
 
+                decoration: const InputDecoration(
 
+                  labelText:"Email",
 
-const Text(
+                  border:OutlineInputBorder()
 
+                ),
 
-"🎉 EventManager",
+              ),
 
 
-style:TextStyle(
 
 
-fontSize:25,
+              const SizedBox(height:15),
 
-fontWeight:FontWeight.bold
 
 
-),
 
+              TextField(
 
-),
+                controller: senhaController,
 
+                obscureText:true,
 
+                decoration: const InputDecoration(
 
+                  labelText:"Senha",
 
+                  border:OutlineInputBorder()
 
-const SizedBox(height:30),
+                ),
 
+              ),
 
 
 
 
+              const SizedBox(height:20),
 
-TextField(
 
 
-controller:emailController,
 
 
-decoration:const InputDecoration(
+              SizedBox(
 
+                width:double.infinity,
 
-labelText:"Email",
 
-border:OutlineInputBorder()
+                child:ElevatedButton(
 
 
-),
+                  onPressed:login,
 
 
-),
+                  child:const Text(
 
+                    "Entrar"
 
+                  )
 
+                )
 
+              ),
 
-const SizedBox(height:15),
 
 
 
 
 
-TextField(
+              TextButton(
 
 
-controller:senhaController,
+                onPressed:(){
 
 
-obscureText:true,
+                  Navigator.pushNamed(
 
+                    context,
 
+                    '/register'
 
-decoration:const InputDecoration(
+                  );
 
 
-labelText:"Senha",
+                },
 
-border:OutlineInputBorder()
 
+                child:const Text(
 
-),
+                  "Criar nova conta"
 
+                )
 
 
-),
+              )
 
 
 
+            ]
 
 
+          )
 
-const SizedBox(height:20),
 
+        )
 
 
+      )
 
 
+    );
 
-SizedBox(
 
-
-width:double.infinity,
-
-
-
-child:ElevatedButton(
-
-
-onPressed:login,
-
-
-child:const Text(
-
-"Entrar"
-
-)
-
-
-),
-
-
-
-),
-
-
-
-
-
-
-
-TextButton(
-
-
-onPressed:(){
-
-
-Navigator.pushNamed(
-
-context,
-
-'/register'
-
-);
-
-
-},
-
-
-
-child:const Text(
-
-"Criar nova conta"
-
-)
-
-
-
-)
-
-
-
-
-
-]
-
-
-)
-
-
-
-)
-
-
-
-)
-
-
-
-);
-
-
-
-}
+  }
 
 
 

@@ -3,57 +3,69 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+
 
 class Orcamento extends Model
 {
-    use HasFactory;
-
-
-    protected $fillable = [
-
-        'evento_id',
-        'desconto',
-        'valor_total',
-        'status'
-
-    ];
 
 
 
-    public function evento()
-    {
-
-        return $this->belongsTo(Evento::class);
-
-    }
+protected $fillable=[
 
 
+'evento_id',
 
-    public function itens()
-    {
+'valor_total',
 
-        return $this->hasMany(OrcamentoServico::class);
+'status',
 
-    }
+'desconto'
+
+
+];
 
 
 
-    public function pagamentos()
-    {
-
-        return $this->hasMany(Pagamento::class);
-
-    }
 
 
 
-    // Soma os valores dos itens automaticamente
-    public function calcularTotal()
-    {
+public function evento()
+{
 
-        return $this->itens->sum('subtotal');
 
-    }
+return $this->belongsTo(
+
+Evento::class
+
+);
+
+
+}
+
+
+
+
+
+
+public function servicos()
+{
+
+
+return $this->belongsToMany(
+
+Servico::class,
+
+'orcamento_servicos'
+
+);
+
+
+
+}
+
+
+
+
 
 }
