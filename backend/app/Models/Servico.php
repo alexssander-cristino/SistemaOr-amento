@@ -3,83 +3,81 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class Servico extends Model
 {
 
-
-protected $fillable=[
-
-
-'nome',
-
-'descricao',
-
-'valor',
-
-'categoria_id'
+    use HasFactory;
 
 
-];
+
+    protected $fillable = [
+
+        'nome',
+        'descricao',
+        'valor',
+        'categoria_id'
+
+    ];
 
 
 
 
+    public function categoria()
+    {
 
+        return $this->belongsTo(
 
-public function categoria()
-{
+            CategoriaServico::class,
 
+            'categoria_id'
 
-return $this->belongsTo(
-CategoriaServico::class
-);
+        );
 
-
-}
+    }
 
 
 
 
 
+    public function eventos()
+    {
 
-public function eventos()
-{
+        return $this->belongsToMany(
 
+            Evento::class,
 
-return $this->belongsToMany(
+            'evento_servicos'
 
-Evento::class,
+        )
+        ->withPivot([
 
-'evento_servicos'
+            'quantidade',
+            'valor_unitario',
+            'subtotal'
 
-);
+        ]);
 
-
-}
-
-
-
-
-
-
-public function orcamentos()
-{
+    }
 
 
-return $this->belongsToMany(
-
-Orcamento::class,
-
-'orcamento_servicos'
-
-);
 
 
-}
 
+    public function orcamentos()
+    {
 
+        return $this->belongsToMany(
+
+            Orcamento::class,
+
+            'orcamento_servicos'
+
+        );
+
+    }
 
 
 }

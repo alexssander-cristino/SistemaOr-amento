@@ -6,8 +6,10 @@
 
 <meta charset="UTF-8">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>
-Login
+Login - EventManager
 </title>
 
 
@@ -39,6 +41,8 @@ body{
 
     justify-content:center;
 
+    padding:20px;
+
     background:linear-gradient(
         135deg,
         #2563eb,
@@ -50,6 +54,9 @@ body{
 
 
 
+/* =====================
+CAIXA LOGIN
+===================== */
 
 
 .box{
@@ -57,7 +64,9 @@ body{
 
     background:white;
 
-    width:380px;
+    width:100%;
+
+    max-width:380px;
 
     padding:35px;
 
@@ -71,6 +80,7 @@ body{
 
 
 }
+
 
 
 
@@ -101,6 +111,12 @@ body{
 
 
 
+
+/* =====================
+LOGO
+===================== */
+
+
 .logo{
 
 
@@ -112,6 +128,7 @@ body{
 
 
 }
+
 
 
 
@@ -135,7 +152,10 @@ h2{
 
 
 
-/* MENSAGENS */
+
+/* =====================
+MENSAGENS
+===================== */
 
 
 .sucesso{
@@ -155,6 +175,7 @@ h2{
 
 
 }
+
 
 
 
@@ -181,7 +202,35 @@ h2{
 
 
 
-/* INPUTS */
+.erro p{
+
+    margin-bottom:5px;
+
+}
+
+
+
+
+
+
+
+/* =====================
+FORMULARIO
+===================== */
+
+
+form{
+
+
+    width:100%;
+
+
+}
+
+
+
+
+
 
 
 input{
@@ -209,6 +258,7 @@ input{
 
 
 
+
 input:focus{
 
 
@@ -226,9 +276,9 @@ input:focus{
 
 
 
-
-
-/* BOTÃO */
+/* =====================
+BOTAO
+===================== */
 
 
 button{
@@ -260,7 +310,6 @@ button{
 
 
 
-
 button:hover{
 
 
@@ -276,6 +325,10 @@ button:hover{
 
 
 
+
+/* =====================
+LINK
+===================== */
 
 
 a{
@@ -298,6 +351,7 @@ a{
 
 
 
+
 a:hover{
 
 
@@ -310,6 +364,227 @@ a:hover{
 
 
 
+
+/* =====================
+TABLET
+===================== */
+
+
+@media(max-width:768px){
+
+
+.box{
+
+
+    max-width:400px;
+
+    padding:30px;
+
+
+}
+
+
+
+.logo{
+
+
+    font-size:40px;
+
+
+}
+
+
+
+h2{
+
+
+    font-size:25px;
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+/* =====================
+CELULAR
+===================== */
+
+
+@media(max-width:480px){
+
+
+
+body{
+
+
+    padding:15px;
+
+
+}
+
+
+
+.box{
+
+
+    width:100%;
+
+    padding:25px;
+
+    border-radius:15px;
+
+
+}
+
+
+
+.logo{
+
+
+    font-size:35px;
+
+
+}
+
+
+
+h2{
+
+
+    font-size:23px;
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+input{
+
+
+    padding:15px;
+
+    font-size:16px;
+
+
+}
+
+
+
+button{
+
+
+    padding:15px;
+
+    font-size:16px;
+
+
+}
+
+
+
+.sucesso,
+.erro{
+
+
+    font-size:13px;
+
+
+}
+
+
+
+a{
+
+
+    font-size:14px;
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+/* =====================
+CELULAR PEQUENO
+===================== */
+
+
+@media(max-width:360px){
+
+
+
+.box{
+
+
+    padding:20px;
+
+
+}
+
+
+
+.logo{
+
+
+    font-size:32px;
+
+
+}
+
+
+
+h2{
+
+
+    font-size:21px;
+
+
+}
+
+
+
+input{
+
+
+    padding:13px;
+
+
+}
+
+
+
+button{
+
+
+    padding:13px;
+
+
+}
+
+
+
+}
+
+
+
+
 </style>
 
 
@@ -318,6 +593,7 @@ a:hover{
 
 
 <body>
+
 
 
 
@@ -338,11 +614,14 @@ a:hover{
 
 
 
+
+
 <h2>
 
 Login
 
 </h2>
+
 
 
 
@@ -381,15 +660,21 @@ Login
 
 <p>
 
+
 @if($erro == 'These credentials do not match our records.')
+
 
 Email ou senha incorretos.
 
+
 @else
+
 
 {{ $erro }}
 
+
 @endif
+
 
 </p>
 
@@ -456,6 +741,7 @@ required
 
 
 
+
 <button>
 
 Entrar no sistema
@@ -475,6 +761,7 @@ Entrar no sistema
 
 
 
+
 <a href="{{ route('register') }}">
 
 Criar novo usuário
@@ -485,7 +772,11 @@ Criar novo usuário
 
 
 
+
+
 </div>
+
+
 
 
 

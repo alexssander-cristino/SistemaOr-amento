@@ -7,186 +7,187 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 
-
-
 class ApiService {
 
 
+  static const String baseUrl =
+      "http://192.168.1.36:8000/api";
 
-static const String baseUrl =
-"http://192.168.100.166:8000/api";
 
 
 
 
+  // ================= TOKEN =================
 
 
-// =======================
-// TOKEN
-// =======================
+  static Future<String?> getToken() async {
 
+    final prefs =
+    await SharedPreferences.getInstance();
 
-static Future<String?> getToken() async{
 
+    return prefs.getString("token");
 
-final prefs =
-await SharedPreferences.getInstance();
+  }
 
 
-return prefs.getString(
-"token"
-);
 
 
-}
 
+  static Future<void> salvarToken(String token) async {
 
 
+    final prefs =
+    await SharedPreferences.getInstance();
 
 
+    await prefs.setString(
+        "token",
+        token
+    );
 
 
-static Future<Map<String,String>> headers() async{
+  }
 
 
-String? token =
-await getToken();
 
 
 
-return {
 
 
-"Accept":
-"application/json",
+  static Future<Map<String,String>> headers() async {
 
 
-"Content-Type":
-"application/json",
+    final token =
+    await getToken();
 
 
-"Authorization":
-"Bearer $token"
 
+    return {
 
 
-};
+      "Accept":
+      "application/json",
 
 
+      "Content-Type":
+      "application/json",
 
-}
 
+      if(token != null)
 
+        "Authorization":
+        "Bearer $token"
 
 
+    };
 
 
+  }
 
 
 
-// =======================
-// LOGIN
-// =======================
 
 
-static Future<String?> login(
-String email,
-String senha
-) async{
 
 
 
-final response =
-await http.post(
+  // ================= LOGIN =================
 
 
+  static Future<bool> login(
+      String email,
+      String senha
+      ) async {
 
-Uri.parse(
-"$baseUrl/login"
-),
 
 
+    final response =
+    await http.post(
 
-headers:{
 
+      Uri.parse(
+          "$baseUrl/login"
+      ),
 
-"Accept":
-"application/json",
 
 
-"Content-Type":
-"application/json"
+      headers:{
 
 
+        "Accept":
+        "application/json",
 
-},
 
+        "Content-Type":
+        "application/json"
 
 
-body:
+      },
 
-jsonEncode({
 
 
-"email":email,
+      body:jsonEncode({
 
 
-"password":senha
+        "email":
+        email,
 
 
+        "password":
+        senha
 
-})
 
+      }),
 
 
-);
 
+    );
 
 
 
 
 
-if(response.statusCode == 200){
+    print("LOGIN");
+    print(response.body);
 
 
-final dados =
-jsonDecode(response.body);
 
 
 
-final token =
-dados['token'];
+    if(response.statusCode == 200){
 
 
+      final dados =
+      jsonDecode(response.body);
 
-final prefs =
-await SharedPreferences.getInstance();
 
 
+      if(dados["token"] != null){
 
-await prefs.setString(
 
-"token",
+        await salvarToken(
+            dados["token"]
+        );
 
-token
 
-);
+        return true;
 
 
+      }
 
-return token;
 
 
+    }
 
-}
 
 
 
-return null;
+    return false;
 
 
 
-}
+  }
 
 
 
@@ -195,529 +196,511 @@ return null;
 
 
 
+  // ================= REGISTER =================
 
-// =======================
-// REGISTRO
-// =======================
 
+  static Future<bool> register(
+      String nome,
+      String email,
+      String senha
+      ) async {
 
-static Future<bool> register(
-String nome,
-String email,
-String senha
-) async{
 
 
-final response =
-await http.post(
+    final response =
+    await http.post(
 
 
 
-Uri.parse(
-"$baseUrl/register"
-),
+      Uri.parse(
+          "$baseUrl/register"
+      ),
 
 
 
-headers:{
+      headers:{
 
 
-"Accept":
-"application/json",
+        "Accept":
+        "application/json",
 
 
-"Content-Type":
-"application/json"
+        "Content-Type":
+        "application/json"
 
 
-},
+      },
 
 
 
-body:
+      body:jsonEncode({
 
-jsonEncode({
 
 
+        "name":
+        nome,
 
-"name":nome,
 
+        "email":
+        email,
 
-"email":email,
 
+        "password":
+        senha,
 
-"password":senha,
 
+        "password_confirmation":
+        senha
 
-"password_confirmation":senha
 
 
+      }),
 
-})
 
 
+    );
 
-);
 
 
 
-return response.statusCode == 200 ||
-response.statusCode == 201;
+    print("REGISTER STATUS");
+    print(response.statusCode);
 
 
+    print("REGISTER BODY");
+    print(response.body);
 
-}
 
 
 
+    return response.statusCode == 200 ||
+        response.statusCode == 201;
 
 
 
+  }
 
 
 
-// =======================
-// USUARIO
-// =======================
 
 
-static Future<dynamic> usuario() async{
 
 
-final response =
-await http.get(
 
 
+  // ================= GET =================
 
-Uri.parse(
-"$baseUrl/usuario"
-),
 
 
+  static Future<dynamic> get(
+      String rota
+      ) async {
 
-headers:
-await headers()
 
 
+    final response =
+    await http.get(
 
-);
 
 
+      Uri.parse(
+          "$baseUrl/$rota"
+      ),
 
-if(response.statusCode == 200){
 
 
-return jsonDecode(
-response.body
-);
+      headers:
+      await headers(),
 
 
-}
 
+    );
 
-return null;
 
 
-}
 
 
+    print("====================");
+    print("GET:");
+    print(rota);
 
+    print("STATUS:");
+    print(response.statusCode);
 
+    print("BODY:");
+    print(response.body);
 
+    print("====================");
 
 
 
 
 
 
-// =======================
-// ATUALIZAR PERFIL
-// =======================
+    if(response.statusCode == 200){
 
 
-static Future<bool> atualizarPerfil(
-Map dados
-) async{
 
+      final dados =
+      jsonDecode(response.body);
 
 
-final response =
-await http.put(
 
 
 
-Uri.parse(
-"$baseUrl/usuario"
-),
+      if(dados is Map &&
+          dados.containsKey("data")){
 
 
+        return dados["data"];
 
-headers:
-await headers(),
 
+      }
 
 
-body:
-jsonEncode(dados)
 
 
 
-);
+      return dados;
 
 
 
-return response.statusCode == 200;
+    }
 
 
 
-}
 
 
 
 
+    throw Exception(
 
+        "Erro GET $rota\n${response.body}"
 
+    );
 
 
 
-// =======================
-// FOTO PERFIL
-// =======================
+  }
 
 
-static Future<bool> enviarFoto(
-File foto
-) async{
 
 
 
-String? token =
-await getToken();
 
 
 
-var request =
-http.MultipartRequest(
 
+  // ================= POST =================
 
-"POST",
 
+  static Future<dynamic> post(
+      String rota,
+      Map dados
+      ) async {
 
-Uri.parse(
-"$baseUrl/usuario/foto"
-)
 
 
-);
+    final response =
+    await http.post(
 
 
 
-request.headers.addAll({
+      Uri.parse(
+          "$baseUrl/$rota"
+      ),
 
 
-"Authorization":
-"Bearer $token",
 
+      headers:
+      await headers(),
 
-"Accept":
-"application/json"
 
 
-});
+      body:
+      jsonEncode(dados)
 
 
 
+    );
 
 
 
-request.files.add(
 
+    print("POST $rota");
+    print(response.body);
 
 
-await http.MultipartFile.fromPath(
 
 
 
-"foto",
 
+    if(response.statusCode == 200 ||
+        response.statusCode == 201){
 
 
-foto.path,
 
+      return jsonDecode(
+          response.body
+      );
 
 
-contentType:
 
-MediaType(
+    }
 
-"image",
 
-"jpeg"
 
-)
 
 
 
-)
+    throw Exception(
+        response.body
+    );
 
 
 
-);
+  }
 
 
 
 
 
-final response =
-await request.send();
 
 
 
 
-return response.statusCode == 200;
+  // ================= PUT =================
 
 
 
-}
+  static Future<dynamic> put(
+      String rota,
+      Map dados
+      ) async {
 
 
 
+    final response =
+    await http.put(
 
 
 
+      Uri.parse(
+          "$baseUrl/$rota"
+      ),
 
 
 
+      headers:
+      await headers(),
 
 
-// =======================
-// GET GENERICO
-// =======================
 
+      body:
+      jsonEncode(dados)
 
-static Future<List<dynamic>> getDados(
-String rota
-) async{
 
 
+    );
 
-final response =
-await http.get(
 
 
 
-Uri.parse(
-"$baseUrl/$rota"
-),
 
+    print("PUT $rota");
+    print(response.body);
 
 
-headers:
-await headers()
 
 
 
-);
 
+    if(response.statusCode == 200 ||
+        response.statusCode == 201 ||
+        response.statusCode == 204){
 
 
 
+      if(response.body.isEmpty){
 
-if(response.statusCode == 200){
+        return true;
 
+      }
 
-return jsonDecode(
-response.body
-);
 
 
-}
+      return jsonDecode(
+          response.body
+      );
 
 
 
-return [];
+    }
 
 
 
-}
 
 
+    throw Exception(
+        response.body
+    );
 
 
 
+  }
 
 
 
 
 
 
-// =======================
-// POST
-// =======================
 
 
-static Future<bool> criar(
-String rota,
-Map dados
-) async{
 
+  // ================= DELETE =================
 
 
-final response =
-await http.post(
 
+  static Future<bool> delete(
+      String rota
+      ) async {
 
 
-Uri.parse(
-"$baseUrl/$rota"
-),
 
+    final response =
+    await http.delete(
 
 
-headers:
-await headers(),
 
+      Uri.parse(
+          "$baseUrl/$rota"
+      ),
 
 
-body:
-jsonEncode(dados)
 
+      headers:
+      await headers(),
 
 
-);
 
+    );
 
 
-return response.statusCode == 200 ||
-response.statusCode == 201;
 
 
 
-}
+    print("DELETE $rota");
+    print(response.body);
 
 
 
 
+    return response.statusCode == 200 ||
+        response.statusCode == 204;
 
 
 
+  }
 
 
-// =======================
-// PUT
-// =======================
 
 
-static Future<bool> atualizar(
-String rota,
-int id,
-Map dados
-) async{
 
 
-final response =
-await http.put(
 
 
 
-Uri.parse(
-"$baseUrl/$rota/$id"
-),
+  // ================= LISTA PADRÃO =================
 
 
 
-headers:
-await headers(),
+  static Future<List<dynamic>> lista(
+      String rota
+      ) async {
 
 
 
-body:
-jsonEncode(dados)
+    final dados =
+    await get(rota);
 
 
 
-);
 
 
+    if(dados is List){
 
-return response.statusCode == 200;
+      return dados;
 
+    }
 
 
-}
 
 
 
+    if(dados is Map){
 
 
 
+      if(dados["data"] is List){
 
+        return dados["data"];
 
+      }
 
-// =======================
-// DELETE
-// =======================
 
 
-static Future<bool> deletar(
-String rota,
-int id
-) async{
 
+      if(dados[rota] is List){
 
+        return dados[rota];
 
-final response =
-await http.delete(
+      }
 
 
 
-Uri.parse(
-"$baseUrl/$rota/$id"
-),
 
+    }
 
 
-headers:
-await headers()
 
 
+    return [];
 
-);
 
 
+  }
 
-return response.statusCode == 200 ||
-response.statusCode == 204;
 
 
 
-}
 
 
 
 
 
+  // ================= DADOS =================
 
 
 
+  static Future<List<dynamic>> clientes() async {
 
+    return await lista(
+        "clientes"
+    );
 
+  }
 
-// =======================
-// CLIENTES
-// =======================
 
 
-static Future<List<dynamic>> clientes()
-async{
 
 
-return await getDados(
-"clientes"
-);
+  static Future<List<dynamic>> eventos() async {
 
+    return await lista(
+        "eventos"
+    );
 
-}
+  }
 
 
 
@@ -725,241 +708,254 @@ return await getDados(
 
 
 
+  static Future<List<dynamic>> categorias() async {
 
+    return await lista(
+        "categorias"
+    );
 
-// =======================
-// EVENTOS
-// =======================
+  }
 
 
-static Future<List<dynamic>> eventos()
-async{
 
 
-return await getDados(
-"eventos"
-);
 
 
-}
 
+  static Future<List<dynamic>> servicos() async {
 
+    return await lista(
+        "servicos"
+    );
 
+  }
 
 
 
 
 
 
-// =======================
-// SERVICOS
-// =======================
 
+  static Future<List<dynamic>> orcamentos() async {
 
-static Future<List<dynamic>> servicos()
-async{
+    return await lista(
+        "orcamentos"
+    );
 
+  }
 
-return await getDados(
-"servicos"
-);
 
 
-}
 
 
 
 
+  static Future<List<dynamic>> pagamentos() async {
 
+    return await lista(
+        "pagamentos"
+    );
 
+  }
 
 
 
-// =======================
-// CATEGORIAS
-// =======================
 
 
-static Future<List<dynamic>> categorias()
-async{
 
 
-return await getDados(
-"categorias"
-);
 
 
-}
+  // ================= USUARIO =================
 
 
 
+  static Future<dynamic> usuario() async {
 
 
+    return await get(
+        "usuario"
+    );
 
 
+  }
 
 
-// =======================
-// ORCAMENTOS
-// =======================
 
 
-static Future<List<dynamic>> orcamentos()
-async{
 
 
-return await getDados(
-"orcamentos"
-);
+  static Future<bool> atualizarPerfil(
+      Map dados
+      ) async {
 
 
-}
 
+    await put(
+        "usuario",
+        dados
+    );
 
 
 
+    return true;
 
 
+  }
 
 
 
-// =======================
-// EVENTO + SERVICOS
-// =======================
 
 
-static Future<bool> criarEventoComServicos(
-Map dados
-) async{
 
 
-return await criar(
 
-"eventos",
 
-dados
+  // ================= FOTO =================
 
-);
 
 
+  static Future<bool> enviarFoto(
+      File foto
+      ) async {
 
-}
 
 
+    final token =
+    await getToken();
 
 
 
 
+    var request =
+    http.MultipartRequest(
 
 
+        "POST",
 
-// =======================
-// ORCAMENTO PDF
-// =======================
 
+        Uri.parse(
+            "$baseUrl/usuario/foto"
+        )
 
-static Future<dynamic> detalhesOrcamento(
-int id
-) async{
 
+    );
 
 
-final response =
-await http.get(
 
 
 
-Uri.parse(
-"$baseUrl/orcamentos/$id"
-),
+    request.headers.addAll({
 
 
 
-headers:
-await headers()
+      "Authorization":
+      "Bearer $token",
 
 
 
-);
+      "Accept":
+      "application/json"
 
 
 
-if(response.statusCode==200){
+    });
 
 
-return jsonDecode(
-response.body
-);
 
 
-}
 
 
+    request.files.add(
 
-return null;
 
 
+        await http.MultipartFile.fromPath(
 
-}
 
+            "foto",
 
 
+            foto.path,
 
 
 
+            contentType:
 
+            MediaType(
+                "image",
+                "jpeg"
+            )
 
 
-// =======================
-// LOGOUT
-// =======================
+        )
 
 
-static Future<void> logout() async{
+    );
 
 
 
-try{
 
 
-await http.post(
 
 
-Uri.parse(
-"$baseUrl/logout"
-),
+    final response =
+    await request.send();
 
 
-headers:
-await headers()
 
 
 
-);
 
+    return response.statusCode == 200;
 
 
-}catch(e){
 
+  }
 
 
-}
 
 
 
 
-final prefs =
-await SharedPreferences.getInstance();
 
 
 
-await prefs.remove(
-"token"
-);
+  // ================= LOGOUT =================
 
 
 
-}
+  static Future<void> logout() async {
+
+
+
+    try{
+
+
+      await post(
+          "logout",
+          {}
+      );
+
+
+
+    }catch(e){}
+
+
+
+
+    final prefs =
+    await SharedPreferences.getInstance();
+
+
+
+    await prefs.remove(
+        "token"
+    );
+
+
+
+  }
 
 
 

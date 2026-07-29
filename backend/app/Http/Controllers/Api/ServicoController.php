@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Evento;
+use App\Models\Servico;
 use Illuminate\Http\Request;
 
-class EventoController extends Controller
+class ServicoController extends Controller
 {
 
 
@@ -15,7 +15,7 @@ public function index()
 
 return response()->json(
 
-Evento::with('cliente')->get()
+Servico::with('categoria')->get()
 
 );
 
@@ -26,12 +26,12 @@ Evento::with('cliente')->get()
 public function store(Request $request)
 {
 
-$evento = Evento::create(
+$servico = Servico::create(
 $request->all()
 );
 
 
-return response()->json($evento,201);
+return response()->json($servico,201);
 
 }
 
@@ -41,10 +41,8 @@ public function show($id)
 {
 
 return response()->json(
-
-Evento::with('cliente')
+Servico::with('categoria')
 ->findOrFail($id)
-
 );
 
 }
@@ -54,15 +52,15 @@ Evento::with('cliente')
 public function update(Request $request,$id)
 {
 
-$evento = Evento::findOrFail($id);
+$servico = Servico::findOrFail($id);
 
 
-$evento->update(
+$servico->update(
 $request->all()
 );
 
 
-return response()->json($evento);
+return response()->json($servico);
 
 }
 
@@ -71,11 +69,11 @@ return response()->json($evento);
 public function destroy($id)
 {
 
-Evento::destroy($id);
+Servico::destroy($id);
 
 
 return response()->json([
-"message"=>"Evento removido"
+"message"=>"Serviço removido"
 ]);
 
 }

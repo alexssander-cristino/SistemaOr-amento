@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../services/api_service.dart';
 
 
@@ -7,13 +6,15 @@ import '../services/api_service.dart';
 class EventoCadastroPage extends StatefulWidget {
 
 
-  const EventoCadastroPage({super.key});
+  const EventoCadastroPage({
+    super.key
+  });
 
 
 
   @override
-  State<EventoCadastroPage> createState() =>
-      _EventoCadastroPageState();
+  State<EventoCadastroPage> createState()
+      => _EventoCadastroPageState();
 
 
 }
@@ -26,43 +27,43 @@ class EventoCadastroPage extends StatefulWidget {
 
 
 class _EventoCadastroPageState
-extends State<EventoCadastroPage>{
+    extends State<EventoCadastroPage>{
 
 
 
-final tipoController =
-TextEditingController();
+  final tipoController =
+      TextEditingController();
 
 
 
-final dataController =
-TextEditingController();
+  final dataController =
+      TextEditingController();
 
 
 
-final horaController =
-TextEditingController();
+  final horaController =
+      TextEditingController();
 
 
 
-final localController =
-TextEditingController();
+  final localController =
+      TextEditingController();
 
 
 
-final convidadosController =
-TextEditingController();
+  final convidadosController =
+      TextEditingController();
 
 
 
-final observacoesController =
-TextEditingController();
+  final observacoesController =
+      TextEditingController();
 
 
 
 
+  bool salvando = false;
 
-bool salvando = false;
 
 
 
@@ -70,56 +71,57 @@ bool salvando = false;
 
 
 
-Future<void> salvar() async{
 
+  @override
+  void dispose(){
 
 
-if(tipoController.text.isEmpty ||
-   dataController.text.isEmpty){
+    tipoController.dispose();
 
+    dataController.dispose();
 
+    horaController.dispose();
 
-ScaffoldMessenger.of(context)
-.showSnackBar(
+    localController.dispose();
 
+    convidadosController.dispose();
 
+    observacoesController.dispose();
 
-const SnackBar(
 
-content:
+    super.dispose();
 
-Text(
-"Preencha os campos obrigatórios"
-)
 
-)
+  }
 
 
 
-);
 
 
 
-return;
 
 
 
-}
+  Future<void> salvar() async{
 
 
 
 
 
+    if(tipoController.text.trim().isEmpty ||
+       dataController.text.trim().isEmpty){
 
 
-setState((){
 
+      mostrarMensagem(
+          "Preencha os campos obrigatórios"
+      );
 
-salvando=true;
 
+      return;
 
-});
 
+    }
 
 
 
@@ -127,490 +129,566 @@ salvando=true;
 
 
 
+    setState((){
 
-bool sucesso =
 
-await ApiService.criar(
+      salvando = true;
 
 
+    });
 
-"eventos",
 
 
 
-{
 
 
-"tipo":
 
-tipoController.text,
+    try{
 
 
 
-"data":
 
-dataController.text,
 
+      await ApiService.post(
 
 
-"hora":
 
-horaController.text,
+        "eventos",
 
 
 
-"local":
 
-localController.text,
+        {
 
 
 
-"quantidade_convidados":
+          "tipo":
 
-int.tryParse(
+          tipoController.text.trim(),
 
-convidadosController.text
 
-) ?? 0,
 
 
 
-"observacoes":
+          "data":
 
-observacoesController.text
+          dataController.text.trim(),
 
 
 
-}
 
 
+          "hora":
 
-);
+          horaController.text.trim(),
 
 
 
 
 
+          "local":
 
+          localController.text.trim(),
 
-setState((){
 
 
-salvando=false;
 
 
-});
+          "quantidade_convidados":
 
+          int.tryParse(
 
+              convidadosController.text
 
+          ) ?? 0,
 
 
 
 
 
+          "observacoes":
 
-if(sucesso){
+          observacoesController.text.trim(),
 
 
 
-ScaffoldMessenger.of(context)
-.showSnackBar(
+        },
 
 
 
-const SnackBar(
+      );
 
-content:
 
-Text(
-"Evento cadastrado com sucesso"
-)
 
-)
 
 
 
-);
 
+      if(!mounted)
+        return;
 
 
 
-Navigator.pop(context);
 
 
 
-}else{
 
+      mostrarMensagem(
 
+          "Evento cadastrado com sucesso"
 
-ScaffoldMessenger.of(context)
-.showSnackBar(
+      );
 
 
 
-const SnackBar(
 
-content:
 
-Text(
-"Erro ao cadastrar evento"
-)
+      Navigator.pop(context);
 
-)
 
 
 
-);
 
 
+    }catch(e){
 
-}
 
 
 
-}
 
+      mostrarMensagem(
 
+          "Erro ao cadastrar evento\n$e"
 
+      );
 
 
 
 
 
+    }finally{
 
-Widget campo(
 
-TextEditingController controller,
 
-String texto,
+      if(mounted){
 
-IconData icone
 
-){
 
+        setState((){
 
 
-return Padding(
+          salvando=false;
 
 
+        });
 
-padding:
 
-const EdgeInsets.only(bottom:15),
 
+      }
 
 
-child:
+    }
 
-TextField(
 
 
 
-controller:
 
-controller,
 
 
+  }
 
-decoration:
 
-InputDecoration(
 
 
 
-labelText:
 
-texto,
 
 
 
-prefixIcon:
+  void mostrarMensagem(String texto){
 
-Icon(icone),
 
 
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
 
-border:
 
-const OutlineInputBorder()
 
+      SnackBar(
 
+        content:
 
-),
+        Text(texto),
 
 
+      ),
 
-),
 
+    );
 
 
-);
+  }
 
 
 
-}
 
 
 
 
 
 
+  Widget campo(
 
+      TextEditingController controller,
 
+      String texto,
 
-@override
-Widget build(BuildContext context){
+      IconData icone
 
+      ){
 
 
-return Scaffold(
 
+    return Padding(
 
 
 
+      padding:
 
-appBar:
+      const EdgeInsets.only(
 
-AppBar(
+          bottom:15
 
+      ),
 
 
-title:
 
-const Text(
+      child:
 
-"Novo Evento"
+      TextField(
 
-)
 
 
+        controller:
 
-),
+        controller,
 
 
 
+        decoration:
 
+        InputDecoration(
 
 
 
+          labelText:
 
-body:
+          texto,
 
-SingleChildScrollView(
 
 
+          prefixIcon:
 
-padding:
+          Icon(icone),
 
-const EdgeInsets.all(20),
 
 
+          border:
 
+          const OutlineInputBorder(),
 
-child:
 
-Column(
 
+        ),
 
 
-children:[
 
+      ),
 
 
+    );
 
 
-campo(
 
-tipoController,
+  }
 
-"Tipo do evento",
 
-Icons.event
 
-),
 
 
 
 
 
 
-campo(
+  @override
+  Widget build(BuildContext context){
 
-dataController,
 
-"Data (AAAA-MM-DD)",
 
-Icons.calendar_today
+    return Scaffold(
 
-),
 
 
+      appBar:
 
+      AppBar(
 
 
 
-campo(
+        title:
 
-horaController,
+        const Text(
 
-"Horário",
+            "Novo Evento"
 
-Icons.access_time
+        ),
 
-),
 
 
+      ),
 
 
 
 
-campo(
 
-localController,
 
-"Local",
 
-Icons.location_on
+      body:
 
-),
+      SingleChildScrollView(
 
 
 
+        padding:
 
+        const EdgeInsets.all(20),
 
 
-campo(
 
-convidadosController,
 
-"Quantidade convidados",
+        child:
 
-Icons.people
+        Column(
 
-),
 
 
+          children:[
 
 
 
 
-campo(
 
-observacoesController,
+            campo(
 
-"Observações",
+              tipoController,
 
-Icons.description
+              "Tipo do evento",
 
-),
+              Icons.event,
 
+            ),
 
 
 
 
 
 
-const SizedBox(height:20),
+            campo(
 
+              dataController,
 
+              "Data (AAAA-MM-DD)",
 
+              Icons.calendar_today,
 
+            ),
 
 
 
 
 
-SizedBox(
 
+            campo(
 
+              horaController,
 
-width:
+              "Horário",
 
-double.infinity,
+              Icons.access_time,
 
+            ),
 
 
-height:
 
-50,
 
 
 
-child:
+            campo(
 
-ElevatedButton(
+              localController,
 
+              "Local",
 
+              Icons.location_on,
 
-onPressed:
+            ),
 
-salvando
 
-?
 
-null
 
-:
 
-salvar,
 
+            campo(
 
+              convidadosController,
 
+              "Quantidade convidados",
 
-child:
+              Icons.people,
 
-salvando
+            ),
 
 
 
-?
 
-const CircularProgressIndicator(
-color:Colors.white
-)
 
 
+            campo(
 
-:
+              observacoesController,
 
-const Text(
+              "Observações",
 
-"Salvar Evento"
+              Icons.description,
 
-),
+            ),
 
 
 
-)
 
 
 
-)
+            const SizedBox(
 
+                height:20
 
+            ),
 
 
 
 
 
-]
 
 
+            SizedBox(
 
-)
 
 
+              width:
 
-)
+              double.infinity,
 
 
 
-);
+              height:
 
+              50,
 
 
 
-}
+
+              child:
+
+              ElevatedButton(
+
+
+
+                onPressed:
+
+                salvando
+
+                    ?
+
+                null
+
+                    :
+
+                salvar,
+
+
+
+
+                child:
+
+                salvando
+
+
+
+                    ?
+
+
+                const SizedBox(
+
+
+                  height:25,
+
+
+                  width:25,
+
+
+                  child:
+
+                  CircularProgressIndicator(
+
+                    color:
+                    Colors.white,
+
+                  ),
+
+
+                )
+
+
+
+                    :
+
+
+
+                const Text(
+
+                    "Salvar Evento"
+
+                ),
+
+
+
+              ),
+
+
+
+            )
+
+
+
+
+
+          ],
+
+
+
+        ),
+
+
+
+      ),
+
+
+
+    );
+
+
+
+  }
 
 
 

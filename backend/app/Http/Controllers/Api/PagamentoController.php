@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Evento;
+use App\Models\Pagamento;
 use Illuminate\Http\Request;
 
-class EventoController extends Controller
+class PagamentoController extends Controller
 {
 
 
@@ -14,9 +14,7 @@ public function index()
 {
 
 return response()->json(
-
-Evento::with('cliente')->get()
-
+Pagamento::with('orcamento')->get()
 );
 
 }
@@ -26,12 +24,12 @@ Evento::with('cliente')->get()
 public function store(Request $request)
 {
 
-$evento = Evento::create(
+$pagamento = Pagamento::create(
 $request->all()
 );
 
 
-return response()->json($evento,201);
+return response()->json($pagamento,201);
 
 }
 
@@ -41,10 +39,7 @@ public function show($id)
 {
 
 return response()->json(
-
-Evento::with('cliente')
-->findOrFail($id)
-
+Pagamento::findOrFail($id)
 );
 
 }
@@ -54,15 +49,15 @@ Evento::with('cliente')
 public function update(Request $request,$id)
 {
 
-$evento = Evento::findOrFail($id);
+$pagamento = Pagamento::findOrFail($id);
 
 
-$evento->update(
+$pagamento->update(
 $request->all()
 );
 
 
-return response()->json($evento);
+return response()->json($pagamento);
 
 }
 
@@ -71,11 +66,11 @@ return response()->json($evento);
 public function destroy($id)
 {
 
-Evento::destroy($id);
+Pagamento::destroy($id);
 
 
 return response()->json([
-"message"=>"Evento removido"
+"message"=>"Pagamento removido"
 ]);
 
 }

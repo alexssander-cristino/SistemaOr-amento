@@ -45,14 +45,17 @@ class AdminEventoController extends Controller
 
 
             'servicos'=>Servico::with('categoria')
-            ->orderBy('nome')
-            ->get()
-
+                ->orderBy('nome')
+                ->get()
 
 
         ]);
 
+
     }
+
+
+
 
 
 
@@ -63,7 +66,8 @@ class AdminEventoController extends Controller
     {
 
 
-        $dados = $request->validate([
+        $request->validate([
+
 
 
             'cliente_id'=>[
@@ -127,7 +131,10 @@ class AdminEventoController extends Controller
             ]
 
 
+
         ]);
+
+
 
 
 
@@ -175,9 +182,10 @@ class AdminEventoController extends Controller
 
 
 
+
         /*
         |--------------------------------------------------------------------------
-        | Vincular serviços ao evento
+        | Adicionar serviços do evento
         |--------------------------------------------------------------------------
         */
 
@@ -215,10 +223,15 @@ class AdminEventoController extends Controller
                 ]);
 
 
+
             }
 
 
         }
+
+
+
+
 
 
 
@@ -248,12 +261,23 @@ class AdminEventoController extends Controller
 
 
 
+
+
+
     public function destroy($id)
     {
 
 
         $evento = Evento::findOrFail($id);
 
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Remove serviços vinculados
+        |--------------------------------------------------------------------------
+        */
 
 
         EventoServico::where(
@@ -267,7 +291,19 @@ class AdminEventoController extends Controller
 
 
 
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Remove evento
+        |--------------------------------------------------------------------------
+        */
+
+
         $evento->delete();
+
+
+
 
 
 

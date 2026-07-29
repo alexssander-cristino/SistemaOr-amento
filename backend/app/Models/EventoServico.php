@@ -20,24 +20,27 @@ class EventoServico extends Model
 
 
 
-    public function servico()
-    {
-
-        return $this->belongsTo(
-            Servico::class,
-            'servico_id'
-        );
-
-    }
-
 
 
     public function evento()
     {
 
         return $this->belongsTo(
-            Evento::class,
-            'evento_id'
+            Evento::class
+        );
+
+    }
+
+
+
+
+
+    public function servico()
+    {
+
+        return $this->belongsTo(
+            Servico::class,
+            'servico_id'
         );
 
     }

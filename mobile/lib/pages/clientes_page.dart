@@ -2,25 +2,40 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
 
+
 class ClientesPage extends StatefulWidget {
 
-  const ClientesPage({super.key});
+
+  const ClientesPage({
+    super.key
+  });
+
 
 
   @override
-  State<ClientesPage> createState() => _ClientesPageState();
+  State<ClientesPage> createState()
+      => _ClientesPageState();
+
 
 }
 
 
 
 
-class _ClientesPageState extends State<ClientesPage>{
+
+
+
+class _ClientesPageState
+    extends State<ClientesPage>{
+
 
 
   List clientes = [];
 
   bool carregando = true;
+
+
+
 
 
 
@@ -37,6 +52,8 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
+
+
   Future<void> carregar() async{
 
 
@@ -45,6 +62,11 @@ class _ClientesPageState extends State<ClientesPage>{
 
       final dados =
       await ApiService.clientes();
+
+
+
+      if(!mounted)
+        return;
 
 
 
@@ -63,14 +85,22 @@ class _ClientesPageState extends State<ClientesPage>{
     }catch(e){
 
 
+
       setState((){
 
-        carregando=false;
+        carregando = false;
 
       });
 
 
+
+      mostrarMensagem(
+          "Erro ao carregar clientes\n$e"
+      );
+
+
     }
+
 
 
   }
@@ -81,15 +111,21 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
+
+
+
   void novoCliente(){
+
 
 
     final nome =
     TextEditingController();
 
 
+
     final email =
     TextEditingController();
+
 
 
     final telefone =
@@ -99,11 +135,11 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
+
+
     showDialog(
 
-
       context: context,
-
 
       builder:(context){
 
@@ -113,6 +149,7 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
           title:
+
           const Text(
               "Novo Cliente"
           ),
@@ -121,11 +158,16 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
+
+
           content:
+
           SingleChildScrollView(
 
 
+
             child:
+
             Column(
 
 
@@ -133,13 +175,18 @@ class _ClientesPageState extends State<ClientesPage>{
               MainAxisSize.min,
 
 
+
               children:[
+
+
 
 
 
                 TextField(
 
-                  controller:nome,
+                  controller:
+                  nome,
+
 
                   decoration:
                   const InputDecoration(
@@ -148,7 +195,9 @@ class _ClientesPageState extends State<ClientesPage>{
                     "Nome",
 
                     prefixIcon:
-                    Icon(Icons.person)
+                    Icon(
+                        Icons.person
+                    ),
 
                   ),
 
@@ -158,8 +207,9 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
+
                 const SizedBox(
-                  height:10
+                    height:10
                 ),
 
 
@@ -168,7 +218,9 @@ class _ClientesPageState extends State<ClientesPage>{
 
                 TextField(
 
-                  controller:email,
+                  controller:
+                  email,
+
 
                   keyboardType:
                   TextInputType.emailAddress,
@@ -181,7 +233,9 @@ class _ClientesPageState extends State<ClientesPage>{
                     "Email",
 
                     prefixIcon:
-                    Icon(Icons.email)
+                    Icon(
+                        Icons.email
+                    ),
 
                   ),
 
@@ -191,10 +245,10 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
-
                 const SizedBox(
-                  height:10
+                    height:10
                 ),
+
 
 
 
@@ -202,7 +256,9 @@ class _ClientesPageState extends State<ClientesPage>{
 
                 TextField(
 
-                  controller:telefone,
+                  controller:
+                  telefone,
+
 
                   keyboardType:
                   TextInputType.phone,
@@ -215,7 +271,9 @@ class _ClientesPageState extends State<ClientesPage>{
                     "Telefone",
 
                     prefixIcon:
-                    Icon(Icons.phone)
+                    Icon(
+                        Icons.phone
+                    ),
 
                   ),
 
@@ -223,9 +281,11 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
-              ]
+              ],
 
-            )
+
+            ),
+
 
           ),
 
@@ -233,7 +293,12 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
+
+
+
           actions:[
+
+
 
 
 
@@ -251,11 +316,16 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
               child:
+
               const Text(
                   "Cancelar"
-              )
+              ),
+
 
             ),
+
+
+
 
 
 
@@ -265,32 +335,20 @@ class _ClientesPageState extends State<ClientesPage>{
             ElevatedButton(
 
 
+
               onPressed:() async{
 
 
 
-                if(nome.text.isEmpty){
+                if(nome.text.trim().isEmpty){
 
 
-
-                  ScaffoldMessenger.of(context)
-                  .showSnackBar(
-
-
-                    const SnackBar(
-
-                      content:
-                      Text(
-                        "Informe o nome do cliente"
-                      )
-
-                    )
-
+                  mostrarMensagem(
+                      "Informe o nome do cliente"
                   );
 
 
                   return;
-
 
                 }
 
@@ -298,45 +356,47 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
-
-
-                bool sucesso =
-                await ApiService.criar(
-
-
-                  "clientes",
-
-
-                  {
-
-
-                    "nome":
-                    nome.text,
-
-
-                    "email":
-                    email.text,
-
-
-                    "telefone":
-                    telefone.text
-
-
-                  }
-
-
-                );
+                try{
 
 
 
+                  await ApiService.post(
+
+
+                    "clientes",
+
+
+                    {
+
+
+                      "nome":
+                      nome.text.trim(),
+
+
+                      "email":
+                      email.text.trim(),
+
+
+                      "telefone":
+                      telefone.text.trim()
+
+
+                    },
+
+
+                  );
 
 
 
 
-                if(sucesso){
+
+                  if(!mounted)
+                    return;
+
 
 
                   Navigator.pop(context);
+
 
 
                   carregar();
@@ -344,44 +404,27 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
-                  ScaffoldMessenger.of(context)
-                  .showSnackBar(
+                  mostrarMensagem(
 
-
-                    const SnackBar(
-
-                      content:
-                      Text(
-                        "Cliente cadastrado com sucesso"
-                      )
-
-                    )
+                      "Cliente cadastrado com sucesso"
 
                   );
 
 
 
-                }else{
+
+                }catch(e){
 
 
 
-                  ScaffoldMessenger.of(context)
-                  .showSnackBar(
-
-
-                    const SnackBar(
-
-                      content:
-                      Text(
-                        "Erro ao cadastrar cliente"
-                      )
-
-                    )
-
+                  mostrarMensagem(
+                      e.toString()
                   );
+
 
 
                 }
+
 
 
 
@@ -391,9 +434,11 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
               child:
+
               const Text(
-                "Salvar"
-              )
+                  "Salvar"
+              ),
+
 
 
             )
@@ -402,17 +447,28 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
-          ]
+
+          ],
 
 
         );
 
 
 
-      }
+      },
 
 
-    );
+    ).then((_) {
+
+
+      nome.dispose();
+
+      email.dispose();
+
+      telefone.dispose();
+
+
+    });
 
 
 
@@ -429,40 +485,74 @@ class _ClientesPageState extends State<ClientesPage>{
   Future<void> excluir(int id) async{
 
 
-    bool sucesso =
-    await ApiService.deletar(
-      "clientes",
-      id
-    );
+
+    try{
 
 
 
-    if(sucesso){
+      await ApiService.delete(
+
+          "clientes/$id"
+
+      );
+
 
 
       carregar();
 
 
-      ScaffoldMessenger.of(context)
-      .showSnackBar(
+
+      mostrarMensagem(
+
+          "Cliente removido"
+
+      );
 
 
-        const SnackBar(
 
-          content:
-          Text(
-            "Cliente removido"
-          )
+    }catch(e){
 
-        )
 
+
+      mostrarMensagem(
+          e.toString()
       );
 
 
     }
 
 
+
   }
+
+
+
+
+
+
+
+
+
+  void mostrarMensagem(String texto){
+
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+
+
+      SnackBar(
+
+        content:
+        Text(texto),
+
+      ),
+
+
+    );
+
+
+  }
+
 
 
 
@@ -481,14 +571,13 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
       appBar:
-      AppBar(
 
+      AppBar(
 
         title:
         const Text(
-          "Clientes"
+            "Clientes"
         ),
-
 
       ),
 
@@ -496,24 +585,30 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
+
       floatingActionButton:
+
       FloatingActionButton.extended(
+
 
 
         icon:
         const Icon(
-          Icons.add
+            Icons.add
         ),
+
 
 
         label:
         const Text(
-          "Novo"
+            "Novo"
         ),
+
 
 
         onPressed:
         novoCliente,
+
 
 
       ),
@@ -526,40 +621,49 @@ class _ClientesPageState extends State<ClientesPage>{
 
       body:
 
-      carregando ?
+      carregando
 
+
+          ?
 
       const Center(
 
         child:
-        CircularProgressIndicator()
+        CircularProgressIndicator(),
 
       )
 
 
 
-      :
+          :
 
-      clientes.isEmpty ?
+
+
+      clientes.isEmpty
+
+
+
+          ?
+
 
 
       const Center(
 
         child:
         Text(
-          "Nenhum cliente cadastrado"
-        )
+            "Nenhum cliente cadastrado"
+        ),
 
       )
 
 
 
-
-      :
+          :
 
 
 
       RefreshIndicator(
+
 
 
         onRefresh:
@@ -568,6 +672,7 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
         child:
+
         ListView.builder(
 
 
@@ -582,7 +687,8 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
-          itemBuilder:(context,index){
+          itemBuilder:
+              (context,index){
 
 
 
@@ -591,62 +697,74 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
 
-
-
             return Card(
+
 
 
               elevation:
               3,
 
 
+
               margin:
               const EdgeInsets.only(
-                bottom:12
+                  bottom:12
               ),
 
 
 
 
+
               child:
+
               ListTile(
 
 
 
                 leading:
+
                 CircleAvatar(
 
 
                   child:
+
                   Text(
 
                     cliente['nome']
-                    .toString()
-                    .substring(0,1)
-                    .toUpperCase()
+                        .toString()
+                        .substring(
+                        0,1
+                    )
+                        .toUpperCase(),
 
-                  )
+                  ),
 
 
                 ),
+
+
+
 
 
 
 
                 title:
+
                 Text(
 
-                  cliente['nome']
-                  ??
-                  "Sem nome"
+                    cliente['nome']
+                        ??
+                        "Sem nome"
 
                 ),
+
 
 
 
 
 
                 subtitle:
+
                 Column(
 
                   crossAxisAlignment:
@@ -659,9 +777,9 @@ class _ClientesPageState extends State<ClientesPage>{
 
                     Text(
 
-                      cliente['email']
-                      ??
-                      "Sem email"
+                        cliente['email']
+                            ??
+                            "Sem email"
 
                     ),
 
@@ -669,15 +787,15 @@ class _ClientesPageState extends State<ClientesPage>{
 
                     Text(
 
-                      cliente['telefone']
-                      ??
-                      "Sem telefone"
+                        cliente['telefone']
+                            ??
+                            "Sem telefone"
 
-                    )
+                    ),
 
 
 
-                  ]
+                  ],
 
 
                 ),
@@ -688,19 +806,22 @@ class _ClientesPageState extends State<ClientesPage>{
 
 
                 trailing:
+
                 IconButton(
 
 
 
                   icon:
+
                   const Icon(
 
-                    Icons.delete,
+                      Icons.delete,
 
-                    color:
-                    Colors.red
+                      color:
+                      Colors.red
 
                   ),
+
 
 
 
@@ -709,7 +830,7 @@ class _ClientesPageState extends State<ClientesPage>{
 
                     excluir(
 
-                      cliente['id']
+                        cliente['id']
 
                     );
 
@@ -717,27 +838,25 @@ class _ClientesPageState extends State<ClientesPage>{
                   },
 
 
-                )
+                ),
 
 
 
-
-              )
+              ),
 
 
 
             );
 
 
-
-          }
-
-
-        )
+          },
 
 
-      )
+        ),
 
+
+
+      ),
 
 
 

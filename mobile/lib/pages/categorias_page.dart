@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
 
-
 class CategoriasPage extends StatefulWidget {
 
-
-  const CategoriasPage({super.key});
+  const CategoriasPage({
+    super.key
+  });
 
 
   @override
-  State<CategoriasPage> createState() => _CategoriasPageState();
-
+  State<CategoriasPage> createState()
+      => _CategoriasPageState();
 
 }
 
@@ -19,16 +19,21 @@ class CategoriasPage extends StatefulWidget {
 
 
 
-
-
-class _CategoriasPageState extends State<CategoriasPage>{
+class _CategoriasPageState
+    extends State<CategoriasPage> {
 
 
 
   List categorias = [];
 
+  List filtro = [];
 
   bool carregando = true;
+
+
+  final pesquisaController =
+      TextEditingController();
+
 
 
 
@@ -38,11 +43,73 @@ class _CategoriasPageState extends State<CategoriasPage>{
   @override
   void initState(){
 
-
     super.initState();
 
-
     carregar();
+
+  }
+
+
+
+
+
+
+  @override
+  void dispose(){
+
+    pesquisaController.dispose();
+
+    super.dispose();
+
+  }
+
+
+
+
+
+
+
+  Future<void> carregar() async {
+
+
+    try{
+
+
+      final dados =
+      await ApiService.categorias();
+
+
+
+      setState((){
+
+
+        categorias = dados;
+
+        filtro = dados;
+
+        carregando = false;
+
+
+      });
+
+
+
+    }catch(e){
+
+
+      setState((){
+
+        carregando = false;
+
+      });
+
+
+      mostrarMensagem(
+          "Erro ao carregar categorias"
+      );
+
+
+    }
 
 
   }
@@ -53,14 +120,23 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
 
-
-  Future<void> carregar() async{
-
+  void pesquisar(String texto){
 
 
-    final dados =
 
-    await ApiService.categorias();
+    if(texto.isEmpty){
+
+
+      setState((){
+
+        filtro = categorias;
+
+      });
+
+
+      return;
+
+    }
 
 
 
@@ -68,10 +144,20 @@ class _CategoriasPageState extends State<CategoriasPage>{
     setState((){
 
 
-      categorias = dados;
+      filtro =
+          categorias.where((categoria){
 
 
-      carregando = false;
+            return categoria['nome']
+                .toString()
+                .toLowerCase()
+                .contains(
+                texto.toLowerCase()
+            );
+
+
+          }).toList();
+
 
 
     });
@@ -87,15 +173,18 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
 
-
-  void novaCategoria(){
-
+  void abrirCadastro({
+    Map? categoria
+  }){
 
 
     final nome =
+    TextEditingController(
 
-    TextEditingController();
+      text:
+      categoria?['nome'] ?? "",
 
+    );
 
 
 
@@ -103,25 +192,25 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
     showDialog(
 
-
-
       context: context,
 
-
-
-      builder:(context){
+      builder: (_){
 
 
 
         return AlertDialog(
 
 
-
           title:
-          const Text(
-            "Nova Categoria"
-          ),
+          Text(
 
+            categoria == null
+                ?
+            "Nova Categoria"
+                :
+            "Editar Categoria",
+
+          ),
 
 
 
@@ -130,26 +219,19 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
           TextField(
 
-
-            controller:nome,
-
+            controller:
+            nome,
 
             decoration:
-
             const InputDecoration(
 
-
               labelText:
-              "Nome da categoria",
-
+              "Nome",
 
               prefixIcon:
-              Icon(Icons.category)
-
+              Icon(Icons.category),
 
             ),
-
-
 
           ),
 
@@ -161,29 +243,20 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
 
-
-
-
             TextButton(
-
-
-              onPressed:(){
-
-
-                Navigator.pop(context);
-
-
-              },
-
 
               child:
               const Text(
-                "Cancelar"
-              )
+                  "Cancelar"
+              ),
 
+              onPressed: (){
+
+                Navigator.pop(context);
+
+              },
 
             ),
-
 
 
 
@@ -193,83 +266,105 @@ class _CategoriasPageState extends State<CategoriasPage>{
             ElevatedButton(
 
 
-              onPressed:() async{
+              child:
+              const Text(
+                  "Salvar"
+              ),
 
 
 
-                if(nome.text.isEmpty){
 
+              onPressed: () async {
+
+
+
+                if(nome.text.trim().isEmpty)
                   return;
 
-                }
+
+
+                try{
 
 
 
+                  if(categoria == null){
 
 
 
+                    await ApiService.post(
 
-                bool sucesso =
+                      "categorias",
 
-                await ApiService.criar(
+                      {
+
+                        "nome":
+                        nome.text.trim()
+
+                      },
+
+                    );
 
 
 
-                  "categorias",
+                  }else{
 
 
 
-                  {
+                    await ApiService.put(
 
+                      "categorias/${categoria['id']}",
 
-                    "nome":
-                    nome.text
+                      {
+
+                        "nome":
+                        nome.text.trim()
+
+                      },
+
+                    );
 
 
                   }
 
 
 
-                );
 
 
-
-
-
-
-
-                if(sucesso){
+                  if(!mounted)
+                    return;
 
 
 
                   Navigator.pop(context);
 
 
-
                   carregar();
 
 
 
+                  mostrarMensagem(
 
-                  ScaffoldMessenger.of(context)
-                  .showSnackBar(
+                      categoria == null
 
+                          ?
 
+                      "Categoria cadastrada"
 
-                    const SnackBar(
+                          :
 
-
-                      content:
-                      Text(
-                        "Categoria cadastrada"
-                      )
-
-
-                    )
-
+                      "Categoria atualizada"
 
                   );
 
+
+
+                }catch(e){
+
+
+
+                  mostrarMensagem(
+                      e.toString()
+                  );
 
 
                 }
@@ -277,38 +372,22 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
 
-
               },
-
-
-              child:
-              const Text(
-                "Salvar"
-              )
-
 
             )
 
 
 
-
-
-
-          ]
-
+          ],
 
 
 
         );
 
 
-
-      }
-
-
+      },
 
     );
-
 
 
   }
@@ -321,30 +400,109 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
 
-  Future<void> excluir(int id) async{
+  Future<void> excluir(
+      Map categoria
+      ) async {
 
 
 
-    bool sucesso =
-
-    await ApiService.deletar(
-
-
-      "categorias",
+    bool?
+    confirma = await showDialog<bool>(
 
 
-      id
+      context: context,
 
 
+      builder: (_) {
+
+
+        return AlertDialog(
+
+
+
+          title:
+          const Text(
+              "Excluir"
+          ),
+
+
+
+          content:
+
+          Text(
+              "Deseja excluir '${categoria['nome']}'?"
+          ),
+
+
+
+
+          actions:[
+
+
+
+            TextButton(
+
+              child:
+              const Text(
+                  "Cancelar"
+              ),
+
+              onPressed:
+                  () => Navigator.pop(
+                  context,
+                  false
+              ),
+
+            ),
+
+
+
+
+            ElevatedButton(
+
+              child:
+              const Text(
+                  "Excluir"
+              ),
+
+              onPressed:
+                  () => Navigator.pop(
+                  context,
+                  true
+              ),
+
+            )
+
+
+          ],
+
+
+
+        );
+
+
+      },
 
     );
 
 
 
 
+    if(confirma != true)
+      return;
 
 
-    if(sucesso){
+
+
+
+    try{
+
+
+      await ApiService.delete(
+
+          "categorias/${categoria['id']}"
+
+      );
 
 
 
@@ -352,7 +510,24 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
 
+      mostrarMensagem(
+          "Categoria excluída"
+      );
+
+
+
+
+    }catch(e){
+
+
+
+      mostrarMensagem(
+          e.toString()
+      );
+
+
     }
+
 
 
 
@@ -360,6 +535,28 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
 
+
+
+
+
+
+  void mostrarMensagem(String texto){
+
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+
+      SnackBar(
+
+        content:
+        Text(texto),
+
+      ),
+
+    );
+
+
+  }
 
 
 
@@ -374,9 +571,7 @@ class _CategoriasPageState extends State<CategoriasPage>{
   Widget build(BuildContext context){
 
 
-
     return Scaffold(
-
 
 
 
@@ -384,15 +579,12 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
       AppBar(
 
-
         title:
         const Text(
-          "Categorias"
+            "Categorias"
         ),
 
-
       ),
-
 
 
 
@@ -403,26 +595,16 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
       FloatingActionButton.extended(
 
-
+        onPressed:
+            () => abrirCadastro(),
 
         icon:
-        const Icon(
-          Icons.add
-        ),
-
-
+        const Icon(Icons.add),
 
         label:
         const Text(
-          "Nova"
+            "Nova"
         ),
-
-
-
-        onPressed:
-        novaCategoria,
-
-
 
       ),
 
@@ -431,59 +613,23 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
 
-
       body:
 
+      carregando
 
-
-
-      carregando ?
-
-
+          ?
 
       const Center(
 
         child:
-        CircularProgressIndicator()
+        CircularProgressIndicator(),
 
       )
 
-
-
-
-
-      :
-
-
-
-
-
-      categorias.isEmpty ?
-
-
-
-      const Center(
-
-        child:
-        Text(
-          "Nenhuma categoria cadastrada"
-        )
-
-      )
-
-
-
-
-
-
-
-      :
-
-
-
-
+          :
 
       RefreshIndicator(
+
 
 
         onRefresh:
@@ -492,194 +638,269 @@ class _CategoriasPageState extends State<CategoriasPage>{
 
 
         child:
-
-        ListView.builder(
-
+        Column(
 
 
 
-          padding:
-          const EdgeInsets.all(15),
-
-
-
-
-          itemCount:
-          categorias.length,
+          children:[
 
 
 
 
 
 
-          itemBuilder:(context,index){
+            Padding(
 
-
-
-
-
-            final categoria =
-
-            categorias[index];
-
-
-
-
-
-
-
-            return Card(
-
-
-
-              elevation:4,
-
-
-
-              margin:
-
-              const EdgeInsets.only(
-
-                bottom:12
-
-              ),
-
-
-
+              padding:
+              const EdgeInsets.all(15),
 
 
 
               child:
 
-              ListTile(
+              TextField(
+
+
+                controller:
+                pesquisaController,
+
+
+                onChanged:
+                pesquisar,
+
+
+                decoration:
+                InputDecoration(
+
+
+                  hintText:
+                  "Pesquisar categoria...",
 
 
 
-
-
-
-                leading:
-
-                const CircleAvatar(
-
-
-
-                  child:
-                  Icon(
-                    Icons.category
-                  )
-
-
-                ),
-
-
-
-
-
-
-
-                title:
-
-                Text(
-
-
-
-                  categoria['nome']
-
-                  ??
-
-                  "Sem nome"
-
-
-
-                ),
-
-
-
-
-
-
-
-                trailing:
-
-                IconButton(
-
-
-
-                  icon:
-
+                  prefixIcon:
                   const Icon(
-
-
-
-                    Icons.delete,
-
-
-                    color:
-                    Colors.red
-
-
-
+                      Icons.search
                   ),
 
 
 
+                  border:
+                  OutlineInputBorder(
 
-                  onPressed:(){
+                    borderRadius:
+                    BorderRadius.circular(
+                        12
+                    ),
 
-
-
-                    excluir(
-
-                      categoria['id']
-
-                    );
-
-
-
-                  },
-
-
+                  ),
 
                 ),
 
 
+              ),
+
+
+            ),
 
 
 
+
+
+
+
+            Expanded(
+
+
+
+              child:
+
+              filtro.isEmpty
+
+
+                  ?
+
+
+              const Center(
+
+                child:
+                Text(
+                    "Nenhuma categoria encontrada"
+                ),
 
               )
 
 
 
-            );
+                  :
+
+
+              ListView.builder(
+
+
+                itemCount:
+                filtro.length,
+
+
+
+                itemBuilder:
+                    (_,index){
+
+
+
+                  final categoria =
+                  filtro[index];
+
+
+
+                  return Card(
+
+
+
+                    margin:
+                    const EdgeInsets.symmetric(
+
+                      horizontal:
+                      15,
+
+                      vertical:
+                      8,
+
+                    ),
 
 
 
 
-          }
+
+                    child:
+
+                    ListTile(
 
 
 
-        )
+                      leading:
+                      const CircleAvatar(
+
+                        child:
+                        Icon(
+                            Icons.category
+                        ),
+
+                      ),
 
 
 
-      )
+
+
+                      title:
+
+                      Text(
+
+                          categoria['nome']
+
+                      ),
 
 
 
 
+
+                      trailing:
+
+                      Row(
+
+                        mainAxisSize:
+                        MainAxisSize.min,
+
+
+
+                        children:[
+
+
+
+                          IconButton(
+
+                            icon:
+                            const Icon(
+                              Icons.edit,
+                              color:
+                              Colors.blue,
+                            ),
+
+
+                            onPressed:
+
+                                () => abrirCadastro(
+
+                              categoria:
+                              categoria,
+
+                            ),
+
+                          ),
+
+
+
+
+
+                          IconButton(
+
+                            icon:
+                            const Icon(
+
+                              Icons.delete,
+
+                              color:
+                              Colors.red,
+
+                            ),
+
+
+                            onPressed:
+
+                                () => excluir(
+                                categoria
+                            ),
+
+
+                          )
+
+
+
+                        ],
+
+
+                      ),
+
+
+                    ),
+
+
+                  );
+
+
+                },
+
+
+              ),
+
+
+            )
+
+
+
+          ],
+
+
+        ),
+
+
+      ),
 
 
     );
 
 
-
   }
-
-
-
 
 
 }

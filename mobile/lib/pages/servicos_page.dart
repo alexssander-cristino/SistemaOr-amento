@@ -1,1063 +1,1530 @@
 import 'package:flutter/material.dart';
-
 import '../services/api_service.dart';
-
 
 
 class ServicosPage extends StatefulWidget {
 
-
-  const ServicosPage({super.key});
+  const ServicosPage({
+    super.key,
+  });
 
 
   @override
   State<ServicosPage> createState() =>
       _ServicosPageState();
 
-
 }
-
-
 
 
 
 
 class _ServicosPageState
-extends State<ServicosPage>{
+    extends State<ServicosPage> {
 
 
+  List servicos = [];
 
-List servicos=[];
+  List categorias = [];
 
+  List filtro = [];
 
-List categorias=[];
 
+  bool carregando = true;
 
-bool carregando=true;
 
+  final pesquisa =
+      TextEditingController();
 
 
 
 
 
-@override
-void initState(){
+  @override
+  void initState() {
 
-super.initState();
+    super.initState();
 
-carregar();
+    carregar();
 
-}
+  }
 
 
 
 
 
+  Future<void> carregar() async {
 
 
+    try {
 
-Future<void> carregar() async{
 
+      final listaServicos =
+          await ApiService.servicos();
 
-final s =
-await ApiService.servicos();
 
+      final listaCategorias =
+          await ApiService.categorias();
 
-final c =
-await ApiService.categorias();
 
 
+      if(!mounted) return;
 
-setState((){
 
 
-servicos=s;
+      setState(() {
 
-categorias=c;
+        servicos = listaServicos;
 
-carregando=false;
+        categorias = listaCategorias;
 
+        filtro = listaServicos;
 
-});
+        carregando = false;
 
+      });
 
 
-}
 
+    } catch(e) {
 
 
+      if(!mounted) return;
 
 
+      setState(() {
 
+        carregando = false;
 
+      });
 
 
-void novoServico(){
+      mensagem(
+          "Erro ao carregar serviços"
+      );
 
 
+    }
 
-final nome =
-TextEditingController();
 
+  }
 
 
-final descricao =
-TextEditingController();
 
 
 
-final valor =
-TextEditingController();
 
 
+  void pesquisar(String texto) {
 
 
-int? categoriaSelecionada;
+    if(texto.isEmpty) {
 
 
+      setState(() {
 
+        filtro = servicos;
 
+      });
 
 
-showDialog(
+      return;
 
+    }
 
-context:context,
 
 
-builder:(context){
 
 
+    setState(() {
 
-return StatefulBuilder(
 
+      filtro = servicos.where((s){
 
-builder:(context,setModalState){
 
+        return s['nome']
+            .toString()
+            .toLowerCase()
+            .contains(
+            texto.toLowerCase()
+        );
 
 
-return AlertDialog(
+      }).toList();
 
 
 
+    });
 
-title:
 
-const Text(
-"Novo Serviço"
-),
+  }
 
 
 
 
 
 
-content:
 
-SingleChildScrollView(
 
 
+  void abrirCadastro({Map? servico}) {
 
-child:
 
-Column(
+    final nome =
+    TextEditingController(
+      text: servico?['nome'] ?? "",
+    );
 
 
+    final descricao =
+    TextEditingController(
+      text: servico?['descricao'] ?? "",
+    );
 
-mainAxisSize:
 
-MainAxisSize.min,
+    final valor =
+    TextEditingController(
+      text: servico?['valor']?.toString() ?? "",
+    );
 
 
 
-children:[
+    int? categoriaSelecionada =
+    servico?['categoria_id'];
 
 
 
+    if(categoriaSelecionada == null &&
+        servico?['categoria'] != null) {
 
+      categoriaSelecionada =
+          servico?['categoria']['id'];
 
-TextField(
+    }
 
 
-controller:nome,
 
 
-decoration:
 
-const InputDecoration(
 
-labelText:
-"Nome do serviço",
+    showDialog(
 
-prefixIcon:
-Icon(Icons.work)
+      context: context,
 
-),
+      builder: (context){
 
 
+        return StatefulBuilder(
 
-),
+          builder: (context, atualizar){
 
 
+            return AlertDialog(
 
 
 
+              title: Text(
 
-TextField(
+                  servico == null
 
+                      ? "Novo Serviço"
 
-controller:descricao,
+                      : "Editar Serviço"
 
+              ),
 
-maxLines:3,
 
 
-decoration:
 
-const InputDecoration(
 
-labelText:
-"Descrição",
+              content:
 
-prefixIcon:
-Icon(Icons.description)
+              SingleChildScrollView(
 
-),
+                child:
 
+                Column(
 
+                  children: [
 
-),
 
 
+                    TextField(
 
+                      controller: nome,
 
+                      decoration:
 
+                      const InputDecoration(
 
-TextField(
+                        labelText:
+                        "Nome",
 
+                      ),
 
-controller:valor,
+                    ),
 
 
-keyboardType:
 
-TextInputType.number,
 
+                    TextField(
 
-decoration:
+                      controller: descricao,
 
-const InputDecoration(
+                      decoration:
 
-labelText:
-"Valor",
+                      const InputDecoration(
 
-prefixIcon:
-Icon(Icons.attach_money)
+                        labelText:
+                        "Descrição",
 
-),
+                      ),
 
+                    ),
 
 
-),
 
 
 
+                    TextField(
 
+                      controller: valor,
 
+                      keyboardType:
+                      TextInputType.number,
 
+                      decoration:
 
-const SizedBox(height:15),
+                      const InputDecoration(
 
+                        labelText:
+                        "Valor",
 
+                      ),
 
+                    ),
 
 
 
-DropdownButtonFormField<int>(
 
 
+                    DropdownButtonFormField<int>(
 
-value:
-categoriaSelecionada,
 
+                      value:
 
+                      categorias.any(
+                              (c)=>
+                          c['id'] ==
+                              categoriaSelecionada
+                      )
 
-decoration:
+                          ?
 
-const InputDecoration(
+                      categoriaSelecionada
 
-labelText:
-"Categoria",
+                          :
 
-prefixIcon:
-Icon(Icons.category)
+                      null,
 
-),
 
 
+                      decoration:
 
+                      const InputDecoration(
 
-items:
+                        labelText:
+                        "Categoria",
 
-categorias.map<DropdownMenuItem<int>>((cat){
+                      ),
 
 
 
-return DropdownMenuItem(
 
+                      items:
 
-value:
-cat['id'],
+                      categorias.map((c){
 
 
+                        return DropdownMenuItem<int>(
 
-child:
 
-Text(
+                          value:
+                          c['id'],
 
-cat['nome']
 
-??
+                          child:
 
-"Sem nome"
+                          Text(
+                              c['nome'] ?? ""
+                          ),
 
-),
 
+                        );
 
 
-);
+                      }).toList(),
 
 
 
-}).toList(),
 
 
+                      onChanged:(v){
 
 
+                        atualizar((){
 
-onChanged:(valor){
+                          categoriaSelecionada = v;
 
 
+                        });
 
-setModalState((){
 
+                      },
 
-categoriaSelecionada=
-valor;
 
 
+                    ),
 
-});
 
 
-},
+                  ],
 
+                ),
 
+              ),
 
 
-)
 
 
 
 
+              actions: [
 
 
-]
 
-)
 
+                TextButton(
 
-),
+                  onPressed:(){
 
+                    Navigator.pop(context);
 
+                  },
 
+                  child:
 
+                  const Text(
+                      "Cancelar"
+                  ),
 
+                ),
 
 
 
 
-actions:[
 
 
+                ElevatedButton(
 
+                  onPressed:() async {
 
 
-TextButton(
 
+                    if(nome.text.isEmpty ||
+                        categoriaSelecionada == null) {
 
 
-onPressed:(){
+                      mensagem(
+                          "Preencha os campos obrigatórios"
+                      );
 
 
-Navigator.pop(context);
+                      return;
 
 
-},
+                    }
 
 
 
-child:
 
-const Text(
-"Cancelar"
-)
+                    final dados = {
 
 
+                      "nome":
+                      nome.text,
 
-),
 
+                      "descricao":
+                      descricao.text,
 
 
+                      "valor":
 
+                      double.tryParse(
 
+                          valor.text
+                              .replaceAll(",", ".")
 
+                      ) ?? 0,
 
 
-ElevatedButton(
 
+                      "categoria_id":
+                      categoriaSelecionada,
 
 
-onPressed:() async{
+                    };
 
 
 
 
 
-if(categoriaSelecionada==null){
+                    bool sucesso = false;
 
-return;
 
-}
 
+                    try {
 
 
 
+                      if(servico == null) {
 
-bool sucesso =
 
-await ApiService.criar(
 
+                        await ApiService.post(
 
+                            "servicos",
 
-"servicos",
+                            dados
 
+                        );
 
 
-{
+                      } else {
 
 
-"nome":
 
-nome.text,
+                        await ApiService.put(
 
+                            "servicos/${servico['id']}",
 
+                            dados
 
-"descricao":
+                        );
 
-descricao.text,
 
+                      }
 
 
-"valor":
 
-double.tryParse(valor.text)
-??
-0,
+                      sucesso = true;
 
 
 
-"categoria_id":
+                    } catch(e) {
 
-categoriaSelecionada
 
+                      sucesso = false;
 
 
+                    }
 
 
-}
 
 
 
-);
 
 
+                    if(sucesso) {
 
 
+                      Navigator.pop(context);
 
 
+                      carregar();
 
-if(sucesso){
 
+                      mensagem(
 
+                          servico == null
 
-Navigator.pop(context);
+                              ?
 
+                          "Serviço cadastrado"
 
+                              :
 
-carregar();
+                          "Serviço atualizado"
 
+                      );
 
 
-ScaffoldMessenger.of(context)
-.showSnackBar(
+                    } else {
 
 
+                      mensagem(
+                          "Erro ao salvar serviço"
+                      );
 
-const SnackBar(
 
+                    }
 
-content:
 
-Text(
-"Serviço cadastrado"
-)
 
 
-)
 
+                  },
 
-);
 
 
+                  child:
 
-}
+                  const Text(
+                      "Salvar"
+                  ),
 
 
+                ),
 
 
 
-},
+              ],
 
 
 
-child:
+            );
 
-const Text(
-"Salvar"
-)
 
+          },
 
 
-)
+        );
 
 
+      },
 
 
+    );
 
 
-]
 
+  }
 
+    Future<void> excluir(Map servico) async {
 
-);
 
+    bool? confirmar = await showDialog(
 
+      context: context,
 
+      builder: (context){
 
-}
 
+        return AlertDialog(
 
-);
 
+          title:
 
+          const Text(
+              "Excluir"
+          ),
 
 
-}
 
+          content:
 
-);
+          Text(
+              "Deseja excluir ${servico['nome']}?"
+          ),
 
 
 
 
-}
+          actions: [
 
 
 
+            TextButton(
 
+              onPressed:(){
 
+                Navigator.pop(
+                    context,
+                    false
+                );
 
+              },
 
+              child:
 
+              const Text(
+                  "Cancelar"
+              ),
 
-Future<void> excluir(int id) async{
+            ),
 
 
 
-bool sucesso =
 
-await ApiService.deletar(
+            ElevatedButton(
 
-"servicos",
+              onPressed:(){
 
-id
+                Navigator.pop(
+                    context,
+                    true
+                );
 
-);
+              },
 
+              child:
 
+              const Text(
+                  "Excluir"
+              ),
 
+            ),
 
-if(sucesso){
 
 
-carregar();
+          ],
 
 
-}
+        );
 
 
+      },
 
-}
+    );
 
 
 
 
+    if(confirmar != true) return;
 
 
 
 
+    try {
 
-String dinheiro(dynamic valor){
 
 
-double numero =
+      bool sucesso =
 
-double.tryParse(
-valor.toString()
-)
+      await ApiService.delete(
 
-??
+          "servicos/${servico['id']}"
 
-0;
+      );
 
 
 
 
-return
+      if(sucesso){
 
-"R\$ ${numero.toStringAsFixed(2).replaceAll(".",",")}";
 
+        carregar();
 
 
-}
+        mensagem(
+            "Serviço excluído"
+        );
 
 
+      }else{
 
 
+        mensagem(
+            "Erro ao excluir"
+        );
 
 
+      }
 
 
 
-@override
-Widget build(BuildContext context){
 
+    }catch(e){
 
 
-return Scaffold(
+      mensagem(
+          "Erro ao excluir serviço"
+      );
 
 
+    }
 
 
-appBar:
 
-AppBar(
+  }
 
 
-title:
 
-const Text(
-"Serviços"
-),
 
 
 
-),
 
 
 
+  String buscarCategoria(Map servico){
 
 
+    try {
 
 
-floatingActionButton:
 
-FloatingActionButton.extended(
+      if(servico['categoria'] != null &&
+          servico['categoria'] is Map){
 
 
+        return servico['categoria']['nome']
+            ?? "";
 
-icon:
 
-const Icon(Icons.add),
+      }
 
 
 
-label:
 
-const Text(
-"Novo"
-),
+      final resultado = categorias.where(
 
+              (c)=>
 
+          c['id'] ==
+              servico['categoria_id']
 
-onPressed:
+      ).toList();
 
-novoServico,
 
 
 
-),
 
+      if(resultado.isEmpty){
 
+        return "";
 
+      }
 
 
 
 
-body:
 
+      return resultado.first['nome']
+          ?? "";
 
 
-carregando
 
+    }catch(e){
 
 
-?
+      return "";
 
 
-const Center(
+    }
 
-child:
 
-CircularProgressIndicator()
 
-)
+  }
 
 
 
 
 
 
-:
 
+  String dinheiro(dynamic valor){
 
 
 
+    double numero =
 
-RefreshIndicator(
+    double.tryParse(
+        valor.toString()
+    ) ?? 0;
 
 
 
 
-onRefresh:
+    return numero
 
-carregar,
+        .toStringAsFixed(2)
 
+        .replaceAll(".", ",");
 
 
 
+  }
 
-child:
 
-servicos.isEmpty
 
 
 
 
-?
 
 
 
+  void mensagem(String texto){
 
 
-ListView(
 
+    if(!mounted) return;
 
 
-children:[
 
+    ScaffoldMessenger.of(context)
 
+        .showSnackBar(
 
-SizedBox(
 
-height:300,
 
+      SnackBar(
 
+        content:
 
-child:
+        Text(texto),
 
-Center(
+      ),
 
-child:
 
-Text(
+    );
 
-"Nenhum serviço cadastrado"
 
-)
+  }
 
-)
 
-)
 
 
 
-]
 
-)
 
+  @override
+  void dispose(){
 
 
+    pesquisa.dispose();
 
 
+    super.dispose();
 
-:
 
+  }
 
 
 
 
 
 
-ListView.builder(
 
 
 
+  @override
+  Widget build(BuildContext context){
 
-padding:
 
-const EdgeInsets.all(15),
+    return Scaffold(
 
 
 
+      appBar:
 
+      AppBar(
 
-itemCount:
+        title:
 
-servicos.length,
+        const Text(
+            "Serviços"
+        ),
 
 
+      ),
 
 
 
 
-itemBuilder:(context,index){
 
+      floatingActionButton:
 
+      FloatingActionButton.extended(
 
-final servico =
 
-servicos[index];
 
+        onPressed:(){
 
+          abrirCadastro();
 
+        },
 
 
-return Card(
+        icon:
 
+        const Icon(
+            Icons.add
+        ),
 
 
-elevation:4,
 
+        label:
 
+        const Text(
+            "Novo"
+        ),
 
-margin:
 
-const EdgeInsets.only(
+      ),
 
-bottom:15
 
-),
 
 
 
 
-child:
 
-ListTile(
+      body:
 
 
+      carregando
 
 
 
-leading:
+          ?
 
-const CircleAvatar(
 
 
-child:
+      const Center(
 
-Icon(
-Icons.work
+        child:
 
-)
+        CircularProgressIndicator(),
 
-),
+      )
 
 
 
+          :
 
 
 
+      Column(
 
-title:
 
-Text(
 
+        children: [
 
-servico['nome']
 
-??
 
-"Serviço"
 
 
-),
+          Padding(
 
 
+            padding:
 
+            const EdgeInsets.all(15),
 
 
 
-subtitle:
+            child:
 
-Column(
+            TextField(
 
 
-crossAxisAlignment:
 
-CrossAxisAlignment.start,
+              controller:
 
+              pesquisa,
 
 
-children:[
 
+              onChanged:
 
+              pesquisar,
 
 
-Text(
 
-"Categoria: ${servico['categoria'] ?? 'Sem categoria'}"
+              decoration:
 
-),
 
+              InputDecoration(
 
 
 
-Text(
+                hintText:
 
-"Valor: ${dinheiro(servico['valor'])}"
+                "Pesquisar serviço...",
 
-),
 
 
+                prefixIcon:
 
+                const Icon(
+                    Icons.search
+                ),
 
 
 
-if(servico['descricao']!=null)
 
-Text(
+                border:
 
-servico['descricao']
+                OutlineInputBorder(
 
-)
 
 
+                  borderRadius:
 
+                  BorderRadius.circular(12),
 
 
+                ),
 
-]
 
 
+              ),
 
-),
 
 
+            ),
 
 
 
+          ),
 
 
-trailing:
 
-IconButton(
 
 
 
-icon:
 
-const Icon(
+          Expanded(
 
-Icons.delete,
 
-color:
 
-Colors.red
+            child:
 
-),
+            RefreshIndicator(
 
 
 
-onPressed:(){
+              onRefresh:
 
+              carregar,
 
 
-excluir(
 
-servico['id']
+              child:
 
-);
 
+              filtro.isEmpty
 
 
-},
 
+                  ?
 
 
-)
 
+              const Center(
 
+                child:
 
+                Text(
+                    "Nenhum serviço encontrado"
+                ),
 
 
+              )
 
-)
 
 
+                  :
 
 
 
-);
+              ListView.builder(
 
 
 
-}
+                padding:
 
+                const EdgeInsets.all(15),
 
 
-)
 
+                itemCount:
 
+                filtro.length,
 
 
 
+                itemBuilder:(context,index){
 
-)
 
 
+                  final servico =
 
+                  filtro[index];
 
 
-);
 
+                  final categoria =
 
+                  buscarCategoria(
+                      servico
+                  );
 
-}
 
 
+
+
+
+                  return Card(
+
+
+
+                    elevation:
+
+                    3,
+
+
+
+                    margin:
+
+                    const EdgeInsets.only(
+                        bottom:12
+                    ),
+
+
+
+
+
+                    child:
+
+                    ListTile(
+
+
+
+                      leading:
+
+                      const CircleAvatar(
+
+                        child:
+
+                        Icon(
+                            Icons.work
+                        ),
+
+                      ),
+
+
+
+
+
+                      title:
+
+                      Text(
+
+                        servico['nome']
+                            ??
+                            "",
+
+
+
+                        style:
+
+                        const TextStyle(
+
+                          fontWeight:
+
+                          FontWeight.bold,
+
+                        ),
+
+
+                      ),
+
+
+
+
+
+                      subtitle:
+
+                      Column(
+
+
+
+                        crossAxisAlignment:
+
+                        CrossAxisAlignment.start,
+
+
+
+                        children: [
+
+
+
+
+
+                          if((servico['descricao']
+                              ??
+                              "")
+                              .toString()
+                              .isNotEmpty)
+
+
+
+                            Text(
+
+                                servico['descricao']
+
+                            ),
+
+
+
+
+
+
+                          Text(
+
+                              "Categoria: $categoria"
+
+                          ),
+
+
+
+
+
+                          Text(
+
+                            "Valor: R\$ ${dinheiro(servico['valor'])}",
+
+
+
+                            style:
+
+                            const TextStyle(
+
+                              fontWeight:
+
+                              FontWeight.bold,
+
+
+                              color:
+
+                              Colors.green,
+
+
+                            ),
+
+
+                          ),
+
+
+
+                        ],
+
+
+
+                      ),
+
+
+
+
+
+
+                      trailing:
+
+                      PopupMenuButton<String>(
+
+
+
+                        onSelected:(opcao){
+
+
+
+                          if(opcao == "editar"){
+
+
+
+                            abrirCadastro(
+
+                                servico:
+
+                                servico
+
+                            );
+
+
+                          }
+
+
+
+                          if(opcao == "excluir"){
+
+
+
+                            excluir(
+                                servico
+                            );
+
+
+                          }
+
+
+
+
+                        },
+
+
+
+
+
+
+                        itemBuilder:(context)=>[
+
+
+
+                          const PopupMenuItem(
+
+
+
+                            value:
+
+                            "editar",
+
+
+
+                            child:
+
+                            Row(
+
+                              children: [
+
+
+                                Icon(
+                                    Icons.edit
+                                ),
+
+
+
+                                SizedBox(
+                                    width:8
+                                ),
+
+
+
+                                Text(
+                                    "Editar"
+                                ),
+
+
+                              ],
+
+
+                            ),
+
+
+
+                          ),
+
+
+
+
+
+                          const PopupMenuItem(
+
+
+
+                            value:
+
+                            "excluir",
+
+
+
+                            child:
+
+                            Row(
+
+                              children: [
+
+
+
+                                Icon(
+
+                                  Icons.delete,
+
+                                  color:
+
+                                  Colors.red,
+
+                                ),
+
+
+
+
+                                SizedBox(
+                                    width:8
+                                ),
+
+
+
+
+                                Text(
+                                    "Excluir"
+                                ),
+
+
+                              ],
+
+
+                            ),
+
+
+
+                          ),
+
+
+
+                        ],
+
+
+
+                      ),
+
+
+
+                    ),
+
+
+
+                  );
+
+
+
+                },
+
+
+
+              ),
+
+
+
+            ),
+
+
+
+          ),
+
+
+
+        ],
+
+
+
+      ),
+
+
+
+    );
+
+
+  }
 
 
 }

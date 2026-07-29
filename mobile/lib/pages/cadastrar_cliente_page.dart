@@ -5,349 +5,449 @@ import '../services/api_service.dart';
 class CadastrarClientePage extends StatefulWidget {
 
 
-  const CadastrarClientePage({super.key});
+  const CadastrarClientePage({
+    super.key
+  });
+
 
 
   @override
   State<CadastrarClientePage> createState()
-  => _CadastrarClientePageState();
+      => _CadastrarClientePageState();
 
 }
+
+
 
 
 
 class _CadastrarClientePageState
-extends State<CadastrarClientePage>{
+    extends State<CadastrarClientePage> {
 
 
-final nomeController =
-TextEditingController();
 
+  final nomeController =
+      TextEditingController();
 
-final emailController =
-TextEditingController();
 
+  final emailController =
+      TextEditingController();
 
-final telefoneController =
-TextEditingController();
 
+  final telefoneController =
+      TextEditingController();
 
 
 
+  bool salvando = false;
 
-bool salvando = false;
 
 
 
 
 
-Future<void> salvar() async{
 
+  @override
+  void dispose(){
 
-if(nomeController.text.isEmpty){
+    nomeController.dispose();
 
-mostrarMensagem(
-"Informe o nome"
-);
+    emailController.dispose();
 
-return;
+    telefoneController.dispose();
 
-}
+    super.dispose();
 
+  }
 
 
-setState((){
 
-salvando=true;
 
-});
 
 
 
 
-bool sucesso =
-await ApiService.criar(
 
-"clientes",
+  Future<void> salvar() async {
 
-{
 
 
-"nome":
-nomeController.text,
+    if(nomeController.text.trim().isEmpty){
 
 
-"email":
-emailController.text,
+      mostrarMensagem(
+          "Informe o nome"
+      );
 
 
-"telefone":
-telefoneController.text
+      return;
 
+    }
 
-}
 
-);
 
 
 
+    setState((){
 
+      salvando = true;
 
-setState((){
+    });
 
-salvando=false;
 
-});
 
 
 
+    try{
 
 
-if(sucesso){
 
+      await ApiService.post(
 
-mostrarMensagem(
-"Cliente cadastrado"
-);
+        "clientes",
 
+        {
 
 
-Navigator.pop(context);
+          "nome":
+          nomeController.text.trim(),
 
 
 
-}else{
+          "email":
+          emailController.text.trim(),
 
 
-mostrarMensagem(
-"Erro ao cadastrar"
-);
 
+          "telefone":
+          telefoneController.text.trim()
 
 
-}
+        },
 
 
+      );
 
-}
 
 
 
+      if(!mounted)
+        return;
 
 
 
+      mostrarMensagem(
+          "Cliente cadastrado com sucesso"
+      );
 
 
 
-void mostrarMensagem(String texto){
+      Navigator.pop(context);
 
 
-ScaffoldMessenger.of(context)
-.showSnackBar(
 
-SnackBar(
+    }catch(e){
 
-content:
-Text(texto)
 
-)
 
-);
+      mostrarMensagem(
 
+          "Erro ao cadastrar cliente\n$e"
 
-}
+      );
 
 
 
+    }finally{
 
 
 
+      if(mounted){
 
 
+        setState((){
 
-@override
-Widget build(BuildContext context){
+          salvando = false;
 
+        });
 
-return Scaffold(
 
+      }
 
 
-appBar:AppBar(
+    }
 
-title:
-const Text(
-"Cadastrar Cliente"
-)
 
-),
 
+  }
 
 
 
-body:Padding(
 
 
-padding:
-const EdgeInsets.all(20),
 
 
 
-child:Column(
 
+  void mostrarMensagem(String texto){
 
-children:[
 
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
 
+      SnackBar(
 
+        content:
+        Text(texto),
 
-TextField(
+      ),
 
-controller:
-nomeController,
+    );
 
-decoration:
-const InputDecoration(
 
-labelText:
-"Nome",
+  }
 
-border:
-OutlineInputBorder()
 
-)
 
-),
 
 
 
 
-const SizedBox(height:15),
 
 
+  @override
+  Widget build(BuildContext context){
 
 
-TextField(
 
-controller:
-emailController,
+    return Scaffold(
 
-decoration:
-const InputDecoration(
 
-labelText:
-"Email",
 
-border:
-OutlineInputBorder()
+      appBar:
+      AppBar(
 
-)
+        title:
+        const Text(
+            "Cadastrar Cliente"
+        ),
 
-),
+      ),
 
 
 
 
 
-const SizedBox(height:15),
 
+      body:
+      Padding(
 
+        padding:
+        const EdgeInsets.all(20),
 
 
 
-TextField(
+        child:
+        SingleChildScrollView(
 
-controller:
-telefoneController,
 
-decoration:
-const InputDecoration(
 
-labelText:
-"Telefone",
+          child:
+          Column(
 
-border:
-OutlineInputBorder()
 
-)
+            children: [
 
-),
 
 
 
 
 
+              TextField(
 
-const SizedBox(height:25),
+                controller:
+                nomeController,
 
 
+                decoration:
+                const InputDecoration(
 
+                  labelText:
+                  "Nome",
 
+                  border:
+                  OutlineInputBorder(),
 
+                ),
 
-SizedBox(
+              ),
 
 
-width:
-double.infinity,
 
 
 
-child:
-ElevatedButton(
 
+              const SizedBox(
+                  height:15
+              ),
 
 
-onPressed:
-salvando
-?
-null
-:
-salvar,
 
 
 
-child:
 
-salvando
+              TextField(
 
-?
+                controller:
+                emailController,
 
-const CircularProgressIndicator()
 
-:
+                keyboardType:
+                TextInputType.emailAddress,
 
-const Text(
-"Salvar"
-)
 
+                decoration:
+                const InputDecoration(
 
+                  labelText:
+                  "Email",
 
-)
+                  border:
+                  OutlineInputBorder(),
 
+                ),
 
+              ),
 
-)
 
 
 
 
 
-]
+              const SizedBox(
+                  height:15
+              ),
 
 
-)
 
 
-)
 
 
+              TextField(
 
-);
+                controller:
+                telefoneController,
 
 
+                keyboardType:
+                TextInputType.phone,
 
-}
+
+                decoration:
+                const InputDecoration(
+
+                  labelText:
+                  "Telefone",
+
+                  border:
+                  OutlineInputBorder(),
+
+                ),
+
+              ),
+
+
+
+
+
+
+              const SizedBox(
+                  height:25
+              ),
+
+
+
+
+
+
+              SizedBox(
+
+
+                width:
+                double.infinity,
+
+
+
+                child:
+                ElevatedButton(
+
+
+
+                  onPressed:
+                  salvando
+                      ?
+                  null
+                      :
+                  salvar,
+
+
+
+
+                  child:
+
+                  salvando
+
+                      ?
+
+                  const SizedBox(
+
+                    height:20,
+
+                    width:20,
+
+                    child:
+                    CircularProgressIndicator(),
+
+                  )
+
+
+                      :
+
+                  const Text(
+                      "Salvar"
+                  ),
+
+
+
+                ),
+
+
+
+              )
+
+
+
+
+
+
+            ],
+
+
+          ),
+
+
+
+        ),
+
+
+      ),
+
+
+    );
+
+
+
+  }
 
 
 

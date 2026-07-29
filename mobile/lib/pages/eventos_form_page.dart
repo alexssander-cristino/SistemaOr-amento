@@ -6,83 +6,16 @@ import '../services/api_service.dart';
 class EventosFormPage extends StatefulWidget{
 
 
-const EventosFormPage({super.key});
-
-
-@override
-State<EventosFormPage> createState()=>_EventosFormPageState();
-
-
-}
+  const EventosFormPage({
+    super.key
+  });
 
 
 
+  @override
+  State<EventosFormPage> createState()
+      => _EventosFormPageState();
 
-class _EventosFormPageState extends State<EventosFormPage>{
-
-
-
-final tipo =
-TextEditingController();
-
-
-final data =
-TextEditingController();
-
-
-final hora =
-TextEditingController();
-
-
-final local =
-TextEditingController();
-
-
-final convidados =
-TextEditingController();
-
-
-
-
-
-Future<void> salvar() async{
-
-
-
-bool sucesso =
-await ApiService.criar(
-
-"eventos",
-
-{
-
-
-"tipo":tipo.text,
-
-"data":data.text,
-
-"hora":hora.text,
-
-"local":local.text,
-
-"quantidade_convidados":
-int.tryParse(convidados.text) ?? 0
-
-
-}
-
-
-);
-
-
-
-if(sucesso){
-
-
-Navigator.pop(context);
-
-
-}
 
 
 }
@@ -91,154 +24,602 @@ Navigator.pop(context);
 
 
 
-@override
-Widget build(BuildContext context){
 
 
+class _EventosFormPageState
+    extends State<EventosFormPage>{
 
-return Scaffold(
 
 
-appBar:
-AppBar(
+  final tipo =
+  TextEditingController();
 
-title:
-const Text("Novo Evento")
 
-),
 
+  final data =
+  TextEditingController();
 
 
 
-body:
-Padding(
+  final hora =
+  TextEditingController();
 
-padding:
-const EdgeInsets.all(20),
 
 
+  final local =
+  TextEditingController();
 
-child:
-SingleChildScrollView(
 
-child:
-Column(
 
-children:[
+  final convidados =
+  TextEditingController();
 
 
 
-TextField(
 
-controller:tipo,
+  bool salvando = false;
 
-decoration:
-const InputDecoration(
 
-labelText:"Tipo do evento"
 
-)
 
-),
 
 
 
-TextField(
 
-controller:data,
 
-decoration:
-const InputDecoration(
+  @override
+  void dispose(){
 
-labelText:"Data (AAAA-MM-DD)"
 
-)
+    tipo.dispose();
 
-),
+    data.dispose();
 
+    hora.dispose();
 
+    local.dispose();
 
-TextField(
+    convidados.dispose();
 
-controller:hora,
 
-decoration:
-const InputDecoration(
+    super.dispose();
 
-labelText:"Hora"
 
-)
+  }
 
-),
 
 
 
 
-TextField(
 
-controller:local,
 
-decoration:
-const InputDecoration(
 
-labelText:"Local"
 
-)
+  Future<void> salvar() async{
 
-),
 
 
+    if(tipo.text.trim().isEmpty ||
+        data.text.trim().isEmpty){
 
-TextField(
 
-controller:convidados,
 
-keyboardType:
-TextInputType.number,
+      mostrarMensagem(
+          "Preencha tipo e data do evento"
+      );
 
-decoration:
-const InputDecoration(
 
-labelText:"Quantidade convidados"
+      return;
 
-)
 
-),
+    }
 
 
 
 
 
-const SizedBox(height:30),
 
 
+    setState((){
 
-ElevatedButton(
 
-onPressed:salvar,
+      salvando = true;
 
-child:
-const Text("Salvar")
 
-)
+    });
 
 
-]
 
-)
 
 
-)
 
 
-)
+    try{
 
 
-);
 
+      await ApiService.post(
 
 
-}
+        "eventos",
+
+
+
+        {
+
+
+          "tipo":
+
+          tipo.text.trim(),
+
+
+
+
+          "data":
+
+          data.text.trim(),
+
+
+
+
+          "hora":
+
+          hora.text.trim(),
+
+
+
+
+          "local":
+
+          local.text.trim(),
+
+
+
+
+          "quantidade_convidados":
+
+          int.tryParse(
+
+              convidados.text
+
+          ) ?? 0
+
+
+
+        },
+
+
+      );
+
+
+
+
+
+
+
+      if(!mounted)
+        return;
+
+
+
+
+
+
+      mostrarMensagem(
+
+          "Evento cadastrado com sucesso"
+
+      );
+
+
+
+
+      Navigator.pop(context);
+
+
+
+
+
+
+    }catch(e){
+
+
+
+      mostrarMensagem(
+
+          "Erro ao cadastrar evento\n$e"
+
+      );
+
+
+
+    }finally{
+
+
+
+      if(mounted){
+
+
+
+        setState((){
+
+
+          salvando=false;
+
+
+        });
+
+
+
+      }
+
+
+    }
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+  void mostrarMensagem(String texto){
+
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+
+
+      SnackBar(
+
+        content:
+        Text(texto),
+
+      ),
+
+
+    );
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+  Widget campo(
+
+      TextEditingController controller,
+
+      String label,
+
+      ){
+
+
+
+
+    return Padding(
+
+
+      padding:
+      const EdgeInsets.only(
+          bottom:15
+      ),
+
+
+
+      child:
+
+      TextField(
+
+
+        controller:
+        controller,
+
+
+
+        decoration:
+
+        InputDecoration(
+
+
+          labelText:
+          label,
+
+
+
+          border:
+          const OutlineInputBorder(),
+
+
+        ),
+
+
+
+      ),
+
+
+    );
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+  @override
+  Widget build(BuildContext context){
+
+
+
+    return Scaffold(
+
+
+
+      appBar:
+
+      AppBar(
+
+        title:
+        const Text(
+            "Novo Evento"
+        ),
+
+      ),
+
+
+
+
+
+
+      body:
+
+      Padding(
+
+
+
+        padding:
+        const EdgeInsets.all(20),
+
+
+
+        child:
+
+        SingleChildScrollView(
+
+
+
+          child:
+
+          Column(
+
+
+
+            children:[
+
+
+
+
+
+              campo(
+
+                  tipo,
+
+                  "Tipo do evento"
+
+              ),
+
+
+
+
+
+
+              campo(
+
+                  data,
+
+                  "Data (AAAA-MM-DD)"
+
+              ),
+
+
+
+
+
+
+              campo(
+
+                  hora,
+
+                  "Hora"
+
+              ),
+
+
+
+
+
+
+              campo(
+
+                  local,
+
+                  "Local"
+
+              ),
+
+
+
+
+
+
+              TextField(
+
+
+
+                controller:
+                convidados,
+
+
+
+                keyboardType:
+                TextInputType.number,
+
+
+
+                decoration:
+
+                const InputDecoration(
+
+
+                  labelText:
+                  "Quantidade convidados",
+
+
+                  border:
+                  OutlineInputBorder(),
+
+
+                ),
+
+
+
+              ),
+
+
+
+
+
+
+              const SizedBox(
+
+                  height:30
+
+              ),
+
+
+
+
+
+
+              SizedBox(
+
+
+
+                width:
+                double.infinity,
+
+
+
+                height:
+                50,
+
+
+
+                child:
+
+                ElevatedButton(
+
+
+
+                  onPressed:
+
+                  salvando
+
+                      ?
+
+                  null
+
+                      :
+
+                  salvar,
+
+
+
+
+                  child:
+
+                  salvando
+
+                      ?
+
+
+                  const SizedBox(
+
+                    height:22,
+
+                    width:22,
+
+                    child:
+
+                    CircularProgressIndicator(
+
+                      color:
+                      Colors.white,
+
+                    ),
+
+                  )
+
+
+
+                      :
+
+
+                  const Text(
+
+                      "Salvar"
+
+                  ),
+
+
+
+                ),
+
+
+              )
+
+
+
+
+
+
+            ],
+
+
+          ),
+
+
+
+        ),
+
+
+
+      ),
+
+
+
+    );
+
+
+
+  }
 
 
 

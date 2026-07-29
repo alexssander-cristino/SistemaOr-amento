@@ -12,6 +12,7 @@ class OrcamentoServico extends Model
     use HasFactory;
 
 
+
     protected $fillable = [
 
         'orcamento_id',
@@ -24,25 +25,36 @@ class OrcamentoServico extends Model
 
 
 
-    public function servico()
-    {
 
-        return $this->belongsTo(
-            Servico::class,
-            'servicio_id'
-        );
 
-    }
 
 
     public function orcamento()
     {
 
         return $this->belongsTo(
-            Orcamento::class
+            Orcamento::class,
+            'orcamento_id'
         );
 
     }
+
+
+
+
+
+
+
+    public function servico()
+    {
+
+        return $this->belongsTo(
+            Servico::class,
+            'servico_id'
+        );
+
+    }
+
 
 
 }

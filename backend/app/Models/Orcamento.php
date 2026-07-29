@@ -3,68 +3,69 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class Orcamento extends Model
 {
 
+    use HasFactory;
 
 
-protected $fillable=[
+    protected $fillable = [
 
+        'evento_id',
+        'valor_total',
+        'status',
+        'desconto'
 
-'evento_id',
-
-'valor_total',
-
-'status',
-
-'desconto'
-
-
-];
+    ];
 
 
 
 
 
+    public function evento()
+    {
 
-public function evento()
-{
+        return $this->belongsTo(
+            Evento::class,
+            'evento_id'
+        );
 
-
-return $this->belongsTo(
-
-Evento::class
-
-);
-
-
-}
+    }
 
 
 
 
 
 
-public function servicos()
-{
+
+    public function itens()
+    {
+
+        return $this->hasMany(
+            OrcamentoServico::class,
+            'orcamento_id'
+        );
+
+    }
 
 
-return $this->belongsToMany(
-
-Servico::class,
-
-'orcamento_servicos'
-
-);
 
 
 
-}
 
 
+    public function pagamentos()
+    {
+
+        return $this->hasMany(
+            Pagamento::class,
+            'orcamento_id'
+        );
+
+    }
 
 
 

@@ -4,229 +4,154 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Orcamento;
-
-use App\Models\Evento;
-
 use Illuminate\Http\Request;
-
-
-
 
 
 class OrcamentoController extends Controller
 {
 
 
+    public function index()
+    {
 
+        return response()->json(
 
+            Orcamento::with([
 
-public function index()
-{
+                'evento.cliente',
+                'itens.servico',
+                'pagamentos'
 
+            ])->get()
 
-return Orcamento::with([
+        );
 
+    }
 
-'evento.cliente',
 
-'servicos'
 
 
-])
 
-->get();
 
 
+    public function store(Request $request)
+    {
 
-}
 
+        $dados = $request->validate([
 
 
+            'evento_id'=>'required|exists:eventos,id',
 
+            'valor_total'=>'required|numeric',
 
+            'desconto'=>'nullable|numeric',
 
+            'status'=>'required'
 
 
+        ]);
 
-public function store(Request $request)
-{
 
 
-$request->validate([
 
+        $orcamento = Orcamento::create($dados);
 
-'evento_id'=>'required'
 
 
-]);
+        return response()->json(
 
+            $orcamento,
 
+            201
 
+        );
 
 
+    }
 
-$evento =
-Evento::with('servicos')
 
-->findOrFail(
 
-$request->evento_id
 
-);
 
 
 
 
+    public function show($id)
+    {
 
 
+        return response()->json(
 
-$total=0;
+            Orcamento::with([
 
+                'evento.cliente',
+                'itens.servico',
+                'pagamentos'
 
+            ])
+            ->findOrFail($id)
 
-foreach($evento->servicos as $servico){
+        );
 
 
-$total += $servico->valor;
+    }
 
 
-}
 
 
 
 
 
 
+    public function update(Request $request,$id)
+    {
 
-$orcamento =
-Orcamento::create([
 
+        $orcamento = Orcamento::findOrFail($id);
 
-'evento_id'=>$evento->id,
 
-'valor_total'=>$total,
 
-'status'=>'pendente'
+        $orcamento->update(
 
+            $request->all()
 
-]);
+        );
 
 
 
+        return response()->json(
 
+            $orcamento
 
+        );
 
 
-$orcamento->servicos()->attach(
+    }
 
 
-$evento->servicos
 
-->pluck('id')
 
-);
 
 
 
 
+    public function destroy($id)
+    {
 
 
+        Orcamento::findOrFail($id)->delete();
 
-return response()->json([
 
 
-'message'=>'Orçamento criado',
+        return response()->json([
 
+            "message"=>"Orçamento removido"
 
-'orcamento'=>
+        ]);
 
-$orcamento->load([
-
-
-'evento.cliente',
-
-'servicos'
-
-
-])
-
-
-
-],201);
-
-
-
-
-}
-
-
-
-
-
-
-
-
-
-public function show($id)
-{
-
-
-return Orcamento::with([
-
-
-'evento.cliente',
-
-'evento',
-
-'servicos'
-
-
-])
-
-->findOrFail($id);
-
-
-
-}
-
-
-
-
-
-
-
-
-public function destroy($id)
-{
-
-
-$orcamento =
-
-Orcamento::findOrFail($id);
-
-
-
-$orcamento->servicos()->detach();
-
-
-
-$orcamento->delete();
-
-
-
-return response()->json([
-
-'message'=>'Excluído'
-
-]);
-
-
-
-}
-
-
+    }
 
 
 

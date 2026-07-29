@@ -20,31 +20,23 @@ class AdminOrcamentoPdfController extends Controller
 
             'evento.categoria',
 
-            'evento.servicos.servico'
-
+            'evento.servicos'
 
         ])
         ->findOrFail($id);
 
 
 
-
-        // Calcula o total pelos serviços do evento
-
         $total = 0;
 
 
-        foreach($orcamento->evento->servicos as $item)
+
+        foreach($orcamento->evento->servicos as $servico)
         {
 
-            $total += $item->subtotal;
+            $total += $servico->pivot->subtotal ?? 0;
 
         }
-
-
-
-        $orcamento->valor_total = $total;
-
 
 
 
@@ -52,7 +44,13 @@ class AdminOrcamentoPdfController extends Controller
 
             'admin.pdf_orcamento',
 
-            compact('orcamento')
+            [
+
+                'orcamento'=>$orcamento,
+
+                'total'=>$total
+
+            ]
 
         );
 

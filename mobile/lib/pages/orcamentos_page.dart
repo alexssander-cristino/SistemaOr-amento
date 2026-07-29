@@ -6,21 +6,18 @@ import '../services/pdf_service.dart';
 
 
 
-
-
 class OrcamentosPage extends StatefulWidget {
 
 
+  const OrcamentosPage({
+    super.key
+  });
 
-const OrcamentosPage({super.key});
 
 
-
-@override
-State<OrcamentosPage> createState()
-
-=> _OrcamentosPageState();
-
+  @override
+  State<OrcamentosPage> createState()
+      => _OrcamentosPageState();
 
 
 }
@@ -31,8 +28,8 @@ State<OrcamentosPage> createState()
 
 
 
-class _OrcamentosPageState
 
+class _OrcamentosPageState
 extends State<OrcamentosPage>{
 
 
@@ -42,7 +39,9 @@ List eventos=[];
 List orcamentos=[];
 
 
+
 bool carregando=true;
+
 
 
 
@@ -66,12 +65,19 @@ carregar();
 
 
 
+
+
 Future<void> carregar() async{
+
+
+try{
+
 
 
 final e =
 
 await ApiService.eventos();
+
 
 
 
@@ -82,7 +88,10 @@ await ApiService.orcamentos();
 
 
 
+
+
 setState((){
+
 
 
 eventos=e;
@@ -92,7 +101,32 @@ orcamentos=o;
 carregando=false;
 
 
+
 });
+
+
+
+
+}catch(e){
+
+
+
+setState((){
+
+carregando=false;
+
+});
+
+
+
+mostrarMensagem(
+"Erro ao carregar orçamentos"
+);
+
+
+
+}
+
 
 
 
@@ -117,7 +151,9 @@ int? eventoSelecionado;
 showDialog(
 
 
+
 context:context,
+
 
 
 builder:(context){
@@ -139,9 +175,7 @@ return AlertDialog(
 title:
 
 const Text(
-
-"Novo orçamento"
-
+"Novo Orçamento"
 ),
 
 
@@ -167,7 +201,11 @@ const InputDecoration(
 
 labelText:
 
-"Evento"
+"Evento",
+
+border:
+
+OutlineInputBorder()
 
 ),
 
@@ -176,9 +214,12 @@ labelText:
 
 
 
+
 items:
 
-eventos.map<DropdownMenuItem<int>>((e){
+eventos.map<DropdownMenuItem<int>>(
+
+(e){
 
 
 
@@ -201,12 +242,14 @@ e['tipo'] ?? ""
 ),
 
 
-
 );
 
 
 
-}).toList(),
+}
+
+).toList(),
+
 
 
 
@@ -218,6 +261,7 @@ onChanged:(v){
 
 
 setModal((){
+
 
 
 eventoSelecionado=v;
@@ -232,7 +276,6 @@ eventoSelecionado=v;
 
 
 
-
 ),
 
 
@@ -240,7 +283,42 @@ eventoSelecionado=v;
 
 
 
+
 actions:[
+
+
+
+
+
+
+
+TextButton(
+
+
+
+onPressed:(){
+
+
+
+Navigator.pop(context);
+
+
+
+},
+
+
+
+child:
+
+const Text(
+"Cancelar"
+)
+
+
+
+),
+
+
 
 
 
@@ -254,11 +332,19 @@ onPressed:() async{
 
 
 
-
-
 if(eventoSelecionado==null){
 
+
+
+mostrarMensagem(
+"Selecione um evento"
+);
+
+
+
 return;
+
+
 
 }
 
@@ -267,19 +353,42 @@ return;
 
 
 
+try{
 
-bool ok =
 
-await ApiService.criar(
+
+await ApiService.post(
+
+
 
 "orcamentos",
+
+
 
 {
 
 
 "evento_id":
 
-eventoSelecionado
+eventoSelecionado,
+
+
+
+"desconto":
+
+0,
+
+
+
+"valor_total":
+
+0,
+
+
+
+"status":
+
+"pendente"
 
 
 
@@ -291,10 +400,6 @@ eventoSelecionado
 
 
 
-
-
-
-if(ok){
 
 
 
@@ -307,8 +412,25 @@ carregar();
 
 
 
-}
 
+mostrarMensagem(
+"Orçamento criado"
+);
+
+
+
+
+}catch(e){
+
+
+
+mostrarMensagem(
+e.toString()
+);
+
+
+
+}
 
 
 
@@ -319,14 +441,13 @@ carregar();
 child:
 
 const Text(
-
 "Gerar"
-
 )
 
 
 
 )
+
 
 
 
@@ -337,7 +458,6 @@ const Text(
 
 
 
-
 );
 
 
@@ -358,8 +478,10 @@ const Text(
 
 
 
-
 }
+
+
+
 
 
 
@@ -373,25 +495,36 @@ void gerarPdf(var orc){
 
 
 
-
-
-List servicos =
-
-orc['servicos'] ?? [];
+List servicos = [];
 
 
 
+if(orc['servicos'] != null){
+
+servicos =
+orc['servicos'];
+
+}
+
+else if(orc['itens'] != null){
+
+servicos =
+orc['itens'];
+
+}
 
 
 
-double total =0;
 
 
+
+
+
+double total=0;
 
 
 
 for(var s in servicos){
-
 
 
 total +=
@@ -415,19 +548,26 @@ s['valor'].toString()
 
 
 
+
 PdfService.gerarOrcamento(
 
 
 
 cliente:
 
-orc['cliente'] ?? "",
+orc['evento']?['cliente']?['nome']
+??
+"",
+
 
 
 
 evento:
 
-orc['evento'] ?? "",
+orc['evento']?['tipo']
+??
+"",
+
 
 
 
@@ -437,10 +577,42 @@ servicos,
 
 
 
+
 total:
 
 total
 
+
+
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+void mostrarMensagem(String texto){
+
+
+ScaffoldMessenger.of(context)
+.showSnackBar(
+
+
+SnackBar(
+
+content:
+
+Text(texto)
+
+)
 
 
 );
@@ -475,14 +647,13 @@ AppBar(
 title:
 
 const Text(
-
 "Orçamentos"
-
-)
+),
 
 
 
 ),
+
 
 
 
@@ -497,17 +668,19 @@ FloatingActionButton.extended(
 
 icon:
 
-const Icon(Icons.add),
+const Icon(
+Icons.add
+),
+
 
 
 
 label:
 
 const Text(
-
 "Novo"
-
 ),
+
 
 
 
@@ -518,6 +691,9 @@ novoOrcamento,
 
 
 ),
+
+
+
 
 
 
@@ -535,6 +711,7 @@ carregando
 ?
 
 
+
 const Center(
 
 child:
@@ -545,7 +722,46 @@ CircularProgressIndicator()
 
 
 
+
+
 :
+
+orcamentos.isEmpty
+
+
+
+?
+
+
+
+const Center(
+
+child:
+
+Text(
+"Nenhum orçamento encontrado"
+)
+
+)
+
+
+
+:
+
+
+
+RefreshIndicator(
+
+
+
+onRefresh:
+
+carregar,
+
+
+
+
+child:
 
 ListView.builder(
 
@@ -570,9 +786,10 @@ itemBuilder:(context,index){
 
 
 
-final o=
+final o =
 
 orcamentos[index];
+
 
 
 
@@ -582,7 +799,10 @@ return Card(
 
 
 
-elevation:4,
+elevation:
+
+4,
+
 
 
 
@@ -606,14 +826,23 @@ Text(
 
 
 
+
 subtitle:
 
 Text(
 
-"Cliente: ${o['cliente'] ?? ''}\n"
-"Evento: ${o['evento'] ?? ''}"
+
+"Cliente: ${o['evento']?['cliente']?['nome'] ?? ''}\n"
+
+"Evento: ${o['evento']?['tipo'] ?? ''}\n"
+
+"Status: ${o['status'] ?? ''}"
+
+
 
 ),
+
+
 
 
 
@@ -654,12 +883,7 @@ gerarPdf(o);
 
 
 
-
-
-
-)
-
-
+),
 
 
 
@@ -667,13 +891,15 @@ gerarPdf(o);
 
 
 
-}
+},
 
 
 
-)
+),
 
 
+
+),
 
 
 

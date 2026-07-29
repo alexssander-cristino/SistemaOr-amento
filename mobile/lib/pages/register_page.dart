@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
 
-
 class RegisterPage extends StatefulWidget {
 
 
-  const RegisterPage({super.key});
+  const RegisterPage({
+    super.key
+  });
+
 
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<RegisterPage> createState() =>
+      _RegisterPageState();
 
 
 }
@@ -19,15 +22,36 @@ class RegisterPage extends StatefulWidget {
 
 
 
-class _RegisterPageState extends State<RegisterPage> {
+
+class _RegisterPageState
+extends State<RegisterPage>{
 
 
 
-  final nome = TextEditingController();
+  final nome =
+  TextEditingController();
 
-  final email = TextEditingController();
 
-  final senha = TextEditingController();
+
+  final email =
+  TextEditingController();
+
+
+
+  final senha =
+  TextEditingController();
+
+
+
+
+  bool carregando = false;
+
+
+
+  bool esconderSenha = true;
+
+
+
 
 
 
@@ -36,13 +60,16 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void dispose(){
 
+
     nome.dispose();
 
     email.dispose();
 
     senha.dispose();
 
+
     super.dispose();
+
 
   }
 
@@ -53,31 +80,107 @@ class _RegisterPageState extends State<RegisterPage> {
 
 
 
-  Future<void> cadastrar() async {
+
+  bool validarEmail(String valor){
+
+
+    return RegExp(
+
+      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
+
+    ).hasMatch(valor);
+
+
+  }
 
 
 
-    if(nome.text.isEmpty ||
-       email.text.isEmpty ||
-       senha.text.isEmpty){
 
 
-      ScaffoldMessenger.of(context).showSnackBar(
 
-        const SnackBar(
 
-          content: Text(
-            "Preencha todos os campos"
-          ),
 
-        ),
 
+  Future<void> cadastrar() async{
+
+
+
+    if(carregando)
+      return;
+
+
+
+
+
+    if(nome.text.trim().isEmpty ||
+        email.text.trim().isEmpty ||
+        senha.text.trim().isEmpty){
+
+
+
+      mensagem(
+          "Preencha todos os campos"
       );
 
 
       return;
 
+
     }
+
+
+
+
+
+
+
+    if(!validarEmail(email.text)){
+
+
+
+      mensagem(
+          "Digite um email válido"
+      );
+
+
+      return;
+
+
+    }
+
+
+
+
+
+
+
+    if(senha.text.length < 6){
+
+
+
+      mensagem(
+          "A senha deve ter no mínimo 6 caracteres"
+      );
+
+
+      return;
+
+
+    }
+
+
+
+
+
+
+
+    setState((){
+
+
+      carregando = true;
+
+
+    });
 
 
 
@@ -87,13 +190,16 @@ class _RegisterPageState extends State<RegisterPage> {
     try{
 
 
-      bool sucesso = await ApiService.register(
 
-        nome.text,
+      bool sucesso =
 
-        email.text,
+      await ApiService.register(
 
-        senha.text
+          nome.text.trim(),
+
+          email.text.trim(),
+
+          senha.text.trim()
 
       );
 
@@ -106,41 +212,48 @@ class _RegisterPageState extends State<RegisterPage> {
       if(sucesso){
 
 
-        ScaffoldMessenger.of(context).showSnackBar(
 
-          const SnackBar(
+        mensagem(
+            "Usuário cadastrado com sucesso!"
+        );
 
-            content: Text(
-              "Usuário cadastrado com sucesso!"
-            ),
 
-          ),
+
+        await Future.delayed(
+
+            const Duration(
+                milliseconds:500
+            )
 
         );
+
+
+
+
+        if(!mounted)
+          return;
 
 
 
         Navigator.pushReplacementNamed(
 
-          context,
+            context,
 
-          '/login'
+            "/login"
 
         );
+
+
+
 
 
       }else{
 
 
-        ScaffoldMessenger.of(context).showSnackBar(
 
-          const SnackBar(
+        mensagem(
 
-            content: Text(
-              "Erro ao cadastrar usuário"
-            ),
-
-          ),
+            "Erro ao cadastrar usuário"
 
         );
 
@@ -155,25 +268,86 @@ class _RegisterPageState extends State<RegisterPage> {
     }catch(e){
 
 
-      ScaffoldMessenger.of(context).showSnackBar(
 
-        SnackBar(
+      mensagem(
 
-          content: Text(
-            "Erro de conexão: $e"
-          ),
-
-        ),
+          "Erro de conexão"
 
       );
+
+
+
+      print(e);
+
+
+
+
+    }finally{
+
+
+
+      if(mounted){
+
+
+        setState((){
+
+
+          carregando=false;
+
+
+        });
+
+
+      }
+
 
 
     }
 
 
 
+
+
   }
 
+
+
+
+
+
+
+
+
+  void mensagem(String texto){
+
+
+
+    if(!mounted)
+      return;
+
+
+
+
+    ScaffoldMessenger.of(context)
+
+        .showSnackBar(
+
+
+      SnackBar(
+
+        content:
+
+        Text(texto),
+
+
+      ),
+
+
+    );
+
+
+
+  }
 
 
 
@@ -191,316 +365,682 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
 
 
-      backgroundColor: Colors.grey[100],
 
+      backgroundColor:
 
+      Colors.grey[100],
 
-      body: Center(
 
 
 
-        child: Container(
 
 
-          width:350,
 
+      body:
 
-          padding:const EdgeInsets.all(25),
+      Center(
 
 
 
-          decoration:BoxDecoration(
 
+        child:
 
-            color:Colors.white,
+        SingleChildScrollView(
 
 
-            borderRadius:BorderRadius.circular(15),
 
 
-            boxShadow:[
+          child:
 
-              BoxShadow(
+          Container(
 
-                color:Colors.black12,
 
-                blurRadius:10,
 
-              )
 
-            ]
+            width:
 
-          ),
+            360,
 
 
 
 
 
-          child:Column(
+            padding:
 
+            const EdgeInsets.all(25),
 
-            mainAxisSize:MainAxisSize.min,
 
 
 
-            children:[
 
+            decoration:
 
+            BoxDecoration(
 
 
 
-              const Text(
+              color:
 
-                "Criar Usuário",
+              Colors.white,
 
 
-                style:TextStyle(
 
-                  fontSize:26,
+              borderRadius:
 
-                  fontWeight:FontWeight.bold
+              BorderRadius.circular(15),
 
-                ),
 
 
-              ),
 
 
+              boxShadow:[
 
 
 
-              const SizedBox(height:25),
+                BoxShadow(
 
 
 
+                  color:
 
+                  Colors.black12,
 
 
 
-              TextField(
+                  blurRadius:
 
+                  10,
 
-                controller:nome,
 
 
-                decoration:InputDecoration(
+                )
 
 
-                  labelText:"Nome",
 
+              ]
 
-                  border:OutlineInputBorder(
 
-                    borderRadius:BorderRadius.circular(10)
 
-                  )
+            ),
 
 
-                ),
 
 
-              ),
 
 
 
 
+            child:
 
-              const SizedBox(height:15),
+            Column(
 
 
 
+              mainAxisSize:
 
+              MainAxisSize.min,
 
 
-              TextField(
 
 
-                controller:email,
 
+              children:[
 
-                keyboardType:TextInputType.emailAddress,
 
 
-                decoration:InputDecoration(
 
 
-                  labelText:"Email",
 
+                const Text(
 
-                  border:OutlineInputBorder(
 
-                    borderRadius:BorderRadius.circular(10)
 
-                  )
+                  "Criar Usuário",
 
 
-                ),
 
 
-              ),
 
+                  style:
 
+                  TextStyle(
 
 
 
+                    fontSize:
 
-              const SizedBox(height:15),
+                    26,
 
 
 
+                    fontWeight:
 
+                    FontWeight.bold,
 
-
-              TextField(
-
-
-                controller:senha,
-
-
-                obscureText:true,
-
-
-                decoration:InputDecoration(
-
-
-                  labelText:"Senha",
-
-
-                  border:OutlineInputBorder(
-
-                    borderRadius:BorderRadius.circular(10)
-
-                  )
-
-
-                ),
-
-
-              ),
-
-
-
-
-
-
-              const SizedBox(height:25),
-
-
-
-
-
-
-              SizedBox(
-
-
-                width:double.infinity,
-
-
-                child:ElevatedButton(
-
-
-                  onPressed:cadastrar,
-
-
-
-                  style:ElevatedButton.styleFrom(
-
-
-                    padding:
-                    const EdgeInsets.all(15),
-
-
-                    backgroundColor:
-                    Colors.blue,
-
-
-                    shape:RoundedRectangleBorder(
-
-                      borderRadius:
-                      BorderRadius.circular(10)
-
-                    )
 
 
                   ),
 
 
 
-
-                  child:const Text(
-
-                    "Cadastrar",
+                ),
 
 
-                    style:TextStyle(
 
-                      color:Colors.white,
 
-                      fontSize:16
+
+
+
+                const SizedBox(
+                    height:25
+                ),
+
+
+
+
+
+
+
+
+                TextField(
+
+
+
+                  controller:
+
+                  nome,
+
+
+
+                  decoration:
+
+                  campo(
+
+                      "Nome",
+
+                      Icons.person
+
+                  ),
+
+
+
+                ),
+
+
+
+
+
+
+
+                const SizedBox(
+                    height:15
+                ),
+
+
+
+
+
+
+
+                TextField(
+
+
+
+                  controller:
+
+                  email,
+
+
+
+                  keyboardType:
+
+                  TextInputType.emailAddress,
+
+
+
+
+                  decoration:
+
+                  campo(
+
+                      "Email",
+
+                      Icons.email
+
+                  ),
+
+
+
+                ),
+
+
+
+
+
+
+
+                const SizedBox(
+                    height:15
+                ),
+
+
+
+
+
+
+
+
+                TextField(
+
+
+
+                  controller:
+
+                  senha,
+
+
+
+                  obscureText:
+
+                  esconderSenha,
+
+
+
+
+                  decoration:
+
+                  campo(
+
+                      "Senha",
+
+                      Icons.lock
+
+                  ).copyWith(
+
+
+
+                    suffixIcon:
+
+                    IconButton(
+
+
+
+                      icon:
+
+                      Icon(
+
+
+
+                        esconderSenha
+
+                            ?
+
+                        Icons.visibility
+
+                            :
+
+                        Icons.visibility_off
+
+
+
+                      ),
+
+
+
+
+                      onPressed:(){
+
+
+                        setState((){
+
+
+                          esconderSenha =
+                          !esconderSenha;
+
+
+
+                        });
+
+
+                      },
+
 
                     ),
 
 
+
                   ),
 
 
-                ),
-
-
-              ),
-
-
-
-
-
-
-              TextButton(
-
-
-                onPressed:(){
-
-
-                  Navigator.pushReplacementNamed(
-
-                    context,
-
-                    '/login'
-
-                  );
-
-
-                },
-
-
-                child:const Text(
-
-                  "Já tenho conta"
-
 
                 ),
 
 
-              )
 
 
 
 
-            ],
+
+
+                const SizedBox(
+                    height:25
+                ),
+
+
+
+
+
+
+
+
+                SizedBox(
+
+
+
+                  width:
+
+                  double.infinity,
+
+
+
+
+
+                  child:
+
+                  ElevatedButton(
+
+
+
+                    onPressed:
+
+                    carregando
+
+                        ?
+
+                    null
+
+                        :
+
+                    cadastrar,
+
+
+
+
+
+
+
+                    style:
+
+                    ElevatedButton.styleFrom(
+
+
+
+                      padding:
+
+                      const EdgeInsets.all(15),
+
+
+
+                      backgroundColor:
+
+                      Colors.blue,
+
+
+
+
+                      shape:
+
+                      RoundedRectangleBorder(
+
+
+
+                        borderRadius:
+
+                        BorderRadius.circular(10),
+
+
+
+                      ),
+
+
+
+                    ),
+
+
+
+
+
+
+
+                    child:
+
+                    carregando
+
+
+
+                        ?
+
+
+
+                    const SizedBox(
+
+
+
+                      height:
+
+                      22,
+
+
+
+                      width:
+
+                      22,
+
+
+
+                      child:
+
+                      CircularProgressIndicator(
+
+
+
+                        color:
+
+                        Colors.white,
+
+
+
+                        strokeWidth:
+
+                        2,
+
+
+
+                      ),
+
+
+
+                    )
+
+
+
+
+
+                        :
+
+
+
+                    const Text(
+
+
+
+                      "Cadastrar",
+
+
+
+
+                      style:
+
+                      TextStyle(
+
+
+
+                        color:
+
+                        Colors.white,
+
+
+
+                        fontSize:
+
+                        16,
+
+
+
+                      ),
+
+
+
+                    ),
+
+
+
+                  ),
+
+
+
+                ),
+
+
+
+
+
+
+
+                TextButton(
+
+
+
+                  onPressed:(){
+
+
+
+                    Navigator.pushReplacementNamed(
+
+                        context,
+
+                        "/login"
+
+                    );
+
+
+                  },
+
+
+
+                  child:
+
+                  const Text(
+
+                      "Já tenho conta"
+
+                  ),
+
+
+
+                )
+
+
+
+
+
+              ],
+
+
+
+            ),
+
+
 
 
           ),
+
 
 
         ),
 
 
+
+
       ),
+
+
 
 
     );
 
 
+
   }
+
+
+
+
+
+
+
+
+
+  InputDecoration campo(
+
+      String texto,
+
+      IconData icone
+
+      ){
+
+
+
+    return InputDecoration(
+
+
+
+      labelText:
+
+      texto,
+
+
+
+      prefixIcon:
+
+      Icon(
+          icone
+      ),
+
+
+
+      border:
+
+      OutlineInputBorder(
+
+
+
+        borderRadius:
+
+        BorderRadius.circular(10),
+
+
+
+      ),
+
+
+
+    );
+
+
+
+  }
+
 
 
 
