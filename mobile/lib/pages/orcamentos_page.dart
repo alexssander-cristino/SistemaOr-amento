@@ -7,9 +7,11 @@ import '../services/pdf_service.dart';
 
 class OrcamentosPage extends StatefulWidget {
 
+
   const OrcamentosPage({
     super.key
   });
+
 
 
   @override
@@ -41,7 +43,6 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
   @override
   void initState(){
 
@@ -65,14 +66,29 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
     try{
 
 
-      final e = await ApiService.eventos();
-
-      final o = await ApiService.orcamentos();
-
+      final eventosApi =
+      await ApiService.eventos();
 
 
 
-      if(!mounted) return;
+      final orcamentosApi =
+      await ApiService.orcamentos();
+
+
+
+
+
+      print("ORCAMENTOS API");
+
+      print(orcamentosApi);
+
+
+
+
+
+
+      if(!mounted)return;
+
 
 
 
@@ -80,14 +96,15 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
       setState((){
 
 
-        eventos = e;
+        eventos = eventosApi;
 
-        orcamentos = o;
+        orcamentos = orcamentosApi;
 
         carregando = false;
 
 
       });
+
 
 
 
@@ -95,22 +112,27 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
     }catch(e){
 
 
+      print(e);
+
+
+
       setState((){
 
-        carregando = false;
+        carregando=false;
 
       });
 
 
+
       mostrarMensagem(
-          "Erro ao carregar dados"
+          "Erro ao carregar orçamentos"
       );
+
 
 
     }
 
 
-
   }
 
 
@@ -124,28 +146,69 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-  String nomeEvento(var e){
-
-
-    final categoria =
-    e['categoria']?['nome'] ?? "Evento";
-
-
-    final cliente =
-    e['cliente']?['nome'] ?? "Cliente";
+  String nomeEvento(var evento){
 
 
 
-    final data =
-    e['data'] ?? "";
+    if(evento == null){
+
+      return "Evento";
+
+    }
+
+
+
+
+
+    String categoria =
+
+    evento['categoria']?['nome']
+
+        ??
+
+    evento['tipo']
+
+        ??
+
+    "Evento";
+
+
+
+
+
+
+
+    String cliente =
+
+    evento['cliente']?['nome']
+
+        ??
+
+    "Cliente";
+
+
+
+
+
+
+
+    String data =
+
+    evento['data']
+
+        ??
+
+    "";
+
+
+
+
 
 
 
     return "$categoria - $cliente - $data";
 
-
   }
-
 
 
 
@@ -161,17 +224,25 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
   void novoOrcamento(){
 
 
+
     int? eventoSelecionado;
+
+
+
 
 
 
     showDialog(
 
 
-      context: context,
+
+      context:context,
+
 
 
       builder:(context){
+
+
 
 
 
@@ -179,7 +250,11 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+
+
           builder:(context,setModal){
+
+
 
 
 
@@ -200,113 +275,105 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
               content:
 
-              SizedBox(
 
 
-                width: double.maxFinite,
+              DropdownButtonFormField<int>(
 
 
-                child:
 
+                value:eventoSelecionado,
 
-                DropdownButtonFormField<int>(
 
 
 
-                  value:
 
-                  eventoSelecionado,
+                decoration:
 
+                const InputDecoration(
 
 
+                  labelText:
+                  "Selecione o evento",
 
 
-                  decoration:
-
-                  const InputDecoration(
-
-
-                    labelText:
-                    "Selecione o evento",
-
-
-                    border:
-                    OutlineInputBorder(),
-
-
-                  ),
-
-
-
-
-
-                  items:
-
-
-                  eventos.map<DropdownMenuItem<int>>(
-
-                          (e){
-
-
-
-                        return DropdownMenuItem<int>(
-
-
-                          value:
-
-                          e['id'],
-
-
-
-                          child:
-
-                          Text(
-
-                              nomeEvento(e)
-
-                          ),
-
-
-
-                        );
-
-
-
-                      }
-
-                  ).toList(),
-
-
-
-
-
-
-                  onChanged:(v){
-
-
-
-                    setModal((){
-
-
-                      eventoSelecionado = v;
-
-
-
-                    });
-
-
-
-                  },
-
-
-
-
+                  border:
+                  OutlineInputBorder(),
 
                 ),
 
 
-              ),
 
+
+
+
+                items:
+
+
+
+                eventos.map<DropdownMenuItem<int>>(
+
+                        (e){
+
+
+
+
+
+                      return DropdownMenuItem<int>(
+
+
+
+                        value:
+
+                        e['id'],
+
+
+
+
+
+                        child:
+
+                        Text(
+
+                            nomeEvento(e)
+
+                        ),
+
+
+
+                      );
+
+
+
+
+
+                    }
+
+                ).toList(),
+
+
+
+
+
+
+
+                onChanged:(v){
+
+
+
+                  setModal((){
+
+                    eventoSelecionado = v;
+
+
+                  });
+
+
+
+                },
+
+
+
+              ),
 
 
 
@@ -319,6 +386,7 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
                 TextButton(
+
 
 
                   onPressed:(){
@@ -337,9 +405,8 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
                   ),
 
 
+
                 ),
-
-
 
 
 
@@ -367,7 +434,6 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
                       return;
 
-
                     }
 
 
@@ -377,7 +443,10 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+
                     try{
+
+
 
 
 
@@ -426,6 +495,8 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+
+
                       Navigator.pop(context);
 
 
@@ -457,10 +528,7 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
                       );
 
 
-
                     }
-
-
 
 
 
@@ -469,11 +537,10 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
                   child:
 
                   const Text(
-                      "Gerar"
+                      "Criar"
                   )
 
 
@@ -489,11 +556,12 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+
             );
 
 
 
-          }
+          },
 
 
 
@@ -501,15 +569,15 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-      }
+      },
 
 
 
     );
 
 
-
   }
+
 
 
 
@@ -525,59 +593,177 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
   void gerarPdf(var orc){
 
 
-
-    List servicos = [];
-
+  List servicos = [];
 
 
-    if(orc['servicos'] != null){
 
+  // Primeiro tenta pegar itens do orçamento
+  if(orc['itens'] != null){
 
-      servicos = orc['servicos'];
+    servicos = List.from(
+      orc['itens']
+    );
 
-
-    }
-
-
-    else if(orc['itens'] != null){
-
-
-      servicos = orc['itens'];
-
-
-    }
+  }
 
 
 
 
 
-    double total = 0;
+  // Caso venha pelos serviços do evento
+  if(servicos.isEmpty &&
+      orc['evento'] != null &&
+      orc['evento']['servicos'] != null){
+
+
+    servicos = List.from(
+        orc['evento']['servicos']
+    );
+
+
+  }
 
 
 
 
-    for(var s in servicos){
+
+  double total = 0;
 
 
 
-      total += double.tryParse(
+
+  for(var item in servicos){
 
 
-          (s['valor_unitario']
+    double valor = 0;
 
-              ??
+    int quantidade = 1;
 
-              s['valor']
+    double subtotal = 0;
 
-              ??
+
+
+
+
+    // Quando vem de orcamento_servicos
+    if(item['servico'] != null){
+
+
+      valor = double.tryParse(
+
+          (
+
+              item['valor_unitario']
+
+                  ??
+
+              item['servico']['valor']
+
+                  ??
 
               0
 
-          )
+          ).toString()
 
-              .toString()
+      ) ?? 0;
 
 
+
+
+      quantidade = int.tryParse(
+
+          (
+
+              item['quantidade']
+
+                  ??
+
+              1
+
+          ).toString()
+
+      ) ?? 1;
+
+
+
+
+      subtotal = double.tryParse(
+
+          (
+
+              item['subtotal']
+
+                  ??
+
+              valor * quantidade
+
+          ).toString()
+
+      ) ?? 0;
+
+
+
+    }
+
+
+
+
+
+    // Quando vem do evento_servicos
+    else {
+
+
+      valor = double.tryParse(
+
+          (
+
+              item['pivot']?['valor_unitario']
+
+                  ??
+
+              item['valor']
+
+                  ??
+
+              0
+
+          ).toString()
+
+      ) ?? 0;
+
+
+
+
+
+      quantidade = int.tryParse(
+
+          (
+
+              item['pivot']?['quantidade']
+
+                  ??
+
+              1
+
+          ).toString()
+
+      ) ?? 1;
+
+
+
+
+
+      subtotal = double.tryParse(
+
+          (
+
+              item['pivot']?['subtotal']
+
+                  ??
+
+              valor * quantidade
+
+          ).toString()
 
       ) ?? 0;
 
@@ -590,52 +776,7 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
-    PdfService.gerarOrcamento(
-
-
-
-        cliente:
-
-        orc['evento']?['cliente']?['nome']
-
-            ??
-
-            "",
-
-
-
-
-
-
-        evento:
-
-        nomeEvento(
-
-            orc['evento']
-
-        ),
-
-
-
-
-
-
-        servicos:
-
-        servicos,
-
-
-
-
-
-        total:
-
-        total
-
-
-
-    );
+    total += subtotal;
 
 
 
@@ -647,10 +788,64 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+  print("SERVICOS PDF:");
+  print(servicos);
+
+
+  print("TOTAL PDF:");
+  print(total);
 
 
 
 
+
+
+  PdfService.gerarOrcamento(
+
+
+      cliente:
+
+      orc['evento']?['cliente']?['nome']
+
+          ??
+
+          "Cliente",
+
+
+
+
+
+      evento:
+
+      nomeEvento(
+
+          orc['evento']
+
+      ),
+
+
+
+
+
+      servicos:
+
+      servicos,
+
+
+
+
+
+      total:
+
+      total
+
+
+
+  );
+
+
+
+}
 
   void mostrarMensagem(String texto){
 
@@ -662,9 +857,9 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
       SnackBar(
 
-          content:
+        content:
 
-          Text(texto)
+        Text(texto),
 
       ),
 
@@ -672,7 +867,9 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
     );
 
+
   }
+
 
 
 
@@ -695,7 +892,6 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
       appBar:
 
       AppBar(
@@ -704,7 +900,9 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
         title:
 
         const Text(
+
             "Orçamentos"
+
         ),
 
 
@@ -718,6 +916,8 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
       floatingActionButton:
 
+
+
       FloatingActionButton.extended(
 
 
@@ -730,13 +930,11 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
         label:
 
         const Text(
             "Novo"
         ),
-
 
 
 
@@ -756,6 +954,8 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
       body:
 
+
+
       carregando
 
 
@@ -770,35 +970,7 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
         CircularProgressIndicator(),
 
-
       )
-
-
-
-
-
-          :
-
-
-
-      orcamentos.isEmpty
-
-
-
-          ?
-
-
-
-      const Center(
-
-        child:
-
-        Text(
-            "Nenhum orçamento encontrado"
-        ),
-
-      )
-
 
 
 
@@ -818,7 +990,6 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
         child:
 
         ListView.builder(
@@ -832,10 +1003,10 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+
           itemCount:
 
           orcamentos.length,
-
 
 
 
@@ -845,7 +1016,9 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-            final o = orcamentos[index];
+            final o =
+
+            orcamentos[index];
 
 
 
@@ -857,10 +1030,7 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-              elevation:
-
-              4,
-
+              elevation:4,
 
 
 
@@ -869,9 +1039,6 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
               child:
 
               ListTile(
-
-
-
 
 
 
@@ -888,30 +1055,30 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
-
                 subtitle:
 
                 Text(
 
 
-
                     "Cliente: "
+
                         "${o['evento']?['cliente']?['nome'] ?? ''}\n"
 
 
+
                         "Evento: "
-                        "${o['evento'] != null ? nomeEvento(o['evento']) : ''}\n"
+
+                        "${nomeEvento(o['evento'])}\n"
+
 
 
                         "Status: "
+
                         "${o['status'] ?? ''}"
 
 
 
                 ),
-
-
 
 
 
@@ -935,13 +1102,10 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
                   onPressed:(){
 
 
-
                     gerarPdf(o);
-
 
 
                   },
@@ -949,8 +1113,6 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
                 ),
-
-
 
 
 
@@ -974,14 +1136,11 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
-
     );
 
 
 
   }
-
 
 
 

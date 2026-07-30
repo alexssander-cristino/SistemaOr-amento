@@ -21,38 +21,57 @@ class AdminEventoController extends Controller
     {
 
 
+        $eventos = Evento::with([
+
+            'cliente',
+
+            'categoria',
+
+            'servicos.servico'
+
+        ])
+
+        ->orderBy('id','asc')
+
+        ->get();
+
+
+
+
+
+
+
         return view('admin.eventos',[
 
 
-            'eventos'=>Evento::with([
-
-                'cliente',
-                'categoria',
-                'servicos.servico'
-
-            ])
-            ->orderBy('data')
-            ->get(),
+            'eventos'=>$eventos,
 
 
 
-            'clientes'=>Cliente::all(),
+            'clientes'=>Cliente::orderBy('nome')
+                ->get(),
 
 
 
-            'categorias'=>CategoriaEvento::all(),
+            'categorias'=>CategoriaEvento::orderBy('nome')
+                ->get(),
 
 
 
             'servicos'=>Servico::with('categoria')
+
                 ->orderBy('nome')
+
                 ->get()
+
 
 
         ]);
 
-
     }
+
+
+
 
 
 
@@ -71,63 +90,117 @@ class AdminEventoController extends Controller
 
 
             'cliente_id'=>[
+
                 'required',
+
                 'exists:clientes,id'
+
             ],
+
+
 
 
 
             'categoria_evento_id'=>[
+
                 'required',
+
                 'exists:categorias_eventos,id'
+
             ],
+
+
 
 
 
             'data'=>[
+
                 'required',
+
                 'date'
+
             ],
+
+
 
 
 
             'hora'=>[
+
                 'required'
+
             ],
+
+
 
 
 
             'local'=>[
+
                 'required',
+
                 'string'
+
             ],
+
+
 
 
 
             'quantidade_convidados'=>[
+
                 'required',
+
                 'integer',
+
                 'min:1'
+
             ],
+
+
 
 
 
             'observacoes'=>[
+
                 'nullable',
+
                 'string'
+
             ],
+
+
 
 
 
             'servicos'=>[
+
                 'nullable',
+
                 'array'
+
             ],
 
 
 
+
+
             'servicos.*'=>[
+
                 'exists:servicos,id'
+
+            ],
+
+
+
+
+
+            'quantidades'=>[
+
+                'nullable',
+
+                'array'
+
             ]
 
 
@@ -141,35 +214,51 @@ class AdminEventoController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Criar Evento
-        |--------------------------------------------------------------------------
-        */
-
 
         $evento = Evento::create([
 
 
-            'cliente_id'=>$request->cliente_id,
+
+            'cliente_id'=>
+
+                $request->cliente_id,
 
 
-            'categoria_evento_id'=>$request->categoria_evento_id,
+
+            'categoria_evento_id'=>
+
+                $request->categoria_evento_id,
 
 
-            'data'=>$request->data,
+
+            'data'=>
+
+                $request->data,
 
 
-            'hora'=>$request->hora,
+
+            'hora'=>
+
+                $request->hora,
 
 
-            'local'=>$request->local,
+
+            'local'=>
+
+                $request->local,
 
 
-            'quantidade_convidados'=>$request->quantidade_convidados,
+
+            'quantidade_convidados'=>
+
+                $request->quantidade_convidados,
 
 
-            'observacoes'=>$request->observacoes
+
+            'observacoes'=>
+
+                $request->observacoes
+
 
 
         ]);
@@ -182,12 +271,6 @@ class AdminEventoController extends Controller
 
 
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Adicionar serviços do evento
-        |--------------------------------------------------------------------------
-        */
 
 
         if($request->filled('servicos'))
@@ -202,22 +285,56 @@ class AdminEventoController extends Controller
 
 
 
+
+
+                $quantidade =
+
+                    $request->quantidades[$id] ?? 1;
+
+
+
+
+
+                $valor =
+
+                    $servico->valor ?? 0;
+
+
+
+
+
                 EventoServico::create([
 
 
-                    'evento_id'=>$evento->id,
+
+                    'evento_id'=>
+
+                        $evento->id,
 
 
-                    'servico_id'=>$servico->id,
+
+                    'servico_id'=>
+
+                        $servico->id,
 
 
-                    'quantidade'=>1,
+
+                    'quantidade'=>
+
+                        $quantidade,
 
 
-                    'valor_unitario'=>$servico->valor,
+
+                    'valor_unitario'=>
+
+                        $valor,
 
 
-                    'subtotal'=>$servico->valor
+
+                    'subtotal'=>
+
+                        $quantidade * $valor
+
 
 
                 ]);
@@ -237,18 +354,17 @@ class AdminEventoController extends Controller
 
 
 
-
         return redirect()
 
-            ->route('admin.eventos')
+        ->route('admin.eventos')
 
-            ->with(
+        ->with(
 
-                'success',
+            'success',
 
-                'Evento cadastrado com sucesso!'
+            'Evento cadastrado com sucesso!'
 
-            );
+        );
 
 
     }
@@ -273,11 +389,6 @@ class AdminEventoController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Remove serviços vinculados
-        |--------------------------------------------------------------------------
-        */
 
 
         EventoServico::where(
@@ -286,18 +397,14 @@ class AdminEventoController extends Controller
 
             $evento->id
 
-        )->delete();
+        )
+
+        ->delete();
 
 
 
 
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Remove evento
-        |--------------------------------------------------------------------------
-        */
 
 
         $evento->delete();
@@ -308,20 +415,22 @@ class AdminEventoController extends Controller
 
 
 
+
         return redirect()
 
-            ->route('admin.eventos')
+        ->route('admin.eventos')
 
-            ->with(
+        ->with(
 
-                'success',
+            'success',
 
-                'Evento removido com sucesso!'
+            'Evento removido com sucesso!'
 
-            );
+        );
 
 
     }
+
 
 
 

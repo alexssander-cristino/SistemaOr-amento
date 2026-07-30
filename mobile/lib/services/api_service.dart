@@ -2,13 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
 
 class ApiService {
-
 
 
   static const String baseUrl =
@@ -18,22 +16,15 @@ class ApiService {
 
 
 
-
   // ================= TOKEN =================
-
 
 
   static Future<String?> getToken() async {
 
-
     final prefs =
     await SharedPreferences.getInstance();
 
-
-    return prefs.getString(
-        "token"
-    );
-
+    return prefs.getString("token");
 
   }
 
@@ -41,27 +32,17 @@ class ApiService {
 
 
 
-
-  static Future<void> salvarToken(
-      String token
-      ) async {
-
+  static Future<void> salvarToken(String token) async {
 
     final prefs =
     await SharedPreferences.getInstance();
-
-
 
     await prefs.setString(
-        "token",
-        token
+      "token",
+      token,
     );
 
-
   }
-
-
-
 
 
 
@@ -83,7 +64,6 @@ class ApiService {
       "application/json",
 
 
-
       "Content-Type":
       "application/json",
 
@@ -92,18 +72,13 @@ class ApiService {
       if(token != null)
 
         "Authorization":
-        "Bearer $token"
-
+        "Bearer $token",
 
 
     };
 
 
   }
-
-
-
-
 
 
 
@@ -127,11 +102,9 @@ class ApiService {
     await http.post(
 
 
-
       Uri.parse(
           "$baseUrl/login"
       ),
-
 
 
       headers:{
@@ -141,14 +114,11 @@ class ApiService {
         "application/json",
 
 
-
         "Content-Type":
-        "application/json"
-
+        "application/json",
 
 
       },
-
 
 
       body:
@@ -160,10 +130,8 @@ class ApiService {
         email,
 
 
-
         "password":
-        senha
-
+        senha,
 
 
       }),
@@ -174,17 +142,7 @@ class ApiService {
 
 
 
-
-    print(
-        "LOGIN ${response.statusCode}"
-    );
-
-    print(
-        response.body
-    );
-
-
-
+    print(response.body);
 
 
 
@@ -205,7 +163,6 @@ class ApiService {
         );
 
 
-
         return true;
 
 
@@ -215,17 +172,10 @@ class ApiService {
     }
 
 
-
-
-
     return false;
 
 
-
   }
-
-
-
 
 
 
@@ -251,11 +201,9 @@ class ApiService {
     await http.post(
 
 
-
       Uri.parse(
           "$baseUrl/register"
       ),
-
 
 
       headers:{
@@ -265,14 +213,11 @@ class ApiService {
         "application/json",
 
 
-
         "Content-Type":
-        "application/json"
-
+        "application/json",
 
 
       },
-
 
 
       body:
@@ -284,20 +229,16 @@ class ApiService {
         nome,
 
 
-
         "email":
         email,
-
 
 
         "password":
         senha,
 
 
-
         "password_confirmation":
-        senha
-
+        senha,
 
 
       }),
@@ -308,10 +249,8 @@ class ApiService {
 
 
 
-
     return response.statusCode == 200 ||
         response.statusCode == 201;
-
 
 
   }
@@ -341,11 +280,9 @@ class ApiService {
     await http.get(
 
 
-
       Uri.parse(
           "$baseUrl/$rota"
       ),
-
 
 
       headers:
@@ -353,21 +290,18 @@ class ApiService {
       await headers(),
 
 
-
     );
 
 
 
 
+    print(
+        "GET $rota"
+    );
 
-
-    print("GET $rota");
-
-    print(response.statusCode);
-
-    print(response.body);
-
-
+    print(
+        response.body
+    );
 
 
 
@@ -394,7 +328,6 @@ class ApiService {
 
 
 
-
       return dados;
 
 
@@ -402,14 +335,9 @@ class ApiService {
 
 
 
-
-
     throw Exception(
-
         response.body
-
     );
-
 
 
   }
@@ -440,17 +368,14 @@ class ApiService {
     await http.post(
 
 
-
       Uri.parse(
           "$baseUrl/$rota"
       ),
 
 
-
       headers:
 
       await headers(),
-
 
 
       body:
@@ -466,25 +391,8 @@ class ApiService {
 
 
 
-
-    print(
-        "POST $rota"
-    );
-
-
-    print(
-        response.body
-    );
-
-
-
-
-
-
-
     if(response.statusCode == 200 ||
         response.statusCode == 201){
-
 
 
       if(response.body.isEmpty){
@@ -504,20 +412,12 @@ class ApiService {
 
 
 
-
-
     throw Exception(
-
         response.body
-
     );
 
 
-
   }
-
-
-
 
 
 
@@ -542,17 +442,14 @@ class ApiService {
     await http.put(
 
 
-
       Uri.parse(
           "$baseUrl/$rota"
       ),
 
 
-
       headers:
 
       await headers(),
-
 
 
       body:
@@ -562,19 +459,14 @@ class ApiService {
       ),
 
 
-
     );
 
 
 
 
 
-
-
     if(response.statusCode == 200 ||
-        response.statusCode == 201 ||
         response.statusCode == 204){
-
 
 
       if(response.body.isEmpty){
@@ -595,20 +487,12 @@ class ApiService {
 
 
 
-
     throw Exception(
-
         response.body
-
     );
 
 
-
   }
-
-
-
-
 
 
 
@@ -627,10 +511,8 @@ class ApiService {
       ) async {
 
 
-
     final response =
     await http.delete(
-
 
 
       Uri.parse(
@@ -638,38 +520,17 @@ class ApiService {
       ),
 
 
-
       headers:
 
       await headers(),
 
 
-
     );
-
-
-
-
-
-
-    print(
-        "DELETE $rota"
-    );
-
-
-    print(
-        response.body
-    );
-
-
-
-
 
 
 
     return response.statusCode == 200 ||
         response.statusCode == 204;
-
 
 
   }
@@ -701,8 +562,6 @@ class ApiService {
 
 
 
-
-
     if(dados is List){
 
       return dados;
@@ -712,9 +571,7 @@ class ApiService {
 
 
 
-
     if(dados is Map){
-
 
 
       if(dados["data"] is List){
@@ -724,29 +581,13 @@ class ApiService {
       }
 
 
-
-
-      if(dados[rota] is List){
-
-        return dados[rota];
-
-      }
-
-
-
     }
-
 
 
 
     return [];
 
-
-
   }
-
-
-
 
 
 
@@ -762,15 +603,11 @@ class ApiService {
 
   static Future<List<dynamic>> clientes() async {
 
-
     return await lista(
         "clientes"
     );
 
-
   }
-
-
 
 
 
@@ -778,38 +615,23 @@ class ApiService {
 
   static Future<List<dynamic>> eventos() async {
 
-
     return await lista(
         "eventos"
     );
 
-
   }
 
 
-
-
-
-
-
-  // NOVO
-  // categorias dos tipos de evento
 
 
 
   static Future<List<dynamic>> categoriasEvento() async {
 
-
     return await lista(
         "categorias-evento"
     );
 
-
   }
-
-
-
-
 
 
 
@@ -817,16 +639,11 @@ class ApiService {
 
   static Future<List<dynamic>> categorias() async {
 
-
     return await lista(
         "categorias"
     );
 
-
   }
-
-
-
 
 
 
@@ -834,17 +651,11 @@ class ApiService {
 
   static Future<List<dynamic>> servicos() async {
 
-
     return await lista(
         "servicos"
     );
 
-
   }
-
-
-
-
 
 
 
@@ -852,16 +663,11 @@ class ApiService {
 
   static Future<List<dynamic>> orcamentos() async {
 
-
     return await lista(
         "orcamentos"
     );
 
-
   }
-
-
-
 
 
 
@@ -869,17 +675,11 @@ class ApiService {
 
   static Future<List<dynamic>> pagamentos() async {
 
-
     return await lista(
         "pagamentos"
     );
 
-
   }
-
-
-
-
 
 
 
@@ -893,17 +693,28 @@ class ApiService {
 
 
 
-  static Future<dynamic> usuario() async {
+  static Future<Map<String,dynamic>> usuario() async {
 
 
-    return await get(
+
+    final dados =
+    await get(
         "usuario"
     );
 
 
+
+    if(dados is Map<String,dynamic>){
+
+      return dados;
+
+    }
+
+
+    return {};
+
+
   }
-
-
 
 
 
@@ -916,22 +727,16 @@ class ApiService {
       ) async {
 
 
-
     await put(
         "usuario",
         dados
     );
 
 
-
     return true;
 
 
   }
-
-
-
-
 
 
 
@@ -950,27 +755,21 @@ class ApiService {
       ) async {
 
 
-
     final token =
     await getToken();
 
 
 
-
-
-
-    var request =
+    final request =
     http.MultipartRequest(
 
 
-
-        "POST",
-
+      "POST",
 
 
-        Uri.parse(
-            "$baseUrl/usuario/foto"
-        )
+      Uri.parse(
+          "$baseUrl/usuario/foto"
+      ),
 
 
     );
@@ -978,23 +777,15 @@ class ApiService {
 
 
 
-
-
-
     request.headers.addAll({
 
 
+      "Accept":
+      "application/json",
+
 
       "Authorization":
-
       "Bearer $token",
-
-
-
-      "Accept":
-
-      "application/json"
-
 
 
     });
@@ -1003,38 +794,22 @@ class ApiService {
 
 
 
-
-
-
     request.files.add(
 
 
-
-        await http.MultipartFile.fromPath(
-
-
-            "foto",
+      await http.MultipartFile.fromPath(
 
 
-            foto.path,
+        "foto",
 
 
-
-            contentType:
-
-            MediaType(
-                "image",
-                "jpeg"
-            )
+        foto.path,
 
 
-
-        )
+      ),
 
 
     );
-
-
 
 
 
@@ -1045,7 +820,9 @@ class ApiService {
 
 
 
-
+    print(
+        response.statusCode
+    );
 
 
 
@@ -1093,7 +870,6 @@ class ApiService {
 
 
 
-
     await prefs.remove(
         "token"
     );
@@ -1104,6 +880,5 @@ class ApiService {
 
 
 
-
-
 }
+

@@ -3,19 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 
 class Evento extends Model
 {
+
+    use HasFactory;
+
 
 
     protected $fillable = [
 
         'cliente_id',
+
         'categoria_evento_id',
+
         'data',
+
         'hora',
+
         'local',
+
         'quantidade_convidados',
+
         'observacoes'
 
     ];
@@ -38,12 +49,16 @@ class Evento extends Model
 
 
 
+
     public function categoria()
     {
 
         return $this->belongsTo(
+
             CategoriaEvento::class,
+
             'categoria_evento_id'
+
         );
 
     }
@@ -54,12 +69,17 @@ class Evento extends Model
 
 
 
+    // serviços do evento
+
     public function servicos()
     {
 
         return $this->hasMany(
+
             EventoServico::class,
+
             'evento_id'
+
         );
 
     }
@@ -74,7 +94,11 @@ class Evento extends Model
     {
 
         return $this->hasOne(
-            Orcamento::class
+
+            Orcamento::class,
+
+            'evento_id'
+
         );
 
     }

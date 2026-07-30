@@ -100,6 +100,7 @@ ORÇAMENTO DE EVENTO
 
 
 
+
 <h3>
 Dados do Cliente
 </h3>
@@ -114,6 +115,8 @@ Nome:
 {{ optional($orcamento->evento->cliente)->nome ?? 'Cliente não encontrado' }}
 
 </p>
+
+
 
 
 
@@ -138,6 +141,7 @@ Tipo:
 
 
 
+
 <p class="info">
 
 <strong>
@@ -154,6 +158,7 @@ strtotime($orcamento->evento->data)
 
 
 
+
 <p class="info">
 
 <strong>
@@ -163,6 +168,7 @@ Horário:
 {{ $orcamento->evento->hora }}
 
 </p>
+
 
 
 
@@ -182,9 +188,13 @@ Local:
 
 
 
+
+
+
 <h3>
 Serviços Contratados
 </h3>
+
 
 
 
@@ -220,7 +230,9 @@ Subtotal
 
 
 
-@foreach($orcamento->evento->servicos as $item)
+
+
+@foreach($orcamento->itens as $item)
 
 
 
@@ -232,6 +244,7 @@ Subtotal
 {{ optional($item->servico)->nome ?? 'Serviço removido' }}
 
 </td>
+
 
 
 
@@ -257,7 +270,6 @@ $item->valor_unitario,
 '.'
 ) }}
 
-
 </td>
 
 
@@ -275,7 +287,6 @@ $item->subtotal,
 '.'
 ) }}
 
-
 </td>
 
 
@@ -290,6 +301,8 @@ $item->subtotal,
 
 
 
+
+
 </table>
 
 
@@ -298,6 +311,8 @@ $item->subtotal,
 
 
 <br>
+
+
 
 
 
@@ -323,6 +338,7 @@ $orcamento->valor_total,
 
 
 
+
 <p>
 
 <strong>
@@ -333,6 +349,7 @@ Status:
 
 
 </p>
+
 
 
 

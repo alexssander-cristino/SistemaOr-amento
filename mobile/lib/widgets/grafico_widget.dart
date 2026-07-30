@@ -7,11 +7,8 @@ class GraficoWidget extends StatelessWidget {
 
 
   final int clientes;
-
   final int eventos;
-
   final int servicos;
-
   final int orcamentos;
 
 
@@ -42,13 +39,41 @@ class GraficoWidget extends StatelessWidget {
 
 
 
+    final maiorValor = [
+
+      clientes,
+
+      eventos,
+
+      servicos,
+
+      orcamentos,
+
+
+    ].reduce((a,b)=>a>b?a:b);
+
+
+
+
+
+    final limiteGrafico =
+        maiorValor < 5
+            ? 5
+            : maiorValor + 5;
+
+
+
+
+
+
     return Container(
 
 
       height:300,
 
 
-      padding:const EdgeInsets.all(20),
+      padding:
+      const EdgeInsets.all(20),
 
 
 
@@ -60,7 +85,6 @@ class GraficoWidget extends StatelessWidget {
 
         borderRadius:
         BorderRadius.circular(15),
-
 
 
       ),
@@ -80,7 +104,8 @@ class GraficoWidget extends StatelessWidget {
 
 
 
-          maxY:10,
+          maxY:
+          limiteGrafico.toDouble(),
 
 
 
@@ -89,31 +114,31 @@ class GraficoWidget extends StatelessWidget {
 
 
             criarBarra(
-              0,
-              clientes,
+                0,
+                clientes
             ),
 
 
 
             criarBarra(
-              1,
-              eventos,
-            ),
-
-
-
-
-            criarBarra(
-              2,
-              servicos,
+                1,
+                eventos
             ),
 
 
 
 
             criarBarra(
-              3,
-              orcamentos,
+                2,
+                servicos
+            ),
+
+
+
+
+            criarBarra(
+                3,
+                orcamentos
             ),
 
 
@@ -145,22 +170,41 @@ class GraficoWidget extends StatelessWidget {
                   switch(value.toInt()){
 
 
+
                     case 0:
-                      return const Text("Clientes");
+
+                      return const Text(
+                          "Clientes"
+                      );
+
 
 
                     case 1:
-                      return const Text("Eventos");
+
+                      return const Text(
+                          "Eventos"
+                      );
+
 
 
                     case 2:
-                      return const Text("Serviços");
+
+                      return const Text(
+                          "Serviços"
+                      );
+
 
 
                     case 3:
-                      return const Text("Orç.");
+
+                      return const Text(
+                          "Orç."
+                      );
+
+
 
                     default:
+
                       return const Text("");
 
                   }
@@ -179,6 +223,7 @@ class GraficoWidget extends StatelessWidget {
             leftTitles:const AxisTitles(
 
               sideTitles:
+
               SideTitles(
 
                 showTitles:true,
@@ -189,6 +234,17 @@ class GraficoWidget extends StatelessWidget {
 
 
           ),
+
+
+
+          borderData:
+
+          FlBorderData(
+
+            show:false,
+
+          ),
+
 
 
 
@@ -232,10 +288,12 @@ class GraficoWidget extends StatelessWidget {
       barRods:[
 
 
+
         BarChartRodData(
 
 
           toY:
+
           valor.toDouble(),
 
 
@@ -245,11 +303,12 @@ class GraficoWidget extends StatelessWidget {
 
 
           borderRadius:
+
           BorderRadius.circular(5),
 
 
-        )
 
+        )
 
       ],
 
@@ -264,3 +323,4 @@ class GraficoWidget extends StatelessWidget {
 
 
 }
+

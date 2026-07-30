@@ -13,10 +13,7 @@ class EventoServico extends Model
 
 
 
-
     protected $table = 'evento_servicos';
-
-
 
 
 
@@ -60,6 +57,7 @@ class EventoServico extends Model
 
 
 
+
     public function servico()
     {
 
@@ -72,6 +70,7 @@ class EventoServico extends Model
         );
 
     }
+
 
 
 }

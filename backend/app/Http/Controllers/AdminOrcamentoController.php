@@ -19,42 +19,74 @@ class AdminOrcamentoController extends Controller
     {
 
 
-        return view('admin.orcamentos',[
+        $eventos = Evento::with([
+
+            'cliente',
+
+            'categoria',
+
+            'servicos.servico'
+
+        ])
+
+        ->orderBy(
+            'data',
+            'asc'
+        )
+
+        ->get();
 
 
-            'eventos'=>Evento::with([
-
-                'cliente',
-                'categoria',
-                'servicos.servico'
-
-            ])
-            ->orderBy('data')
-            ->get(),
 
 
 
 
-            'orcamentos'=>Orcamento::with([
 
-                'evento.cliente',
-                'evento.categoria',
-                'evento.servicos.servico',
-                'itens.servico'
+        $orcamentos = Orcamento::with([
 
-            ])
-            ->orderBy(
-                'created_at',
-                'desc'
+
+            'evento.cliente',
+
+            'evento.categoria',
+
+            'itens.servico'
+
+
+        ])
+
+        ->orderBy(
+
+            'created_at',
+
+            'desc'
+
+        )
+
+        ->get();
+
+
+
+
+
+
+
+
+        return view(
+
+            'admin.orcamentos',
+
+            compact(
+
+                'eventos',
+
+                'orcamentos'
+
             )
-            ->get()
 
-
-        ]);
+        );
 
 
     }
-
 
 
 
@@ -72,8 +104,11 @@ class AdminOrcamentoController extends Controller
 
 
             'evento_id'=>[
+
                 'required',
+
                 'exists:eventos,id'
+
             ]
 
 
@@ -84,14 +119,20 @@ class AdminOrcamentoController extends Controller
 
 
 
+
+
         $evento = Evento::with([
 
-            'servicos'
+            'servicos.servico'
 
         ])
+
         ->findOrFail(
+
             $request->evento_id
+
         );
+
 
 
 
@@ -106,52 +147,18 @@ class AdminOrcamentoController extends Controller
 
             return redirect()
 
-                ->route('admin.orcamentos')
+            ->route('admin.orcamentos')
 
-                ->with(
+            ->with(
 
-                    'error',
+                'error',
 
-                    'Este evento não possui serviços cadastrados.'
+                'Este evento não possui serviços.'
 
-                );
-
-
-        }
-
-
-
-
-
-
-
-
-
-        if(
-            Orcamento::where(
-                'evento_id',
-                $evento->id
-            )
-            ->exists()
-        )
-        {
-
-
-            return redirect()
-
-                ->route('admin.orcamentos')
-
-                ->with(
-
-                    'error',
-
-                    'Já existe orçamento para esse evento.'
-
-                );
+            );
 
 
         }
-
 
 
 
@@ -165,11 +172,31 @@ class AdminOrcamentoController extends Controller
 
 
 
+
+
         foreach($evento->servicos as $item)
         {
 
 
-            $total += $item->subtotal ?? 0;
+            $subtotal = $item->subtotal;
+
+
+            if(!$subtotal)
+            {
+
+                $subtotal =
+
+                    ($item->quantidade ?? 1)
+
+                    *
+
+                    ($item->valor_unitario ?? 0);
+
+            }
+
+
+
+            $total += $subtotal;
 
 
         }
@@ -182,19 +209,32 @@ class AdminOrcamentoController extends Controller
 
 
 
+
         $orcamento = Orcamento::create([
 
 
-            'evento_id'=>$evento->id,
+
+            'evento_id'=>
+
+                $evento->id,
 
 
-            'desconto'=>0,
+
+            'desconto'=>
+
+                0,
 
 
-            'valor_total'=>$total,
+
+            'valor_total'=>
+
+                $total,
 
 
-            'status'=>'pendente'
+
+            'status'=>
+
+                'pendente'
 
 
         ]);
@@ -214,20 +254,52 @@ class AdminOrcamentoController extends Controller
             OrcamentoServico::create([
 
 
-                'orcamento_id'=>$orcamento->id,
+
+                'orcamento_id'=>
+
+                    $orcamento->id,
 
 
-                'servico_id'=>$item->servico_id,
+
+                'servico_id'=>
+
+                    $item->servico_id,
 
 
-                'quantidade'=>$item->quantidade,
+
+                'quantidade'=>
+
+                    $item->quantidade ?? 1,
 
 
-                'valor_unitario'=>$item->valor_unitario,
+
+                'valor_unitario'=>
+
+                    $item->valor_unitario
+
+                    ??
+
+                    $item->servico->valor,
 
 
-                'subtotal'=>$item->subtotal
 
+                'subtotal'=>
+
+                    $item->subtotal
+
+                    ??
+
+                    (
+                        ($item->quantidade ?? 1)
+
+                        *
+
+                        ($item->valor_unitario
+
+                        ??
+
+                        $item->servico->valor)
+                    )
 
 
             ]);
@@ -243,22 +315,21 @@ class AdminOrcamentoController extends Controller
 
 
 
+
         return redirect()
 
-            ->route('admin.orcamentos')
+        ->route('admin.orcamentos')
 
-            ->with(
+        ->with(
 
-                'success',
+            'success',
 
-                'Orçamento criado com sucesso!'
+            'Orçamento criado com sucesso!'
 
-            );
+        );
 
 
     }
-
-
 
 
 
@@ -277,13 +348,18 @@ class AdminOrcamentoController extends Controller
 
 
 
+
         OrcamentoServico::where(
 
             'orcamento_id',
 
             $orcamento->id
 
-        )->delete();
+        )
+
+        ->delete();
+
+
 
 
 
@@ -294,20 +370,22 @@ class AdminOrcamentoController extends Controller
 
 
 
+
         return redirect()
 
-            ->route('admin.orcamentos')
+        ->route('admin.orcamentos')
 
-            ->with(
+        ->with(
 
-                'success',
+            'success',
 
-                'Orçamento removido!'
+            'Orçamento removido!'
 
-            );
+        );
 
 
     }
+
 
 
 }

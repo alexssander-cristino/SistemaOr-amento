@@ -13,14 +13,21 @@ class Servico extends Model
 
 
 
+
     protected $fillable = [
 
         'nome',
+
         'descricao',
+
         'valor',
+
         'categoria_id'
 
     ];
+
+
+
 
 
 
@@ -42,25 +49,22 @@ class Servico extends Model
 
 
 
+
+
     public function eventos()
     {
 
-        return $this->belongsToMany(
+        return $this->hasMany(
 
-            Evento::class,
+            EventoServico::class,
 
-            'evento_servicos'
+            'servico_id'
 
-        )
-        ->withPivot([
-
-            'quantidade',
-            'valor_unitario',
-            'subtotal'
-
-        ]);
+        );
 
     }
+
+
 
 
 
@@ -69,11 +73,11 @@ class Servico extends Model
     public function orcamentos()
     {
 
-        return $this->belongsToMany(
+        return $this->hasMany(
 
-            Orcamento::class,
+            OrcamentoServico::class,
 
-            'orcamento_servicos'
+            'servico_id'
 
         );
 

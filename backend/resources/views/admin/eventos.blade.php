@@ -7,26 +7,35 @@
 @section('content')
 
 
+
 <div class="header">
 
-    <h1>
-        📅 Agenda de Eventos
-    </h1>
+<h1>
+📅 Agenda de Eventos
+</h1>
 
-    <p>
-        Controle de datas, clientes e serviços contratados
-    </p>
+
+<p>
+Controle de datas, clientes e serviços contratados
+</p>
+
 
 </div>
+
+
 
 
 
 
 <div class="table-box">
 
-    <div id="calendar"></div>
+<div id="calendar"></div>
 
 </div>
+
+
+
+
 
 
 
@@ -41,9 +50,13 @@
 
 
 
-<form method="POST" action="{{ route('admin.eventos.store') }}">
+<form method="POST"
+action="{{ route('admin.eventos.store') }}">
+
 
 @csrf
+
+
 
 
 
@@ -54,18 +67,22 @@ Cliente
 
 <select name="cliente_id" required>
 
+
 <option value="">
-Selecione o cliente
+Selecione
 </option>
 
 
+
 @foreach($clientes as $cliente)
+
 
 <option value="{{ $cliente->id }}">
 
 {{ $cliente->nome }}
 
 </option>
+
 
 @endforeach
 
@@ -77,16 +94,19 @@ Selecione o cliente
 
 
 
+
+
 <label>
-Tipo de Evento
+Tipo de evento
 </label>
+
 
 
 <select name="categoria_evento_id" required>
 
 
 <option value="">
-Selecione o tipo
+Selecione
 </option>
 
 
@@ -111,20 +131,17 @@ Selecione o tipo
 
 
 
+
+
+
 <label>
 Data
 </label>
 
 
-<input
-
-type="date"
-
+<input type="date"
 name="data"
-
-required
-
->
+required>
 
 
 
@@ -132,19 +149,13 @@ required
 
 
 <label>
-Horário
+Hora
 </label>
 
 
-<input
-
-type="time"
-
+<input type="time"
 name="hora"
-
-required
-
->
+required>
 
 
 
@@ -157,17 +168,10 @@ Local
 </label>
 
 
-<input
-
-type="text"
-
+<input type="text"
 name="local"
+required>
 
-placeholder="Local do evento"
-
-required
-
->
 
 
 
@@ -176,21 +180,14 @@ required
 
 
 <label>
-Quantidade de convidados
+Quantidade convidados
 </label>
 
 
-<input
-
-type="number"
-
+<input type="number"
 name="quantidade_convidados"
-
 min="1"
-
-required
-
->
+required>
 
 
 
@@ -199,23 +196,23 @@ required
 
 
 
-<label>
-Serviços contratados
-</label>
+
+<h3>
+Serviços
+</h3>
+
+
 
 
 
 <div class="servicos">
 
 
-@forelse($servicos as $servico)
+@foreach($servicos as $servico)
 
 
+<div class="card">
 
-<div class="servico-card">
-
-
-<label class="check">
 
 
 <input
@@ -229,12 +226,11 @@ value="{{ $servico->id }}"
 >
 
 
-<div>
 
-
-<strong>
+<b>
 {{ $servico->nome }}
-</strong>
+</b>
+
 
 
 <br>
@@ -242,7 +238,8 @@ value="{{ $servico->id }}"
 
 Categoria:
 
-{{ optional($servico->categoria)->nome ?? 'Sem categoria' }}
+{{ optional($servico->categoria)->nome }}
+
 
 
 <br>
@@ -261,29 +258,44 @@ $servico->valor,
 
 
 
+
+
+
+<br><br>
+
+
+
+Quantidade:
+
+
+
+<input
+
+type="number"
+
+name="quantidades[{{ $servico->id }}]"
+
+value="1"
+
+min="1"
+
+style="width:70px"
+
+>
+
+
+
+
 </div>
 
 
-</label>
+
+@endforeach
 
 
 </div>
 
 
-
-@empty
-
-
-<p>
-Nenhum serviço cadastrado.
-</p>
-
-
-@endforelse
-
-
-
-</div>
 
 
 
@@ -296,13 +308,7 @@ Observações
 </label>
 
 
-<textarea
-
-name="observacoes"
-
-placeholder="Detalhes do evento">
-
-</textarea>
+<textarea name="observacoes"></textarea>
 
 
 
@@ -315,6 +321,9 @@ placeholder="Detalhes do evento">
 💾 Salvar Evento
 
 </button>
+
+
+
 
 
 
@@ -331,131 +340,10 @@ placeholder="Detalhes do evento">
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-
-
-
-
-<script>
-
-
-document.addEventListener('DOMContentLoaded', function(){
-
-
-let calendar = new FullCalendar.Calendar(
-
-document.getElementById('calendar'),
-
-{
-
-
-initialView:'dayGridMonth',
-
-
-locale:'pt-br',
-
-
-height:600,
-
-
-
-events:[
-
-
-
-@foreach($eventos as $evento)
-
-
-{
-
-
-title:
-
-"{{ optional($evento->categoria)->nome ?? 'Evento' }} - {{ optional($evento->cliente)->nome ?? 'Cliente' }}",
-
-
-start:
-
-"{{ $evento->data }}T{{ $evento->hora }}"
-
-
-},
-
-
-@endforeach
-
-
-
-],
-
-
-
-
-dateClick:function(info){
-
-
-document.querySelector('[name=data]').value = info.dateStr;
-
-
-window.scrollTo({
-
-top:700,
-
-behavior:'smooth'
-
-});
-
-
-}
-
-
-
-}
-
-
-
-);
-
-
-
-calendar.render();
-
-
-
-});
-
-
-
-</script>
-
-
-
-
-
-
-
-
-
 <style>
 
 
-#calendar{
-
-
-background:white;
-
-padding:20px;
-
-border-radius:15px;
-
-
-}
-
-
-
-
 .table-box{
-
 
 background:white;
 
@@ -465,22 +353,17 @@ border-radius:15px;
 
 margin-bottom:20px;
 
-
 }
-
 
 
 
 form{
 
-
 display:grid;
 
 gap:15px;
 
-
 }
-
 
 
 
@@ -488,117 +371,42 @@ input,
 select,
 textarea{
 
-
-width:100%;
-
 padding:12px;
 
 border-radius:8px;
 
 border:1px solid #ccc;
 
-font-size:15px;
-
-
 }
-
-
-
-
-textarea{
-
-
-height:100px;
-
-resize:none;
-
-
-}
-
-
-
-
 
 
 
 .servicos{
 
-
 display:grid;
 
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
 
 gap:15px;
 
-
 }
 
 
 
+.card{
 
-
-
-.servico-card{
-
-
-background:#f7f7f7;
-
-border:1px solid #ddd;
-
-border-radius:12px;
+background:#f5f5f5;
 
 padding:15px;
 
+border-radius:10px;
 
 }
-
-
-
-
-
-
-.check{
-
-
-display:flex;
-
-align-items:flex-start;
-
-gap:12px;
-
-cursor:pointer;
-
-
-}
-
-
-
-
-
-
-
-.check input[type="checkbox"]{
-
-
-width:20px !important;
-
-height:20px !important;
-
-margin-top:5px;
-
-cursor:pointer;
-
-
-}
-
-
-
-
 
 
 
 .btn{
-
 
 background:#2ecc71;
 
@@ -606,30 +414,18 @@ color:white;
 
 border:none;
 
-padding:12px 20px;
+padding:12px;
 
 border-radius:10px;
-
-cursor:pointer;
-
-font-size:16px;
-
-
-}
-
-
-
-.btn:hover{
-
-
-opacity:0.8;
-
 
 }
 
 
 
 </style>
+
+
+
 
 
 

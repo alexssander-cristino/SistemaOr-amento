@@ -6,153 +6,119 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-
 class UsuarioController extends Controller
 {
-
-
+    /**
+     * Retorna o usuário autenticado
+     */
     public function usuario()
     {
-
         $usuario = auth()->user();
 
-
-        if($usuario->foto){
-
-            $usuario->foto =
-            asset(
-                'storage/'.$usuario->foto
-            );
-
+        if (!$usuario) {
+            return response()->json([
+                "message" => "Usuário não autenticado"
+            ], 401);
         }
 
-
+        if (!empty($usuario->foto)) {
+            $usuario->foto = asset('storage/' . ltrim($usuario->foto, '/'));
+        }
 
         return response()->json($usuario);
-
     }
 
-
-
-
-
+    /**
+     * Atualiza nome e email
+     */
     public function update(Request $request)
     {
-
         $usuario = auth()->user();
 
+        if (!$usuario) {
+            return response()->json([
+                "message" => "Usuário não autenticado"
+            ], 401);
+        }
 
         $dados = $request->validate([
-
-            'name'=>'required|string',
-
-            'email'=>'required|email',
-
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|max:255',
         ]);
-
-
 
         $usuario->update($dados);
 
+        $usuario->refresh();
 
+        if (!empty($usuario->foto)) {
+            $usuario->foto = asset('storage/' . ltrim($usuario->foto, '/'));
+        }
 
         return response()->json([
-
-            'message'=>'Usuário atualizado',
-
-            'usuario'=>$usuario
-
+            "success" => true,
+            "message" => "Perfil atualizado",
+            "usuario" => $usuario
         ]);
-
     }
 
-
-
-
-
-
-
+    /**
+     * Upload da foto
+     */
     public function foto(Request $request)
     {
-
-
         $request->validate([
-
-            'foto'=>
-            'required|image|mimes:jpg,jpeg,png|max:2048'
-
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
-
-
-
 
         $usuario = auth()->user();
 
-
-
-
-        if($usuario->foto){
-
-
-            Storage::disk('public')
-            ->delete(
-                $usuario->foto
-            );
-
-
+        if (!$usuario) {
+            return response()->json([
+                "message" => "Usuário não autenticado"
+            ], 401);
         }
 
+        /*
+        |------------------------------------------------------------
+        | Remove foto antiga
+        |------------------------------------------------------------
+        */
 
+        if (!empty($usuario->foto)) {
 
+            $arquivo = $usuario->foto;
 
+            $arquivo = str_replace(asset('storage/') . '/', '', $arquivo);
+            $arquivo = str_replace(asset('storage/'), '', $arquivo);
+            $arquivo = ltrim($arquivo, '/');
 
+            if (Storage::disk('public')->exists($arquivo)) {
+                Storage::disk('public')->delete($arquivo);
+            }
+        }
+
+        /*
+        |------------------------------------------------------------
+        | Salva nova foto
+        |------------------------------------------------------------
+        */
 
         $path = $request
             ->file('foto')
-            ->store(
-                'usuarios',
-                'public'
-            );
+            ->store('usuarios', 'public');
 
+        $usuario->foto = $path;
+        $usuario->save();
 
+        $usuario->refresh();
 
-
-
-
-
-        $usuario->update([
-
-            'foto'=>$path
-
-        ]);
-
-
-
-
-
-
+        $usuario->foto = asset('storage/' . $path);
 
         return response()->json([
-
-
-            'message'=>'Foto atualizada',
-
-
-            'foto'=>
-            asset(
-                'storage/'.$path
-            ),
-
-
-            'usuario'=>$usuario
-
-
+            "success" => true,
+            "message" => "Foto atualizada com sucesso.",
+            "foto" => $usuario->foto,
+            "usuario" => $usuario
         ]);
-
-
-
     }
-
-
-
 }

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Orcamento;
+
 use Barryvdh\DomPDF\Facade\Pdf;
+
 
 
 class AdminOrcamentoPdfController extends Controller
@@ -16,14 +19,20 @@ class AdminOrcamentoPdfController extends Controller
 
         $orcamento = Orcamento::with([
 
+
             'evento.cliente',
 
             'evento.categoria',
 
-            'evento.servicos'
+            'itens.servico'
+
 
         ])
+
         ->findOrFail($id);
+
+
+
 
 
 
@@ -31,12 +40,19 @@ class AdminOrcamentoPdfController extends Controller
 
 
 
-        foreach($orcamento->evento->servicos as $servico)
+
+
+        foreach($orcamento->itens as $item)
         {
 
-            $total += $servico->pivot->subtotal ?? 0;
+
+            $total += $item->subtotal;
+
 
         }
+
+
+
 
 
 
@@ -56,11 +72,16 @@ class AdminOrcamentoPdfController extends Controller
 
 
 
+
+
+
+
         return $pdf->stream(
 
             'orcamento_'.$orcamento->id.'.pdf'
 
         );
+
 
 
     }
