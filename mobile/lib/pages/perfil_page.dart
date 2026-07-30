@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../services/api_service.dart';
 
@@ -10,7 +11,10 @@ import '../services/api_service.dart';
 class PerfilPage extends StatefulWidget {
 
 
-  const PerfilPage({super.key});
+  const PerfilPage({
+    super.key
+  });
+
 
 
   @override
@@ -24,6 +28,7 @@ class PerfilPage extends StatefulWidget {
 
 
 
+
 class _PerfilPageState extends State<PerfilPage>{
 
 
@@ -32,6 +37,7 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
   File? foto;
+
 
 
   bool carregando = true;
@@ -51,12 +57,29 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
+
   @override
   void initState(){
 
     super.initState();
 
     carregarUsuario();
+
+  }
+
+
+
+
+
+
+  @override
+  void dispose(){
+
+    nomeController.dispose();
+
+    emailController.dispose();
+
+    super.dispose();
 
   }
 
@@ -79,12 +102,22 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
+      print("USUARIO:");
+      print(dados);
+
+
+
+
+      if(!mounted)
+        return;
+
+
 
       setState((){
 
 
         usuario =
-        dados ?? {};
+            dados ?? {};
 
 
 
@@ -98,7 +131,7 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
-        carregando=false;
+        carregando = false;
 
 
 
@@ -109,7 +142,9 @@ class _PerfilPageState extends State<PerfilPage>{
     }catch(e){
 
 
+
       print(e);
+
 
 
       setState((){
@@ -119,8 +154,123 @@ class _PerfilPageState extends State<PerfilPage>{
       });
 
 
+
+      mostrarMensagem(
+          "Erro ao carregar usuário"
+      );
+
+
     }
 
+
+  }
+
+
+
+
+
+
+
+
+
+  String urlFoto(){
+
+
+
+    // foto selecionada localmente
+
+    if(foto != null){
+
+      return foto!.path;
+
+    }
+
+
+
+
+
+
+    if(usuario['foto'] == null){
+
+      return "";
+
+    }
+
+
+
+
+
+
+    String imagem =
+    usuario['foto'].toString();
+
+
+
+
+    if(imagem.isEmpty){
+
+      return "";
+
+    }
+
+
+
+
+
+
+
+    // caso venha URL pronta
+
+    if(imagem.startsWith("http")){
+
+      return imagem;
+
+    }
+
+
+
+
+
+
+
+    String base =
+
+    ApiService.baseUrl
+        .replaceAll("/api", "")
+        .replaceAll(RegExp(r'/$'), '');
+
+
+
+
+
+
+    // remove storage/
+
+    imagem =
+        imagem.replaceFirst(
+            "storage/",
+            ""
+        );
+
+
+
+
+
+    // remove barra inicial
+
+    imagem =
+        imagem.replaceFirst(
+            RegExp("^/"),
+            ""
+        );
+
+
+
+
+
+    return
+
+    "$base/storage/$imagem";
 
 
   }
@@ -136,44 +286,208 @@ class _PerfilPageState extends State<PerfilPage>{
   Future<void> escolherFoto() async{
 
 
-    final picker =
-    ImagePicker();
+    try{
 
 
 
-    final imagem =
-    await picker.pickImage(
+      PermissionStatus permissao =
+
+      await Permission.photos.request();
 
 
 
-        source:
-        ImageSource.gallery,
+
+      if(permissao.isDenied){
+
+
+        mostrarMensagem(
+            "Permissão de fotos negada"
+        );
+
+
+        return;
+
+      }
 
 
 
-        imageQuality:80
+
+
+      final picker =
+      ImagePicker();
 
 
 
-    );
+
+      final imagem =
+
+      await picker.pickImage(
 
 
 
-    if(imagem != null){
+          source:
+
+          ImageSource.gallery,
 
 
-      setState((){
+
+          imageQuality:
+
+          80
 
 
-        foto =
-        File(imagem.path);
+
+      );
 
 
-      });
 
+
+
+
+      if(imagem != null){
+
+
+
+        setState((){
+
+
+          foto =
+          File(imagem.path);
+
+
+
+        });
+
+
+
+        mostrarMensagem(
+            "Imagem selecionada"
+        );
+
+
+      }
+
+
+
+
+    }catch(e){
+
+
+      print(e);
+
+
+
+      mostrarMensagem(
+          "Erro ao abrir galeria"
+      );
 
 
     }
+
+
+  }
+
+
+
+
+
+
+
+
+
+  Future<void> enviarFoto() async{
+
+
+
+    if(foto == null){
+
+
+      mostrarMensagem(
+          "Selecione uma foto primeiro"
+      );
+
+
+      return;
+
+
+    }
+
+
+
+
+
+
+
+    try{
+
+
+
+      bool resultado =
+
+      await ApiService.enviarFoto(
+          foto!
+      );
+
+
+
+
+
+
+      if(resultado){
+
+
+
+        setState((){
+
+          foto=null;
+
+        });
+
+
+
+
+
+        await carregarUsuario();
+
+
+
+
+        mostrarMensagem(
+            "Foto atualizada"
+        );
+
+
+
+
+      }else{
+
+
+        mostrarMensagem(
+            "Erro ao enviar foto"
+        );
+
+
+      }
+
+
+
+
+
+
+    }catch(e){
+
+
+      print(e);
+
+
+
+      mostrarMensagem(
+          e.toString()
+      );
+
+
+    }
+
 
 
   }
@@ -190,50 +504,57 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
-    bool sucesso =
-
-    await ApiService.atualizarPerfil(
+    try{
 
 
 
-      {
-
-        "name":
-        nomeController.text,
+      await ApiService.atualizarPerfil(
 
 
-        "email":
-        emailController.text,
+          {
 
 
-      }
+            "name":
+
+            nomeController.text.trim(),
 
 
 
-    );
+            "email":
+
+            emailController.text.trim(),
+
+
+
+          }
+
+
+      );
 
 
 
 
 
-    if(sucesso){
-
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+      await carregarUsuario();
 
 
 
-          const SnackBar(
 
-              content:
 
-              Text(
-                  "Perfil atualizado"
-              )
+      mostrarMensagem(
+          "Perfil atualizado"
+      );
 
-          )
 
+
+
+
+    }catch(e){
+
+
+
+      mostrarMensagem(
+          e.toString()
       );
 
 
@@ -252,57 +573,76 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
-
-  Future<void> enviarFoto() async{
-
+  ImageProvider? imagemPerfil(){
 
 
-    if(foto == null){
 
-      return;
+    String imagem =
+    urlFoto();
+
+
+
+
+    if(imagem.isEmpty){
+
+      return null;
 
     }
 
 
 
 
-    bool sucesso =
 
-    await ApiService.enviarFoto(
 
-        foto!
+    if(imagem.startsWith("/data")){
 
+
+      return FileImage(
+
+          File(imagem)
+
+      );
+
+    }
+
+
+
+
+
+
+    return NetworkImage(
+        imagem
     );
 
 
 
-
-
-    if(sucesso){
-
-
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+  }
 
 
 
-          const SnackBar(
-
-              content:
-
-              Text(
-                  "Foto atualizada"
-              )
-
-          )
-
-      );
 
 
 
-    }
 
+
+
+  void mostrarMensagem(String texto){
+
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+
+
+        SnackBar(
+
+          content:
+
+          Text(texto),
+
+        )
+
+
+    );
 
 
   }
@@ -343,19 +683,24 @@ class _PerfilPageState extends State<PerfilPage>{
 
       body:
 
+
+
       carregando
 
 
+
           ?
+
 
 
       const Center(
 
         child:
 
-        CircularProgressIndicator()
+        CircularProgressIndicator(),
 
       )
+
 
 
 
@@ -386,6 +731,8 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
+
+
             GestureDetector(
 
 
@@ -396,52 +743,22 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
+
               child:
 
               CircleAvatar(
 
 
 
-                radius:60,
+                radius:
 
+                65,
 
 
 
                 backgroundImage:
 
-
-                foto != null
-
-
-                    ?
-
-
-                FileImage(foto!)
-
-
-
-                    :
-
-                usuario['foto'] != null
-
-
-                    ?
-
-
-                NetworkImage(
-
-                    usuario['foto']
-
-                )
-
-                    :
-
-                null
-
-
-
-                as ImageProvider?,
-
+                imagemPerfil(),
 
 
 
@@ -449,9 +766,7 @@ class _PerfilPageState extends State<PerfilPage>{
 
                 child:
 
-
-                foto == null &&
-                    usuario['foto']==null
+                imagemPerfil()==null
 
 
                     ?
@@ -461,13 +776,18 @@ class _PerfilPageState extends State<PerfilPage>{
 
                     Icons.camera_alt,
 
-                    size:40
+                    size:45
 
                 )
 
+
+
                     :
 
+
+
                 null,
+
 
 
               ),
@@ -480,7 +800,12 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
-            const SizedBox(height:20),
+
+            const SizedBox(
+                height:20
+            ),
+
+
 
 
 
@@ -498,6 +823,7 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
+
               label:
 
               const Text(
@@ -511,6 +837,16 @@ class _PerfilPageState extends State<PerfilPage>{
               enviarFoto,
 
 
+
+            ),
+
+
+
+
+
+
+            const SizedBox(
+                height:30
             ),
 
 
@@ -519,16 +855,7 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
-            const SizedBox(height:30),
-
-
-
-
-
-
-
             TextField(
-
 
 
               controller:
@@ -542,19 +869,18 @@ class _PerfilPageState extends State<PerfilPage>{
               const InputDecoration(
 
 
-
                   labelText:
                   "Nome",
 
 
 
                   prefixIcon:
-                  Icon(Icons.person)
 
-
+                  Icon(
+                      Icons.person
+                  )
 
               ),
-
 
 
             ),
@@ -563,7 +889,12 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
-            const SizedBox(height:15),
+
+
+            const SizedBox(
+                height:15
+            ),
+
 
 
 
@@ -572,7 +903,6 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
             TextField(
-
 
 
               controller:
@@ -586,19 +916,18 @@ class _PerfilPageState extends State<PerfilPage>{
               const InputDecoration(
 
 
-
                   labelText:
                   "Email",
 
 
 
                   prefixIcon:
-                  Icon(Icons.email)
 
-
+                  Icon(
+                      Icons.email
+                  )
 
               ),
-
 
 
             ),
@@ -610,7 +939,10 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
-            const SizedBox(height:30),
+            const SizedBox(
+                height:30
+            ),
+
 
 
 
@@ -628,6 +960,7 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
+
               child:
 
               ElevatedButton.icon(
@@ -642,11 +975,15 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
 
+
+
                 label:
 
                 const Text(
                     "Salvar alterações"
                 ),
+
+
 
 
 
@@ -659,20 +996,19 @@ class _PerfilPageState extends State<PerfilPage>{
               ),
 
 
+
             )
 
 
 
 
+          ],
 
 
+        ),
 
-          ]
 
-        )
-
-      )
-
+      ),
 
 
 
@@ -680,8 +1016,6 @@ class _PerfilPageState extends State<PerfilPage>{
 
 
   }
-
-
 
 
 

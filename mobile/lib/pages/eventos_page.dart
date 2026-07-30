@@ -5,17 +5,14 @@ import '../services/api_service.dart';
 
 class EventosPage extends StatefulWidget {
 
-
   const EventosPage({
-    super.key
+    super.key,
   });
 
 
-
   @override
-  State<EventosPage> createState()
-      => _EventosPageState();
-
+  State<EventosPage> createState() =>
+      _EventosPageState();
 
 }
 
@@ -25,10 +22,7 @@ class EventosPage extends StatefulWidget {
 
 
 
-
-class _EventosPageState
-    extends State<EventosPage>{
-
+class _EventosPageState extends State<EventosPage>{
 
 
   List eventos = [];
@@ -36,6 +30,8 @@ class _EventosPageState
   List clientes = [];
 
   List servicos = [];
+
+  List categoriasEvento = [];
 
 
 
@@ -83,6 +79,10 @@ class _EventosPageState
       await ApiService.servicos();
 
 
+      final cat =
+      await ApiService.categoriasEvento();
+
+
 
 
 
@@ -91,16 +91,30 @@ class _EventosPageState
 
 
 
+
       setState((){
 
 
-        eventos = e;
+        eventos =
+            List.from(e);
 
-        clientes = c;
 
-        servicos = s;
+        clientes =
+            List.from(c);
 
-        carregando = false;
+
+        servicos =
+            List.from(s);
+
+
+        categoriasEvento =
+            List.from(cat);
+
+
+
+        carregando =
+        false;
+
 
 
       });
@@ -110,17 +124,18 @@ class _EventosPageState
     }catch(e){
 
 
-
       setState((){
 
+
         carregando = false;
+
 
       });
 
 
 
       mostrarMensagem(
-          "Erro ao carregar dados"
+          e.toString()
       );
 
 
@@ -138,12 +153,10 @@ class _EventosPageState
 
 
 
+
+
+
   void novoEvento(){
-
-
-
-    final tipo =
-    TextEditingController();
 
 
 
@@ -151,20 +164,16 @@ class _EventosPageState
     TextEditingController();
 
 
-
     final hora =
     TextEditingController();
-
 
 
     final local =
     TextEditingController();
 
 
-
     final convidados =
     TextEditingController();
-
 
 
     final obs =
@@ -172,9 +181,9 @@ class _EventosPageState
 
 
 
-
-
     int? clienteSelecionado;
+
+    int? categoriaSelecionada;
 
 
 
@@ -186,172 +195,749 @@ class _EventosPageState
 
 
 
+
+
     showDialog(
 
 
-      context: context,
 
+        context: context,
 
-      builder:(context){
 
+        builder:(context){
 
 
-        return StatefulBuilder(
 
+          return StatefulBuilder(
 
 
-          builder:(context,setModalState){
 
+              builder:(context,setModalState){
 
 
-            double total = 0;
 
+                return AlertDialog(
 
 
-            for(var s in servicos){
 
 
-              if(servicosSelecionados.contains(
-                  s['id']
-              )){
+                  title:
 
+                  const Text(
+                      "Novo Evento"
+                  ),
 
-                total += double.tryParse(
 
-                    s['valor'].toString()
 
-                ) ?? 0;
 
 
-              }
 
+                  content:
 
-            }
 
+                  SingleChildScrollView(
 
 
+                    child:
 
+                    Column(
 
 
+                      mainAxisSize:
 
-            return AlertDialog(
+                      MainAxisSize.min,
 
 
 
+                      children:[
 
-              title:
 
-              const Text(
-                  "Novo Evento"
-              ),
 
 
 
 
 
 
-              content:
+                        DropdownButtonFormField<int>(
 
-              SingleChildScrollView(
 
 
+                          decoration:
 
-                child:
+                          const InputDecoration(
 
-                Column(
+                            labelText:
+                            "Cliente",
 
+                          ),
 
 
-                  mainAxisSize:
 
-                  MainAxisSize.min,
 
 
+                          value:
 
-                  children:[
+                          clienteSelecionado,
 
 
 
 
 
 
+                          items:
 
 
-                    DropdownButtonFormField<int>(
+                          clientes.map<DropdownMenuItem<int>>(
 
+                                  (c){
 
 
-                      decoration:
 
-                      const InputDecoration(
+                                return DropdownMenuItem(
 
-                        labelText:
-                        "Cliente",
 
-                        prefixIcon:
-                        Icon(
-                            Icons.person
+
+                                  value:
+
+                                  int.parse(
+                                      c['id'].toString()
+                                  ),
+
+
+
+                                  child:
+
+                                  Text(
+
+                                      c['nome'] ?? ""
+
+                                  ),
+
+
+
+                                );
+
+
+                              }
+
+                          ).toList(),
+
+
+
+
+
+
+                          onChanged:(v){
+
+
+                            setModalState((){
+
+
+                              clienteSelecionado = v;
+
+
+                            });
+
+
+                          },
+
+
                         ),
 
+
+
+
+
+
+
+
+
+                        const SizedBox(
+                          height:10,
+                        ),
+
+
+
+
+
+
+
+                        DropdownButtonFormField<int>(
+
+
+
+                          decoration:
+
+                          const InputDecoration(
+
+                            labelText:
+                            "Categoria do evento",
+
+                          ),
+
+
+
+
+                          value:
+
+                          categoriaSelecionada,
+
+
+
+
+
+
+                          items:
+
+
+                          categoriasEvento.map<DropdownMenuItem<int>>(
+
+                                  (c){
+
+
+
+                                return DropdownMenuItem(
+
+
+
+                                  value:
+
+                                  int.parse(
+                                      c['id'].toString()
+                                  ),
+
+
+
+
+                                  child:
+
+                                  Text(
+
+                                      c['nome'] ?? ""
+
+                                  ),
+
+
+
+                                );
+
+
+                              }
+
+                          ).toList(),
+
+
+
+
+
+
+                          onChanged:(v){
+
+
+
+                            setModalState((){
+
+
+                              categoriaSelecionada = v;
+
+
+
+                            });
+
+
+
+                          },
+
+
+
+                        ),
+
+
+
+
+
+
+
+
+
+                        TextField(
+
+
+                          controller:data,
+
+
+                          decoration:
+
+                          const InputDecoration(
+
+                            labelText:
+                            "Data AAAA-MM-DD",
+
+                          ),
+
+
+                        ),
+
+
+
+
+
+
+
+                        TextField(
+
+
+                          controller:hora,
+
+
+                          decoration:
+
+                          const InputDecoration(
+
+                            labelText:
+                            "Hora",
+
+                          ),
+
+
+                        ),
+
+
+
+
+
+
+
+
+
+                        TextField(
+
+
+                          controller:local,
+
+
+                          decoration:
+
+                          const InputDecoration(
+
+                            labelText:
+                            "Local",
+
+                          ),
+
+
+                        ),
+
+
+
+
+
+
+
+
+
+                        TextField(
+
+
+                          controller:convidados,
+
+
+                          keyboardType:
+
+                          TextInputType.number,
+
+
+
+                          decoration:
+
+                          const InputDecoration(
+
+                            labelText:
+                            "Quantidade convidados",
+
+                          ),
+
+
+                        ),
+
+
+
+
+
+
+
+
+
+                        TextField(
+
+
+                          controller:obs,
+
+
+                          maxLines:3,
+
+
+                          decoration:
+
+                          const InputDecoration(
+
+                            labelText:
+                            "Observações",
+
+                          ),
+
+
+                        ),
+
+
+
+
+
+
+
+                        const SizedBox(
+                          height:20,
+                        ),
+
+
+
+
+
+
+
+                        const Text(
+
+                          "Serviços",
+
+                          style:
+
+                          TextStyle(
+
+                            fontSize:18,
+
+                            fontWeight:
+                            FontWeight.bold,
+
+                          ),
+
+                        ),
+
+
+
+
+
+
+
+                        ...servicos.map((s){
+
+
+
+                          final id =
+
+                          int.parse(
+                              s['id'].toString()
+                          );
+
+
+
+
+                          return CheckboxListTile(
+
+
+
+                            title:
+
+                            Text(
+
+                                s['nome'] ?? ""
+
+                            ),
+
+
+
+
+
+                            subtitle:
+
+                            Text(
+
+                                "R\$ ${s['valor'] ?? 0}"
+
+                            ),
+
+
+
+
+                            value:
+
+                            servicosSelecionados.contains(
+                                id
+                            ),
+
+
+
+
+
+                            onChanged:(v){
+
+
+
+                              setModalState((){
+
+
+                                if(v == true){
+
+
+                                  servicosSelecionados.add(
+                                      id
+                                  );
+
+
+                                }else{
+
+
+                                  servicosSelecionados.remove(
+                                      id
+                                  );
+
+
+                                }
+
+
+
+                              });
+
+
+
+                            },
+
+
+
+                          );
+
+
+
+
+                        }).toList(),
+
+
+
+
+                      ],
+
+
+
+                    ),
+
+
+
+                  ),
+
+
+
+
+
+
+
+                  actions:[
+
+
+
+
+
+
+
+                    TextButton(
+
+
+                      onPressed:(){
+
+
+                        Navigator.pop(context);
+
+
+                      },
+
+
+                      child:
+
+                      const Text(
+                          "Cancelar"
+                      ),
+
+
+                    ),
+
+
+
+
+
+
+
+                    ElevatedButton(
+
+
+
+                      child:
+
+                      const Text(
+                          "Salvar"
                       ),
 
 
 
 
-                      value:
 
-                      clienteSelecionado,
-
+                      onPressed:() async{
 
 
 
 
-                      items:
 
-                      clientes.map<DropdownMenuItem<int>>(
-                              (c){
+                        if(clienteSelecionado == null){
 
 
-
-                            return DropdownMenuItem(
-
-
-                              value:
-                              c['id'],
+                          mostrarMensagem(
+                              "Selecione o cliente"
+                          );
 
 
-
-                              child:
-
-                              Text(
-
-                                  c['nome'] ?? ""
-
-                              ),
+                          return;
 
 
-                            );
-
-
-
-                          }).toList(),
+                        }
 
 
 
 
 
 
-                      onChanged:(v){
+
+                        if(categoriaSelecionada == null){
+
+
+                          mostrarMensagem(
+                              "Selecione a categoria"
+                          );
+
+
+                          return;
+
+
+                        }
 
 
 
-                        setModalState((){
 
 
-                          clienteSelecionado = v;
 
 
-                        });
+                        try{
+
+
+
+                          await ApiService.post(
+
+
+
+                              "eventos",
+
+
+
+                              {
+
+
+                                "cliente_id":
+
+                                clienteSelecionado,
+
+
+
+                                "categoria_evento_id":
+
+                                categoriaSelecionada,
+
+
+
+                                "data":
+
+                                data.text,
+
+
+
+                                "hora":
+
+                                hora.text,
+
+
+
+                                "local":
+
+                                local.text,
+
+
+
+                                "quantidade_convidados":
+
+                                int.tryParse(
+                                    convidados.text
+                                ) ?? 0,
+
+
+
+                                "observacoes":
+
+                                obs.text,
+
+
+
+                                "servicos":
+
+                                servicosSelecionados
+
+
+
+                              }
+
+
+
+                          );
+
+
+
+
+
+
+                          Navigator.pop(context);
+
+
+
+                          await carregar();
+
+
+
+
+                          mostrarMensagem(
+
+                              "Evento criado"
+
+                          );
+
+
+
+
+                        }catch(e){
+
+
+
+                          mostrarMensagem(
+                              e.toString()
+                          );
+
+
+
+                        }
+
 
 
 
@@ -359,588 +945,39 @@ class _EventosPageState
 
 
 
-                    ),
-
-
-
-
-
-
-
-                    TextField(
-
-
-                      controller:
-
-                      tipo,
-
-
-                      decoration:
-
-                      const InputDecoration(
-
-                        labelText:
-                        "Tipo do evento"
-
-                      )
-
-
-                    ),
-
-
-
-
-
-
-
-
-                    TextField(
-
-
-                      controller:
-
-                      data,
-
-
-                      decoration:
-
-                      const InputDecoration(
-
-                        labelText:
-                        "Data AAAA-MM-DD"
-
-                      )
-
-
-                    ),
-
-
-
-
-
-
-
-                    TextField(
-
-
-                      controller:
-
-                      hora,
-
-
-                      decoration:
-
-                      const InputDecoration(
-
-                        labelText:
-                        "Hora"
-
-                      )
-
-
-                    ),
-
-
-
-
-
-
-
-
-                    TextField(
-
-
-                      controller:
-
-                      local,
-
-
-                      decoration:
-
-                      const InputDecoration(
-
-                        labelText:
-                        "Local"
-
-                      )
-
-
-                    ),
-
-
-
-
-
-
-
-                    TextField(
-
-
-                      controller:
-
-                      convidados,
-
-
-                      keyboardType:
-
-                      TextInputType.number,
-
-
-
-                      decoration:
-
-                      const InputDecoration(
-
-                        labelText:
-                        "Convidados"
-
-                      )
-
-
-                    ),
-
-
-
-
-
-
-
-                    TextField(
-
-
-                      controller:
-
-                      obs,
-
-
-                      maxLines:
-
-                      3,
-
-
-
-                      decoration:
-
-                      const InputDecoration(
-
-                        labelText:
-                        "Observações"
-
-                      )
-
-
-                    ),
-
-
-
-
-
-
-
-                    const SizedBox(
-                        height:20
-                    ),
-
-
-
-
-
-
-
-
-                    const Text(
-
-                      "Serviços",
-
-                      style:
-
-                      TextStyle(
-
-                        fontSize:
-                        18,
-
-                        fontWeight:
-                        FontWeight.bold,
-
-                      ),
-
-                    ),
-
-
-
-
-
-
-
-                    ...servicos.map((s){
-
-
-
-                      return CheckboxListTile(
-
-
-
-                        title:
-
-                        Text(
-
-                            s['nome'] ?? ""
-
-                        ),
-
-
-
-
-                        subtitle:
-
-                        Text(
-
-                            "R\$ ${s['valor']}"
-
-                        ),
-
-
-
-
-
-                        value:
-
-                        servicosSelecionados.contains(
-                            s['id']
-                        ),
-
-
-
-
-
-
-                        onChanged:(valor){
-
-
-
-                          setModalState((){
-
-
-
-                            if(valor == true){
-
-
-                              servicosSelecionados.add(
-                                  s['id']
-                              );
-
-
-
-                            }else{
-
-
-                              servicosSelecionados.remove(
-                                  s['id']
-                              );
-
-
-                            }
-
-
-
-                          });
-
-
-
-                        },
-
-
-
-                      );
-
-
-
-                    }),
-
-
-
-
-
-
-
-                    Text(
-
-                      "Total serviços: R\$ ${total.toStringAsFixed(2)}",
-
-
-                      style:
-
-                      const TextStyle(
-
-                        fontWeight:
-                        FontWeight.bold,
-
-                        fontSize:
-                        18,
-
-                      ),
-
-
                     )
 
 
 
 
-                  ]
+                  ],
 
 
-                )
 
 
-              ),
+                );
 
 
 
+              }
 
 
 
+          );
 
-              actions:[
 
+        }
 
 
 
-
-
-
-                TextButton(
-
-
-                  onPressed:(){
-
-                    Navigator.pop(context);
-
-                  },
-
-
-                  child:
-
-                  const Text(
-                      "Cancelar"
-                  )
-
-
-                ),
-
-
-
-
-
-
-
-
-                ElevatedButton(
-
-
-
-                  onPressed:() async{
-
-
-
-                    if(clienteSelecionado == null){
-
-
-                      mostrarMensagem(
-                          "Selecione um cliente"
-                      );
-
-
-                      return;
-
-
-                    }
-
-
-
-
-
-
-
-                    try{
-
-
-
-                      await ApiService.post(
-
-
-
-                        "eventos",
-
-
-
-                        {
-
-
-                          "cliente_id":
-
-                          clienteSelecionado,
-
-
-
-                          "tipo":
-
-                          tipo.text,
-
-
-
-                          "data":
-
-                          data.text,
-
-
-
-                          "hora":
-
-                          hora.text,
-
-
-
-                          "local":
-
-                          local.text,
-
-
-
-                          "quantidade_convidados":
-
-                          int.tryParse(
-                              convidados.text
-                          ) ?? 0,
-
-
-
-                          "observacoes":
-
-                          obs.text,
-
-
-
-                          "servicos":
-
-                          servicosSelecionados
-
-
-
-                        },
-
-
-                      );
-
-
-
-
-
-
-                      if(!mounted)
-                        return;
-
-
-
-
-
-                      Navigator.pop(context);
-
-
-
-                      carregar();
-
-
-
-
-
-                      mostrarMensagem(
-
-                          "Evento criado"
-
-                      );
-
-
-
-
-
-
-                    }catch(e){
-
-
-
-                      mostrarMensagem(
-
-                          e.toString()
-
-                      );
-
-
-
-                    }
-
-
-
-
-                  },
-
-
-
-
-                  child:
-
-                  const Text(
-                      "Salvar"
-                  )
-
-
-
-                )
-
-
-
-
-
-
-              ]
-
-
-
-
-            );
-
-
-
-          }
-
-
-        );
-
-
-
-      }
-
-
-    ).then((_){
-
-
-      tipo.dispose();
-
-      data.dispose();
-
-      hora.dispose();
-
-      local.dispose();
-
-      convidados.dispose();
-
-      obs.dispose();
-
-
-    });
-
+    );
 
 
   }
+
+
+
+
 
 
 
@@ -957,16 +994,12 @@ class _EventosPageState
     try{
 
 
-
       await ApiService.delete(
-
           "eventos/$id"
-
       );
 
 
-
-      carregar();
+      await carregar();
 
 
 
@@ -976,9 +1009,7 @@ class _EventosPageState
 
 
 
-
     }catch(e){
-
 
 
       mostrarMensagem(
@@ -987,7 +1018,6 @@ class _EventosPageState
 
 
     }
-
 
 
   }
@@ -1012,12 +1042,11 @@ class _EventosPageState
     try{
 
 
-      var p =
+      final p =
       data.split("-");
 
 
       return "${p[2]}/${p[1]}/${p[0]}";
-
 
 
     }catch(e){
@@ -1042,6 +1071,7 @@ class _EventosPageState
   void mostrarMensagem(String texto){
 
 
+
     ScaffoldMessenger.of(context)
         .showSnackBar(
 
@@ -1049,6 +1079,7 @@ class _EventosPageState
       SnackBar(
 
         content:
+
         Text(texto),
 
       ),
@@ -1094,6 +1125,7 @@ class _EventosPageState
 
 
 
+
       floatingActionButton:
 
       FloatingActionButton.extended(
@@ -1132,17 +1164,13 @@ class _EventosPageState
 
 
 
-
       body:
-
 
 
       carregando
 
 
-
           ?
-
 
 
       const Center(
@@ -1204,6 +1232,7 @@ class _EventosPageState
 
 
 
+
             return Card(
 
 
@@ -1214,29 +1243,9 @@ class _EventosPageState
 
 
 
-
-
               child:
 
               ListTile(
-
-
-
-                leading:
-
-                const CircleAvatar(
-
-                  child:
-
-                  Icon(
-                      Icons.event
-                  ),
-
-                ),
-
-
-
-
 
 
 
@@ -1244,12 +1253,9 @@ class _EventosPageState
 
                 Text(
 
-                    e['tipo'] ?? ""
+                    "${e['categoria']?['nome'] ?? 'Evento'}"
 
                 ),
-
-
-
 
 
 
@@ -1266,10 +1272,7 @@ class _EventosPageState
                         "Local: ${e['local'] ?? ''}"
 
 
-
                 ),
-
-
 
 
 
@@ -1285,11 +1288,11 @@ class _EventosPageState
 
                   const Icon(
 
-                    Icons.delete,
+                      Icons.delete,
 
-                    color:
+                      color:
 
-                    Colors.red,
+                      Colors.red
 
                   ),
 
@@ -1299,8 +1302,13 @@ class _EventosPageState
                   onPressed:(){
 
 
+
                     excluir(
-                        e['id']
+
+                        int.parse(
+                            e['id'].toString()
+                        )
+
                     );
 
 

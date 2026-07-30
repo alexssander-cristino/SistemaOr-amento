@@ -1,25 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
-
 import '../services/pdf_service.dart';
 
 
 
 class OrcamentosPage extends StatefulWidget {
 
-
   const OrcamentosPage({
     super.key
   });
-
 
 
   @override
   State<OrcamentosPage> createState()
       => _OrcamentosPageState();
 
-
 }
 
 
@@ -28,491 +24,492 @@ class OrcamentosPage extends StatefulWidget {
 
 
 
+class _OrcamentosPageState extends State<OrcamentosPage>{
 
-class _OrcamentosPageState
-extends State<OrcamentosPage>{
 
 
+  List eventos = [];
 
-List eventos=[];
+  List orcamentos = [];
 
-List orcamentos=[];
+  bool carregando = true;
 
 
 
-bool carregando=true;
 
 
 
 
 
 
+  @override
+  void initState(){
 
+    super.initState();
 
+    carregar();
 
-@override
-void initState(){
+  }
 
-super.initState();
 
-carregar();
 
-}
 
 
 
 
 
 
+  Future<void> carregar() async{
 
 
+    try{
 
-Future<void> carregar() async{
 
+      final e = await ApiService.eventos();
 
-try{
+      final o = await ApiService.orcamentos();
 
 
 
-final e =
 
-await ApiService.eventos();
+      if(!mounted) return;
 
 
 
 
-final o =
+      setState((){
 
-await ApiService.orcamentos();
 
+        eventos = e;
 
+        orcamentos = o;
 
+        carregando = false;
 
 
+      });
 
-setState((){
 
 
 
-eventos=e;
+    }catch(e){
 
-orcamentos=o;
 
-carregando=false;
+      setState((){
 
+        carregando = false;
 
+      });
 
-});
 
+      mostrarMensagem(
+          "Erro ao carregar dados"
+      );
 
 
+    }
 
-}catch(e){
 
 
+  }
 
-setState((){
 
-carregando=false;
 
-});
 
 
 
-mostrarMensagem(
-"Erro ao carregar orçamentos"
-);
 
 
 
-}
 
 
 
+  String nomeEvento(var e){
 
-}
 
+    final categoria =
+    e['categoria']?['nome'] ?? "Evento";
 
 
+    final cliente =
+    e['cliente']?['nome'] ?? "Cliente";
 
 
 
+    final data =
+    e['data'] ?? "";
 
 
 
-void novoOrcamento(){
+    return "$categoria - $cliente - $data";
 
 
+  }
 
-int? eventoSelecionado;
 
 
 
-showDialog(
 
 
 
-context:context,
 
 
 
-builder:(context){
 
 
 
-return StatefulBuilder(
+  void novoOrcamento(){
 
 
+    int? eventoSelecionado;
 
-builder:(context,setModal){
 
 
+    showDialog(
 
-return AlertDialog(
 
+      context: context,
 
 
-title:
+      builder:(context){
 
-const Text(
-"Novo Orçamento"
-),
 
 
+        return StatefulBuilder(
 
 
 
+          builder:(context,setModal){
 
-content:
 
-DropdownButtonFormField<int>(
 
+            return AlertDialog(
 
 
-value:
 
-eventoSelecionado,
+              title:
 
+              const Text(
+                  "Novo Orçamento"
+              ),
 
 
-decoration:
 
-const InputDecoration(
 
-labelText:
 
-"Evento",
 
-border:
+              content:
 
-OutlineInputBorder()
+              SizedBox(
 
-),
 
+                width: double.maxFinite,
 
 
+                child:
 
 
+                DropdownButtonFormField<int>(
 
 
-items:
 
-eventos.map<DropdownMenuItem<int>>(
+                  value:
 
-(e){
+                  eventoSelecionado,
 
 
 
-return DropdownMenuItem(
 
 
+                  decoration:
 
-value:
+                  const InputDecoration(
 
-e['id'],
 
+                    labelText:
+                    "Selecione o evento",
 
 
-child:
+                    border:
+                    OutlineInputBorder(),
 
-Text(
 
-e['tipo'] ?? ""
+                  ),
 
-),
 
 
-);
 
 
+                  items:
 
-}
 
-).toList(),
+                  eventos.map<DropdownMenuItem<int>>(
 
+                          (e){
 
 
 
+                        return DropdownMenuItem<int>(
 
 
+                          value:
 
-onChanged:(v){
+                          e['id'],
 
 
 
-setModal((){
+                          child:
 
+                          Text(
 
+                              nomeEvento(e)
 
-eventoSelecionado=v;
+                          ),
 
 
 
-});
+                        );
 
 
 
-},
+                      }
 
+                  ).toList(),
 
 
-),
 
 
 
 
+                  onChanged:(v){
 
 
 
-actions:[
+                    setModal((){
 
 
+                      eventoSelecionado = v;
 
 
 
+                    });
 
 
-TextButton(
 
+                  },
 
 
-onPressed:(){
 
 
 
-Navigator.pop(context);
+                ),
 
 
+              ),
 
-},
 
 
 
-child:
 
-const Text(
-"Cancelar"
-)
 
 
+              actions:[
 
-),
 
 
 
+                TextButton(
 
 
+                  onPressed:(){
 
 
-ElevatedButton(
+                    Navigator.pop(context);
 
 
+                  },
 
-onPressed:() async{
 
+                  child:
 
+                  const Text(
+                      "Cancelar"
+                  ),
 
-if(eventoSelecionado==null){
 
+                ),
 
 
-mostrarMensagem(
-"Selecione um evento"
-);
 
 
 
-return;
 
 
 
-}
+                ElevatedButton(
 
 
 
+                  onPressed:() async{
 
 
 
-try{
+                    if(eventoSelecionado == null){
 
 
 
-await ApiService.post(
+                      mostrarMensagem(
 
+                          "Selecione um evento"
 
+                      );
 
-"orcamentos",
 
+                      return;
 
 
-{
+                    }
 
 
-"evento_id":
 
-eventoSelecionado,
 
 
 
-"desconto":
 
-0,
 
+                    try{
 
 
-"valor_total":
 
-0,
+                      await ApiService.post(
 
 
 
-"status":
+                          "orcamentos",
 
-"pendente"
 
 
+                          {
 
-}
 
+                            "evento_id":
 
+                            eventoSelecionado,
 
-);
 
 
+                            "desconto":
 
+                            0,
 
 
 
-Navigator.pop(context);
+                            "valor_total":
 
+                            0,
 
 
-carregar();
 
+                            "status":
 
+                            "pendente"
 
 
 
-mostrarMensagem(
-"Orçamento criado"
-);
+                          }
 
 
 
+                      );
 
-}catch(e){
 
 
 
-mostrarMensagem(
-e.toString()
-);
 
+                      Navigator.pop(context);
 
 
-}
 
+                      carregar();
 
 
-},
 
 
 
-child:
+                      mostrarMensagem(
 
-const Text(
-"Gerar"
-)
+                          "Orçamento criado"
 
+                      );
 
 
-)
 
 
 
+                    }catch(e){
 
 
 
+                      mostrarMensagem(
 
-]
+                          e.toString()
 
+                      );
 
 
-);
 
+                    }
 
 
-}
 
 
 
-);
+                  },
 
 
 
-}
 
 
+                  child:
 
-);
+                  const Text(
+                      "Gerar"
+                  )
 
 
 
-}
+                )
 
 
 
 
 
+              ],
 
 
 
 
+            );
 
 
 
-void gerarPdf(var orc){
+          }
 
 
 
-List servicos = [];
+        );
 
 
 
-if(orc['servicos'] != null){
+      }
 
-servicos =
-orc['servicos'];
 
-}
 
-else if(orc['itens'] != null){
+    );
 
-servicos =
-orc['itens'];
 
-}
 
+  }
 
 
 
@@ -520,77 +517,73 @@ orc['itens'];
 
 
 
-double total=0;
 
 
 
-for(var s in servicos){
 
 
-total +=
+  void gerarPdf(var orc){
 
-double.tryParse(
 
-s['valor'].toString()
 
-)
+    List servicos = [];
 
-??
 
-0;
 
+    if(orc['servicos'] != null){
 
 
-}
+      servicos = orc['servicos'];
 
 
+    }
 
 
+    else if(orc['itens'] != null){
 
 
+      servicos = orc['itens'];
 
-PdfService.gerarOrcamento(
 
+    }
 
 
-cliente:
 
-orc['evento']?['cliente']?['nome']
-??
-"",
 
 
+    double total = 0;
 
 
-evento:
 
-orc['evento']?['tipo']
-??
-"",
 
+    for(var s in servicos){
 
 
 
-servicos:
+      total += double.tryParse(
 
-servicos,
 
+          (s['valor_unitario']
 
+              ??
 
+              s['valor']
 
-total:
+              ??
 
-total
+              0
 
+          )
 
+              .toString()
 
 
-);
 
+      ) ?? 0;
 
 
-}
 
+    }
 
 
 
@@ -598,61 +591,57 @@ total
 
 
 
+    PdfService.gerarOrcamento(
 
-void mostrarMensagem(String texto){
 
 
-ScaffoldMessenger.of(context)
-.showSnackBar(
+        cliente:
 
+        orc['evento']?['cliente']?['nome']
 
-SnackBar(
+            ??
 
-content:
+            "",
 
-Text(texto)
 
-)
 
 
-);
 
 
+        evento:
 
-}
+        nomeEvento(
 
+            orc['evento']
 
+        ),
 
 
 
 
 
 
+        servicos:
 
-@override
-Widget build(BuildContext context){
+        servicos,
 
 
 
-return Scaffold(
 
 
+        total:
 
-appBar:
+        total
 
-AppBar(
 
 
+    );
 
-title:
 
-const Text(
-"Orçamentos"
-),
 
+  }
 
 
-),
 
 
 
@@ -660,37 +649,33 @@ const Text(
 
 
 
-floatingActionButton:
 
-FloatingActionButton.extended(
 
 
+  void mostrarMensagem(String texto){
 
-icon:
 
-const Icon(
-Icons.add
-),
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
 
 
 
+      SnackBar(
 
-label:
+          content:
 
-const Text(
-"Novo"
-),
+          Text(texto)
 
+      ),
 
 
 
-onPressed:
+    );
 
-novoOrcamento,
+  }
 
 
 
-),
 
 
 
@@ -700,214 +685,303 @@ novoOrcamento,
 
 
 
-body:
 
+  @override
+  Widget build(BuildContext context){
 
 
-carregando
 
+    return Scaffold(
 
 
-?
 
 
+      appBar:
 
-const Center(
+      AppBar(
 
-child:
 
-CircularProgressIndicator()
+        title:
 
-)
+        const Text(
+            "Orçamentos"
+        ),
 
 
+      ),
 
 
 
-:
 
-orcamentos.isEmpty
 
 
 
-?
+      floatingActionButton:
 
+      FloatingActionButton.extended(
 
 
-const Center(
 
-child:
+        icon:
 
-Text(
-"Nenhum orçamento encontrado"
-)
+        const Icon(
+            Icons.add
+        ),
 
-)
 
 
 
-:
+        label:
 
+        const Text(
+            "Novo"
+        ),
 
 
-RefreshIndicator(
 
 
+        onPressed:
 
-onRefresh:
+        novoOrcamento,
 
-carregar,
 
 
+      ),
 
 
-child:
 
-ListView.builder(
 
 
 
-padding:
 
-const EdgeInsets.all(15),
+      body:
 
+      carregando
 
 
 
-itemCount:
+          ?
 
-orcamentos.length,
 
 
+      const Center(
 
+        child:
 
+        CircularProgressIndicator(),
 
-itemBuilder:(context,index){
 
+      )
 
 
-final o =
 
-orcamentos[index];
 
 
+          :
 
 
 
+      orcamentos.isEmpty
 
-return Card(
 
 
+          ?
 
-elevation:
 
-4,
 
+      const Center(
 
+        child:
 
+        Text(
+            "Nenhum orçamento encontrado"
+        ),
 
-child:
+      )
 
-ListTile(
 
 
 
 
 
-title:
+          :
 
-Text(
 
-"Orçamento #${o['id']}"
 
-),
+      RefreshIndicator(
 
 
 
+        onRefresh:
 
+        carregar,
 
 
-subtitle:
 
-Text(
 
+        child:
 
-"Cliente: ${o['evento']?['cliente']?['nome'] ?? ''}\n"
+        ListView.builder(
 
-"Evento: ${o['evento']?['tipo'] ?? ''}\n"
 
-"Status: ${o['status'] ?? ''}"
 
+          padding:
 
+          const EdgeInsets.all(15),
 
-),
 
 
 
+          itemCount:
 
+          orcamentos.length,
 
 
 
 
 
-trailing:
 
-IconButton(
+          itemBuilder:(context,index){
 
 
 
-icon:
+            final o = orcamentos[index];
 
-const Icon(
 
-Icons.picture_as_pdf
 
-),
 
 
 
 
-onPressed:(){
+            return Card(
 
 
 
-gerarPdf(o);
+              elevation:
 
+              4,
 
 
-},
 
 
 
-)
 
+              child:
 
+              ListTile(
 
-),
 
 
 
-);
 
 
+                title:
 
-},
+                Text(
 
+                    "Orçamento #${o['id']}"
 
+                ),
 
-),
 
 
 
-),
 
 
 
-);
 
+                subtitle:
 
+                Text(
 
-}
+
+
+                    "Cliente: "
+                        "${o['evento']?['cliente']?['nome'] ?? ''}\n"
+
+
+                        "Evento: "
+                        "${o['evento'] != null ? nomeEvento(o['evento']) : ''}\n"
+
+
+                        "Status: "
+                        "${o['status'] ?? ''}"
+
+
+
+                ),
+
+
+
+
+
+
+
+
+                trailing:
+
+                IconButton(
+
+
+
+                  icon:
+
+                  const Icon(
+
+                      Icons.picture_as_pdf
+
+                  ),
+
+
+
+
+
+                  onPressed:(){
+
+
+
+                    gerarPdf(o);
+
+
+
+                  },
+
+
+
+                ),
+
+
+
+
+
+              ),
+
+
+
+            );
+
+
+
+          },
+
+
+
+        ),
+
+
+
+      ),
+
+
+
+
+
+    );
+
+
+
+  }
+
 
 
 

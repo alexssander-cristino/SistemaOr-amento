@@ -4,9 +4,37 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 class UsuarioController extends Controller
 {
+
+
+    public function usuario()
+    {
+
+        $usuario = auth()->user();
+
+
+        if($usuario->foto){
+
+            $usuario->foto =
+            asset(
+                'storage/'.$usuario->foto
+            );
+
+        }
+
+
+
+        return response()->json($usuario);
+
+    }
+
+
+
+
 
     public function update(Request $request)
     {
@@ -14,51 +42,117 @@ class UsuarioController extends Controller
         $usuario = auth()->user();
 
 
-        $usuario->update([
-            'name' => $request->name,
-            'email' => $request->email,
+        $dados = $request->validate([
+
+            'name'=>'required|string',
+
+            'email'=>'required|email',
+
         ]);
+
+
+
+        $usuario->update($dados);
+
 
 
         return response()->json([
+
             'message'=>'Usuário atualizado',
+
             'usuario'=>$usuario
+
         ]);
 
     }
+
+
+
+
 
 
 
     public function foto(Request $request)
     {
 
-        if(!$request->hasFile('foto')){
 
-            return response()->json([
-                'message'=>'Nenhuma foto enviada'
-            ],400);
+        $request->validate([
 
-        }
+            'foto'=>
+            'required|image|mimes:jpg,jpeg,png|max:2048'
+
+        ]);
 
 
-        $path = $request
-            ->file('foto')
-            ->store('usuarios');
 
 
         $usuario = auth()->user();
 
 
+
+
+        if($usuario->foto){
+
+
+            Storage::disk('public')
+            ->delete(
+                $usuario->foto
+            );
+
+
+        }
+
+
+
+
+
+
+        $path = $request
+            ->file('foto')
+            ->store(
+                'usuarios',
+                'public'
+            );
+
+
+
+
+
+
+
         $usuario->update([
+
             'foto'=>$path
+
         ]);
+
+
+
+
+
 
 
         return response()->json([
+
+
             'message'=>'Foto atualizada',
-            'foto'=>$path
+
+
+            'foto'=>
+            asset(
+                'storage/'.$path
+            ),
+
+
+            'usuario'=>$usuario
+
+
         ]);
 
+
+
     }
+
+
 
 }

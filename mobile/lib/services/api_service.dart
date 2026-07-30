@@ -10,8 +10,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
 
 
+
   static const String baseUrl =
       "http://192.168.1.36:8000/api";
+
 
 
 
@@ -20,13 +22,18 @@ class ApiService {
   // ================= TOKEN =================
 
 
+
   static Future<String?> getToken() async {
+
 
     final prefs =
     await SharedPreferences.getInstance();
 
 
-    return prefs.getString("token");
+    return prefs.getString(
+        "token"
+    );
+
 
   }
 
@@ -34,11 +41,15 @@ class ApiService {
 
 
 
-  static Future<void> salvarToken(String token) async {
+
+  static Future<void> salvarToken(
+      String token
+      ) async {
 
 
     final prefs =
     await SharedPreferences.getInstance();
+
 
 
     await prefs.setString(
@@ -48,6 +59,8 @@ class ApiService {
 
 
   }
+
+
 
 
 
@@ -70,14 +83,17 @@ class ApiService {
       "application/json",
 
 
+
       "Content-Type":
       "application/json",
+
 
 
       if(token != null)
 
         "Authorization":
         "Bearer $token"
+
 
 
     };
@@ -92,7 +108,12 @@ class ApiService {
 
 
 
+
+
+
+
   // ================= LOGIN =================
+
 
 
   static Future<bool> login(
@@ -104,6 +125,7 @@ class ApiService {
 
     final response =
     await http.post(
+
 
 
       Uri.parse(
@@ -119,27 +141,32 @@ class ApiService {
         "application/json",
 
 
+
         "Content-Type":
         "application/json"
+
 
 
       },
 
 
 
-      body:jsonEncode({
+      body:
+
+      jsonEncode({
 
 
         "email":
         email,
 
 
+
         "password":
         senha
 
 
-      }),
 
+      }),
 
 
     );
@@ -148,8 +175,15 @@ class ApiService {
 
 
 
-    print("LOGIN");
-    print(response.body);
+    print(
+        "LOGIN ${response.statusCode}"
+    );
+
+    print(
+        response.body
+    );
+
+
 
 
 
@@ -171,14 +205,15 @@ class ApiService {
         );
 
 
+
         return true;
 
 
       }
 
 
-
     }
+
 
 
 
@@ -196,7 +231,12 @@ class ApiService {
 
 
 
+
+
+
+
   // ================= REGISTER =================
+
 
 
   static Future<bool> register(
@@ -225,28 +265,34 @@ class ApiService {
         "application/json",
 
 
+
         "Content-Type":
         "application/json"
+
 
 
       },
 
 
 
-      body:jsonEncode({
+      body:
 
+      jsonEncode({
 
 
         "name":
         nome,
 
 
+
         "email":
         email,
 
 
+
         "password":
         senha,
+
 
 
         "password_confirmation":
@@ -257,18 +303,8 @@ class ApiService {
       }),
 
 
-
     );
 
-
-
-
-    print("REGISTER STATUS");
-    print(response.statusCode);
-
-
-    print("REGISTER BODY");
-    print(response.body);
 
 
 
@@ -279,6 +315,9 @@ class ApiService {
 
 
   }
+
+
+
 
 
 
@@ -310,6 +349,7 @@ class ApiService {
 
 
       headers:
+
       await headers(),
 
 
@@ -320,17 +360,13 @@ class ApiService {
 
 
 
-    print("====================");
-    print("GET:");
-    print(rota);
 
-    print("STATUS:");
+    print("GET $rota");
+
     print(response.statusCode);
 
-    print("BODY:");
     print(response.body);
 
-    print("====================");
 
 
 
@@ -347,7 +383,6 @@ class ApiService {
 
 
 
-
       if(dados is Map &&
           dados.containsKey("data")){
 
@@ -360,9 +395,7 @@ class ApiService {
 
 
 
-
       return dados;
-
 
 
     }
@@ -371,11 +404,9 @@ class ApiService {
 
 
 
-
-
     throw Exception(
 
-        "Erro GET $rota\n${response.body}"
+        response.body
 
     );
 
@@ -391,7 +422,11 @@ class ApiService {
 
 
 
+
+
+
   // ================= POST =================
+
 
 
   static Future<dynamic> post(
@@ -413,13 +448,16 @@ class ApiService {
 
 
       headers:
+
       await headers(),
 
 
 
       body:
-      jsonEncode(dados)
 
+      jsonEncode(
+          dados
+      ),
 
 
     );
@@ -427,8 +465,17 @@ class ApiService {
 
 
 
-    print("POST $rota");
-    print(response.body);
+
+
+    print(
+        "POST $rota"
+    );
+
+
+    print(
+        response.body
+    );
+
 
 
 
@@ -440,10 +487,17 @@ class ApiService {
 
 
 
+      if(response.body.isEmpty){
+
+        return true;
+
+      }
+
+
+
       return jsonDecode(
           response.body
       );
-
 
 
     }
@@ -452,14 +506,18 @@ class ApiService {
 
 
 
-
     throw Exception(
+
         response.body
+
     );
 
 
 
   }
+
+
+
 
 
 
@@ -492,23 +550,21 @@ class ApiService {
 
 
       headers:
+
       await headers(),
 
 
 
       body:
-      jsonEncode(dados)
+
+      jsonEncode(
+          dados
+      ),
 
 
 
     );
 
-
-
-
-
-    print("PUT $rota");
-    print(response.body);
 
 
 
@@ -534,7 +590,6 @@ class ApiService {
       );
 
 
-
     }
 
 
@@ -542,12 +597,18 @@ class ApiService {
 
 
     throw Exception(
+
         response.body
+
     );
 
 
 
   }
+
+
+
+
 
 
 
@@ -579,6 +640,7 @@ class ApiService {
 
 
       headers:
+
       await headers(),
 
 
@@ -589,8 +651,18 @@ class ApiService {
 
 
 
-    print("DELETE $rota");
-    print(response.body);
+
+    print(
+        "DELETE $rota"
+    );
+
+
+    print(
+        response.body
+    );
+
+
+
 
 
 
@@ -610,7 +682,10 @@ class ApiService {
 
 
 
-  // ================= LISTA PADRÃO =================
+
+
+
+  // ================= LISTA =================
 
 
 
@@ -622,6 +697,7 @@ class ApiService {
 
     final dados =
     await get(rota);
+
 
 
 
@@ -658,7 +734,6 @@ class ApiService {
 
 
 
-
     }
 
 
@@ -678,17 +753,24 @@ class ApiService {
 
 
 
+
+
+
   // ================= DADOS =================
 
 
 
   static Future<List<dynamic>> clientes() async {
 
+
     return await lista(
         "clientes"
     );
 
+
   }
+
+
 
 
 
@@ -696,11 +778,36 @@ class ApiService {
 
   static Future<List<dynamic>> eventos() async {
 
+
     return await lista(
         "eventos"
     );
 
+
   }
+
+
+
+
+
+
+
+  // NOVO
+  // categorias dos tipos de evento
+
+
+
+  static Future<List<dynamic>> categoriasEvento() async {
+
+
+    return await lista(
+        "categorias-evento"
+    );
+
+
+  }
+
+
 
 
 
@@ -710,11 +817,14 @@ class ApiService {
 
   static Future<List<dynamic>> categorias() async {
 
+
     return await lista(
         "categorias"
     );
 
+
   }
+
 
 
 
@@ -724,11 +834,15 @@ class ApiService {
 
   static Future<List<dynamic>> servicos() async {
 
+
     return await lista(
         "servicos"
     );
 
+
   }
+
+
 
 
 
@@ -738,11 +852,14 @@ class ApiService {
 
   static Future<List<dynamic>> orcamentos() async {
 
+
     return await lista(
         "orcamentos"
     );
 
+
   }
+
 
 
 
@@ -752,11 +869,17 @@ class ApiService {
 
   static Future<List<dynamic>> pagamentos() async {
 
+
     return await lista(
         "pagamentos"
     );
 
+
   }
+
+
+
+
 
 
 
@@ -779,6 +902,9 @@ class ApiService {
 
 
   }
+
+
+
 
 
 
@@ -811,6 +937,10 @@ class ApiService {
 
 
 
+
+
+
+
   // ================= FOTO =================
 
 
@@ -827,11 +957,15 @@ class ApiService {
 
 
 
+
+
     var request =
     http.MultipartRequest(
 
 
+
         "POST",
+
 
 
         Uri.parse(
@@ -845,21 +979,27 @@ class ApiService {
 
 
 
+
+
     request.headers.addAll({
 
 
 
       "Authorization":
+
       "Bearer $token",
 
 
 
       "Accept":
+
       "application/json"
 
 
 
     });
+
+
 
 
 
@@ -888,6 +1028,7 @@ class ApiService {
             )
 
 
+
         )
 
 
@@ -901,6 +1042,7 @@ class ApiService {
 
     final response =
     await request.send();
+
 
 
 
@@ -921,12 +1063,14 @@ class ApiService {
 
 
 
+
+
+
   // ================= LOGOUT =================
 
 
 
   static Future<void> logout() async {
-
 
 
     try{
@@ -938,14 +1082,15 @@ class ApiService {
       );
 
 
+    }catch(_){}
 
-    }catch(e){}
 
 
 
 
     final prefs =
     await SharedPreferences.getInstance();
+
 
 
 
