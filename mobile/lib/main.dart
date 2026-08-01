@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+
+import 'pages/splash_page.dart';
+
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/home_page.dart';
@@ -13,27 +16,29 @@ import 'pages/configuracoes_page.dart';
 import 'pages/cadastrar_cliente_page.dart';
 import 'pages/evento_cadastro_page.dart';
 
-import 'services/storage_service.dart';
 
 
 
-void main() async{
+
+void main() async {
 
 
-WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
 
-String? token = await StorageService.token();
 
+  runApp(
 
-runApp(
-MyApp(
-logado: token != null,
-)
-);
+    const MyApp()
+
+  );
 
 
 }
+
+
+
+
 
 
 
@@ -42,121 +47,212 @@ logado: token != null,
 class MyApp extends StatelessWidget {
 
 
+  const MyApp({
 
-final bool logado;
+    super.key
 
+  });
 
 
-const MyApp({
 
-super.key,
 
-required this.logado
 
-});
 
 
 
+  @override
+  Widget build(BuildContext context) {
 
 
 
-@override
-Widget build(BuildContext context) {
+    return MaterialApp(
 
 
-return MaterialApp(
 
+      debugShowCheckedModeBanner:false,
 
-debugShowCheckedModeBanner:false,
 
 
-title:"EventManager",
+      title:"EventManager",
 
 
 
-theme:ThemeData(
 
 
-primarySwatch:Colors.blue,
 
+      theme:ThemeData(
 
-scaffoldBackgroundColor:
-Colors.grey[100],
 
 
-),
+        primarySwatch:Colors.blue,
 
 
 
+        scaffoldBackgroundColor:
 
+        Colors.grey[100],
 
 
-initialRoute:
 
-logado ? '/home' : '/login',
+        appBarTheme:const AppBarTheme(
 
 
+          elevation:0,
 
 
+          centerTitle:true,
 
 
+        ),
 
 
-routes:{
 
+      ),
 
 
-'/login':
 
-(context)=>LoginPage(),
 
 
 
-'/register':
+      initialRoute:'/splash',
 
-(context)=>RegisterPage(),
 
 
 
-'/home':
 
-(context)=>HomePage(),
 
 
 
-'/perfil':
+      routes:{
 
-(context)=>PerfilPage(),
 
-'/clientes':(context)=>ClientesPage(),
 
-'/eventos':(context)=>EventosPage(),
 
-'/servicos':(context)=>ServicosPage(),
 
-'/orcamentos':(context)=>OrcamentosPage(),
+        '/splash':
 
-'/categorias':(context)=>CategoriasPage(),
+        (context)=>const SplashPage(),
 
-'/configuracoes':
-(context)=>ConfiguracoesPage(),
 
-'/cadastrar_cliente':
-(context)=>CadastrarClientePage(),
 
-'/eventos/cadastro':
-(context)=>EventoCadastroPage(),
 
 
-},
 
+        '/login':
 
+        (context)=>LoginPage(),
 
 
-);
 
 
-}
+
+
+        '/register':
+
+        (context)=>RegisterPage(),
+
+
+
+
+
+
+        '/home':
+
+        (context)=>HomePage(),
+
+
+
+
+
+
+        '/perfil':
+
+        (context)=>PerfilPage(),
+
+
+
+
+
+
+        '/clientes':
+
+        (context)=>ClientesPage(),
+
+
+
+
+
+
+        '/eventos':
+
+        (context)=>EventosPage(),
+
+
+
+
+
+
+        '/servicos':
+
+        (context)=>ServicosPage(),
+
+
+
+
+
+
+        '/orcamentos':
+
+        (context)=>OrcamentosPage(),
+
+
+
+
+
+
+        '/categorias':
+
+        (context)=>CategoriasPage(),
+
+
+
+
+
+
+        '/configuracoes':
+
+        (context)=>ConfiguracoesPage(),
+
+
+
+
+
+
+        '/cadastrar_cliente':
+
+        (context)=>CadastrarClientePage(),
+
+
+
+
+
+
+        '/eventos/cadastro':
+
+        (context)=>EventoCadastroPage(),
+
+
+
+
+      },
+
+
+
+    );
+
+
+  }
+
 
 
 }

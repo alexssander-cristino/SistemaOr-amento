@@ -56,10 +56,21 @@ class GraficoWidget extends StatelessWidget {
 
 
 
-    final limiteGrafico =
-        maiorValor < 5
-            ? 5
-            : maiorValor + 5;
+
+    final limiteGrafico = maiorValor <= 0
+
+        ? 5
+
+        : maiorValor + (maiorValor * 0.2);
+
+
+
+
+
+
+
+    final intervalo = calcularIntervalo(maiorValor);
+
 
 
 
@@ -69,22 +80,20 @@ class GraficoWidget extends StatelessWidget {
     return Container(
 
 
-      height:300,
+      height: 320,
 
 
-      padding:
-      const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
 
 
 
-      decoration:BoxDecoration(
+      decoration: BoxDecoration(
 
 
-        color:Colors.white,
+        color: Colors.white,
 
 
-        borderRadius:
-        BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15),
 
 
       ),
@@ -92,53 +101,60 @@ class GraficoWidget extends StatelessWidget {
 
 
 
-      child:BarChart(
+      child: BarChart(
+
 
 
         BarChartData(
 
 
 
-          alignment:
-          BarChartAlignment.spaceAround,
+          minY: 0,
 
 
 
-          maxY:
-          limiteGrafico.toDouble(),
+          maxY: limiteGrafico.toDouble(),
 
 
 
-          barGroups:[
+
+
+          alignment: BarChartAlignment.spaceAround,
+
+
+
+
+
+
+
+          barGroups: [
 
 
 
             criarBarra(
-                0,
-                clientes
+              0,
+              clientes,
             ),
 
 
 
             criarBarra(
-                1,
-                eventos
+              1,
+              eventos,
             ),
 
 
 
-
             criarBarra(
-                2,
-                servicos
+              2,
+              servicos,
             ),
 
 
 
-
             criarBarra(
-                3,
-                orcamentos
+              3,
+              orcamentos,
             ),
 
 
@@ -149,21 +165,25 @@ class GraficoWidget extends StatelessWidget {
 
 
 
-          titlesData:FlTitlesData(
+
+
+          titlesData: FlTitlesData(
 
 
 
-            bottomTitles:AxisTitles(
 
 
-              sideTitles:SideTitles(
+            bottomTitles: AxisTitles(
 
 
-                showTitles:true,
+              sideTitles: SideTitles(
+
+
+                showTitles: true,
 
 
 
-                getTitlesWidget:(value,meta){
+                getTitlesWidget: (value, meta){
 
 
 
@@ -174,7 +194,10 @@ class GraficoWidget extends StatelessWidget {
                     case 0:
 
                       return const Text(
-                          "Clientes"
+                        "Clientes",
+                        style: TextStyle(
+                          fontSize: 11,
+                        ),
                       );
 
 
@@ -182,7 +205,10 @@ class GraficoWidget extends StatelessWidget {
                     case 1:
 
                       return const Text(
-                          "Eventos"
+                        "Eventos",
+                        style: TextStyle(
+                          fontSize: 11,
+                        ),
                       );
 
 
@@ -190,7 +216,10 @@ class GraficoWidget extends StatelessWidget {
                     case 2:
 
                       return const Text(
-                          "Serviços"
+                        "Serviços",
+                        style: TextStyle(
+                          fontSize: 11,
+                        ),
                       );
 
 
@@ -198,7 +227,10 @@ class GraficoWidget extends StatelessWidget {
                     case 3:
 
                       return const Text(
-                          "Orç."
+                        "Orç.",
+                        style: TextStyle(
+                          fontSize: 11,
+                        ),
                       );
 
 
@@ -210,8 +242,8 @@ class GraficoWidget extends StatelessWidget {
                   }
 
 
-                },
 
+                },
 
               ),
 
@@ -220,31 +252,132 @@ class GraficoWidget extends StatelessWidget {
 
 
 
-            leftTitles:const AxisTitles(
 
-              sideTitles:
 
-              SideTitles(
 
-                showTitles:true,
 
-              )
+
+            leftTitles: AxisTitles(
+
+
+
+              sideTitles: SideTitles(
+
+
+
+                showTitles: true,
+
+
+
+                interval: intervalo,
+
+
+
+                reservedSize: tamanhoNumero(maiorValor),
+
+
+
+
+
+                getTitlesWidget:(value,meta){
+
+
+
+                  return Text(
+
+
+
+                    value.toInt().toString(),
+
+
+
+                    style: const TextStyle(
+
+
+                      fontSize: 10,
+
+
+                    ),
+
+
+                  );
+
+
+                },
+
+
+
+              ),
+
+
 
             ),
 
 
+
+
+
+
+
+            rightTitles: const AxisTitles(
+
+
+              sideTitles: SideTitles(
+
+                showTitles:false,
+
+              ),
+
+
+            ),
+
+
+
+
+
+
+            topTitles: const AxisTitles(
+
+
+              sideTitles: SideTitles(
+
+                showTitles:false,
+
+              ),
+
+
+            ),
+
+
+
           ),
 
 
 
-          borderData:
 
-          FlBorderData(
+
+
+
+          gridData: FlGridData(
+
+
+            show:true,
+
+
+          ),
+
+
+
+
+
+
+          borderData: FlBorderData(
+
 
             show:false,
 
-          ),
 
+          ),
 
 
 
@@ -269,11 +402,131 @@ class GraficoWidget extends StatelessWidget {
 
 
 
+
+
+
+
+  double calcularIntervalo(int valor){
+
+
+
+    if(valor <= 10){
+
+
+      return 1;
+
+
+    }
+
+
+
+    if(valor <= 50){
+
+
+      return 5;
+
+
+    }
+
+
+
+    if(valor <= 200){
+
+
+      return 20;
+
+
+    }
+
+
+
+    if(valor <= 1000){
+
+
+      return 100;
+
+
+    }
+
+
+
+    return 500;
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+  double tamanhoNumero(int valor){
+
+
+
+    if(valor >= 1000){
+
+
+      return 55;
+
+
+    }
+
+
+
+    if(valor >= 100){
+
+
+      return 45;
+
+
+    }
+
+
+
+    if(valor >= 10){
+
+
+      return 35;
+
+
+    }
+
+
+
+    return 25;
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
   BarChartGroupData criarBarra(
+
+
 
       int x,
 
       int valor
+
+
 
       ){
 
@@ -282,7 +535,9 @@ class GraficoWidget extends StatelessWidget {
     return BarChartGroupData(
 
 
+
       x:x,
+
 
 
       barRods:[
@@ -292,9 +547,8 @@ class GraficoWidget extends StatelessWidget {
         BarChartRodData(
 
 
-          toY:
 
-          valor.toDouble(),
+          toY: valor.toDouble(),
 
 
 
@@ -302,18 +556,20 @@ class GraficoWidget extends StatelessWidget {
 
 
 
-          borderRadius:
-
-          BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(5),
 
 
 
-        )
+        ),
+
+
 
       ],
 
 
+
     );
+
 
 
   }
@@ -321,6 +577,4 @@ class GraficoWidget extends StatelessWidget {
 
 
 
-
 }
-

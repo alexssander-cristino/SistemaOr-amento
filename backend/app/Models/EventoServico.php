@@ -13,13 +13,6 @@ class EventoServico extends Model
 
 
 
-
-    protected $table = 'evento_servicos';
-
-
-
-
-
     protected $fillable = [
 
         'evento_id',
@@ -28,13 +21,9 @@ class EventoServico extends Model
 
         'quantidade',
 
-        'valor_unitario',
-
-        'subtotal'
+        'valor_unitario'
 
     ];
-
-
 
 
 
@@ -52,9 +41,6 @@ class EventoServico extends Model
         );
 
     }
-
-
-
 
 
 

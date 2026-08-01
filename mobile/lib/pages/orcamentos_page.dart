@@ -7,16 +7,14 @@ import '../services/pdf_service.dart';
 
 class OrcamentosPage extends StatefulWidget {
 
-
   const OrcamentosPage({
-    super.key
+    super.key,
   });
 
 
-
   @override
-  State<OrcamentosPage> createState()
-      => _OrcamentosPageState();
+  State<OrcamentosPage> createState() =>
+      _OrcamentosPageState();
 
 }
 
@@ -24,10 +22,7 @@ class OrcamentosPage extends StatefulWidget {
 
 
 
-
-
-class _OrcamentosPageState extends State<OrcamentosPage>{
-
+class _OrcamentosPageState extends State<OrcamentosPage> {
 
 
   List eventos = [];
@@ -40,11 +35,8 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
-
-
   @override
-  void initState(){
+  void initState() {
 
     super.initState();
 
@@ -58,65 +50,50 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+  Future<void> carregar() async {
 
 
-  Future<void> carregar() async{
+    try {
 
 
-    try{
-
-
-      final eventosApi =
+      final e =
       await ApiService.eventos();
 
 
 
-      final orcamentosApi =
+      final o =
       await ApiService.orcamentos();
 
 
 
 
-
-      print("ORCAMENTOS API");
-
-      print(orcamentosApi);
+      if(!mounted) return;
 
 
 
+      setState(() {
 
 
-
-      if(!mounted)return;
-
-
+        eventos =
+            List.from(e);
 
 
+        orcamentos =
+            List.from(o);
 
-      setState((){
 
-
-        eventos = eventosApi;
-
-        orcamentos = orcamentosApi;
-
-        carregando = false;
+        carregando =
+        false;
 
 
       });
 
 
 
-
-
     }catch(e){
 
 
-      print(e);
-
-
-
-      setState((){
+      setState(() {
 
         carregando=false;
 
@@ -124,10 +101,9 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-      mostrarMensagem(
-          "Erro ao carregar orçamentos"
+      mensagem(
+          e.toString()
       );
-
 
 
     }
@@ -143,11 +119,7 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
-
-
-  String nomeEvento(var evento){
-
+  String nomeEvento(dynamic evento){
 
 
     if(evento == null){
@@ -158,60 +130,34 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
-
-    String categoria =
-
-    evento['categoria']?['nome']
-
-        ??
-
-    evento['tipo']
-
-        ??
-
-    "Evento";
+    final categoria =
+        evento['categoria']?['nome']
+            ??
+            evento['tipo']
+            ??
+            "Evento";
 
 
 
+    final cliente =
+        evento['cliente']?['nome']
+            ??
+            "Cliente";
 
 
 
-
-    String cliente =
-
-    evento['cliente']?['nome']
-
-        ??
-
-    "Cliente";
+    final data =
+        evento['data']
+            ??
+            "";
 
 
 
+    return
+      "$categoria - $cliente - $data";
 
-
-
-
-    String data =
-
-    evento['data']
-
-        ??
-
-    "";
-
-
-
-
-
-
-
-    return "$categoria - $cliente - $data";
 
   }
-
-
-
 
 
 
@@ -224,38 +170,22 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
   void novoOrcamento(){
 
 
-
-    int? eventoSelecionado;
-
-
-
+    int? eventoId;
 
 
 
     showDialog(
 
-
-
-      context:context,
-
+      context: context,
 
 
       builder:(context){
 
 
-
-
-
         return StatefulBuilder(
 
 
-
-
-
           builder:(context,setModal){
-
-
-
 
 
             return AlertDialog(
@@ -263,7 +193,6 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
               title:
-
               const Text(
                   "Novo Orçamento"
               ),
@@ -271,30 +200,18 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
-
               content:
-
 
 
               DropdownButtonFormField<int>(
 
 
 
-                value:eventoSelecionado,
-
-
-
-
-
                 decoration:
-
                 const InputDecoration(
 
-
                   labelText:
-                  "Selecione o evento",
-
+                  "Evento",
 
                   border:
                   OutlineInputBorder(),
@@ -304,54 +221,37 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+                value:eventoId,
+
+
 
 
                 items:
 
-
-
-                eventos.map<DropdownMenuItem<int>>(
-
-                        (e){
+                eventos.map((e){
 
 
 
+                  return DropdownMenuItem<int>(
 
 
-                      return DropdownMenuItem<int>(
-
-
-
-                        value:
-
-                        e['id'],
-
+                    value:
+                    int.parse(
+                        e['id'].toString()
+                    ),
 
 
 
-
-                        child:
-
-                        Text(
-
-                            nomeEvento(e)
-
-                        ),
+                    child:
+                    Text(
+                        nomeEvento(e)
+                    ),
 
 
-
-                      );
-
+                  );
 
 
-
-
-                    }
-
-                ).toList(),
-
-
-
+                }).toList(),
 
 
 
@@ -359,14 +259,11 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
                 onChanged:(v){
 
 
-
                   setModal((){
 
-                    eventoSelecionado = v;
-
+                    eventoId=v;
 
                   });
-
 
 
                 },
@@ -379,32 +276,22 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
               actions:[
-
 
 
 
                 TextButton(
 
-
-
                   onPressed:(){
-
 
                     Navigator.pop(context);
 
-
                   },
 
-
                   child:
-
                   const Text(
                       "Cancelar"
                   ),
-
-
 
                 ),
 
@@ -415,31 +302,29 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
                 ElevatedButton(
 
+                  child:
+                  const Text(
+                      "Criar"
+                  ),
+
+
 
 
                   onPressed:() async{
 
 
-
-                    if(eventoSelecionado == null){
-
+                    if(eventoId==null){
 
 
-                      mostrarMensagem(
-
+                      mensagem(
                           "Selecione um evento"
-
                       );
 
 
                       return;
 
+
                     }
-
-
-
-
-
 
 
 
@@ -447,53 +332,28 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
                     try{
 
 
-
-
-
                       await ApiService.post(
 
+                        "orcamentos",
+
+                        {
+
+                          "evento_id":
+                          eventoId,
 
 
-                          "orcamentos",
+                          "desconto":
+                          0,
 
 
-
-                          {
-
-
-                            "evento_id":
-
-                            eventoSelecionado,
+                          "status":
+                          "pendente"
 
 
-
-                            "desconto":
-
-                            0,
-
-
-
-                            "valor_total":
-
-                            0,
-
-
-
-                            "status":
-
-                            "pendente"
-
-
-
-                          }
-
+                        },
 
 
                       );
-
-
-
-
 
 
 
@@ -501,30 +361,21 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-                      carregar();
+                      await carregar();
 
 
 
-
-
-                      mostrarMensagem(
-
+                      mensagem(
                           "Orçamento criado"
-
                       );
-
-
 
 
 
                     }catch(e){
 
 
-
-                      mostrarMensagem(
-
+                      mensagem(
                           e.toString()
-
                       );
 
 
@@ -536,44 +387,27 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-
-                  child:
-
-                  const Text(
-                      "Criar"
-                  )
-
-
-
                 )
-
-
 
 
 
               ],
 
 
-
-
-
             );
-
 
 
           },
 
 
-
         );
-
 
 
       },
 
 
-
     );
+
 
 
   }
@@ -586,120 +420,176 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+  void gerarPdf(dynamic orc){
 
 
+    List itens=[];
 
 
-  void gerarPdf(var orc){
 
 
-  List servicos = [];
+    if(orc['itens'] != null){
 
 
+      itens =
+      List.from(
+          orc['itens']
+      );
 
-  // Primeiro tenta pegar itens do orçamento
-  if(orc['itens'] != null){
 
-    servicos = List.from(
-      orc['itens']
-    );
+    }
 
-  }
 
 
 
 
+    if(itens.isEmpty){
 
-  // Caso venha pelos serviços do evento
-  if(servicos.isEmpty &&
-      orc['evento'] != null &&
-      orc['evento']['servicos'] != null){
 
+      itens =
+      List.from(
+          orc['evento']?['servicos'] ?? []
+      );
 
-    servicos = List.from(
-        orc['evento']['servicos']
-    );
 
+    }
 
-  }
 
 
 
 
+    double total=0;
 
-  double total = 0;
 
 
 
+    for(var item in itens){
 
-  for(var item in servicos){
 
 
-    double valor = 0;
+      double valor=0;
 
-    int quantidade = 1;
+      int quantidade=1;
 
-    double subtotal = 0;
 
 
+      if(item['servico'] != null){
 
 
 
-    // Quando vem de orcamento_servicos
-    if(item['servico'] != null){
+        valor =
+            double.tryParse(
 
+                (
 
-      valor = double.tryParse(
+                    item['valor_unitario']
 
-          (
+                        ??
 
-              item['valor_unitario']
+                    item['servico']['valor']
 
-                  ??
+                        ??
 
-              item['servico']['valor']
+                    0
 
-                  ??
+                ).toString()
 
-              0
+            )
+                ??
+                0;
 
-          ).toString()
 
-      ) ?? 0;
 
+        quantidade =
+            int.tryParse(
 
+                (
 
+                    item['quantidade']
 
-      quantidade = int.tryParse(
+                        ??
 
-          (
+                    1
 
-              item['quantidade']
+                ).toString()
 
-                  ??
+            )
+                ??
+                1;
 
-              1
 
-          ).toString()
 
-      ) ?? 1;
+      }
 
 
 
+      else{
 
-      subtotal = double.tryParse(
 
-          (
+        valor =
+            double.tryParse(
 
-              item['subtotal']
+                (
 
-                  ??
+                    item['valor']
 
-              valor * quantidade
+                        ??
 
-          ).toString()
+                    item['pivot']?['valor_unitario']
 
-      ) ?? 0;
+                        ??
+
+                    0
+
+                ).toString()
+
+            )
+                ??
+                0;
+
+
+
+
+        quantidade =
+            int.tryParse(
+
+                (
+
+                    item['pivot']?['quantidade']
+
+                        ??
+
+                    item['quantidade']
+
+                        ??
+
+                    1
+
+                ).toString()
+
+            )
+                ??
+                1;
+
+
+      }
+
+
+
+
+
+      item['quantidade_pdf']=quantidade;
+
+
+      item['subtotal_pdf']=
+
+          valor * quantidade;
+
+
+
+      total +=
+
+          valor * quantidade;
 
 
 
@@ -709,108 +599,14 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-    // Quando vem do evento_servicos
-    else {
-
-
-      valor = double.tryParse(
-
-          (
-
-              item['pivot']?['valor_unitario']
-
-                  ??
-
-              item['valor']
-
-                  ??
-
-              0
-
-          ).toString()
-
-      ) ?? 0;
-
-
-
-
-
-      quantidade = int.tryParse(
-
-          (
-
-              item['pivot']?['quantidade']
-
-                  ??
-
-              1
-
-          ).toString()
-
-      ) ?? 1;
-
-
-
-
-
-      subtotal = double.tryParse(
-
-          (
-
-              item['pivot']?['subtotal']
-
-                  ??
-
-              valor * quantidade
-
-          ).toString()
-
-      ) ?? 0;
-
-
-
-    }
-
-
-
-
-
-
-    total += subtotal;
-
-
-
-  }
-
-
-
-
-
-
-
-  print("SERVICOS PDF:");
-  print(servicos);
-
-
-  print("TOTAL PDF:");
-  print(total);
-
-
-
-
-
-
-  PdfService.gerarOrcamento(
+    PdfService.gerarOrcamento(
 
 
       cliente:
 
       orc['evento']?['cliente']?['nome']
-
           ??
-
           "Cliente",
-
 
 
 
@@ -818,50 +614,22 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
       evento:
 
       nomeEvento(
-
           orc['evento']
-
       ),
-
 
 
 
 
       servicos:
 
-      servicos,
-
+      itens,
 
 
 
 
       total:
 
-      total
-
-
-
-  );
-
-
-
-}
-
-  void mostrarMensagem(String texto){
-
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-
-
-
-      SnackBar(
-
-        content:
-
-        Text(texto),
-
-      ),
+      total,
 
 
 
@@ -874,6 +642,27 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
+
+
+
+
+  void mensagem(String texto){
+
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+
+      SnackBar(
+
+        content:
+        Text(texto),
+
+      ),
+
+    );
+
+
+  }
 
 
 
@@ -884,8 +673,7 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
   @override
-  Widget build(BuildContext context){
-
+  Widget build(BuildContext context) {
 
 
     return Scaffold(
@@ -893,23 +681,14 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
       appBar:
-
       AppBar(
 
-
         title:
-
         const Text(
-
             "Orçamentos"
-
         ),
 
-
       ),
-
-
-
 
 
 
@@ -917,35 +696,24 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
       floatingActionButton:
 
 
-
       FloatingActionButton.extended(
 
+        onPressed:
+        novoOrcamento,
 
 
         icon:
-
         const Icon(
             Icons.add
         ),
 
 
-
         label:
-
         const Text(
             "Novo"
         ),
 
-
-
-        onPressed:
-
-        novoOrcamento,
-
-
-
       ),
-
 
 
 
@@ -955,29 +723,22 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
       body:
 
 
-
       carregando
-
 
 
           ?
 
 
-
       const Center(
 
         child:
-
         CircularProgressIndicator(),
 
       )
 
 
 
-
-
           :
-
 
 
       RefreshIndicator(
@@ -985,27 +746,24 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
         onRefresh:
-
         carregar,
 
 
 
         child:
 
+
         ListView.builder(
 
 
 
           padding:
-
           const EdgeInsets.all(15),
 
 
 
 
-
           itemCount:
-
           orcamentos.length,
 
 
@@ -1017,11 +775,7 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
             final o =
-
             orcamentos[index];
-
-
-
 
 
 
@@ -1030,57 +784,34 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
 
 
 
-              elevation:4,
-
-
-
-
-
               child:
-
               ListTile(
 
 
 
                 title:
-
                 Text(
 
-                    "Orçamento #${o['id']}"
+                  "Orçamento #${o['id']}",
 
                 ),
-
-
 
 
 
 
                 subtitle:
-
                 Text(
 
-
                     "Cliente: "
-
                         "${o['evento']?['cliente']?['nome'] ?? ''}\n"
 
-
-
                         "Evento: "
-
                         "${nomeEvento(o['evento'])}\n"
 
-
-
                         "Status: "
-
                         "${o['status'] ?? ''}"
 
-
-
                 ),
-
-
 
 
 
@@ -1090,23 +821,16 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
                 IconButton(
 
 
-
                   icon:
-
                   const Icon(
-
                       Icons.picture_as_pdf
-
                   ),
-
 
 
 
                   onPressed:(){
 
-
                     gerarPdf(o);
-
 
                   },
 
@@ -1115,17 +839,13 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
                 ),
 
 
-
               ),
-
 
 
             );
 
 
-
           },
-
 
 
         ),
@@ -1135,13 +855,10 @@ class _OrcamentosPageState extends State<OrcamentosPage>{
       ),
 
 
-
     );
 
 
-
   }
-
 
 
 }

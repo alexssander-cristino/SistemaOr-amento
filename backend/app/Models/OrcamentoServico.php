@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class OrcamentoServico extends Model
 {
+
+    use HasFactory;
+
 
 
     protected $fillable = [
@@ -27,20 +31,18 @@ class OrcamentoServico extends Model
 
 
 
-
-
     public function orcamento()
     {
 
         return $this->belongsTo(
 
-            Orcamento::class
+            Orcamento::class,
+
+            'orcamento_id'
 
         );
 
     }
-
-
 
 
 
@@ -51,7 +53,9 @@ class OrcamentoServico extends Model
 
         return $this->belongsTo(
 
-            Servico::class
+            Servico::class,
+
+            'servico_id'
 
         );
 

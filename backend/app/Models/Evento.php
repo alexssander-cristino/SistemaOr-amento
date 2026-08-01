@@ -48,8 +48,6 @@ class Evento extends Model
 
 
 
-
-
     public function categoria()
     {
 
@@ -66,10 +64,6 @@ class Evento extends Model
 
 
 
-
-
-
-    // serviços do evento
 
     public function servicos()
     {
@@ -88,8 +82,6 @@ class Evento extends Model
 
 
 
-
-
     public function orcamento()
     {
 
@@ -102,7 +94,6 @@ class Evento extends Model
         );
 
     }
-
 
 
 }

@@ -7,14 +7,13 @@ use App\Models\Evento;
 use App\Models\EventoServico;
 use App\Models\Servico;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EventoController extends Controller
 {
-
     public function index()
     {
         return response()->json(
-
             Evento::with([
                 'cliente',
                 'categoria',
@@ -22,88 +21,104 @@ class EventoController extends Controller
             ])
             ->orderBy('data')
             ->get()
-
         );
     }
 
     public function store(Request $request)
     {
-
         $dados = $request->validate([
 
             'cliente_id' => 'required|exists:clientes,id',
-
             'categoria_evento_id' => 'required|exists:categorias_eventos,id',
 
             'data' => 'required|date',
-
             'hora' => 'required',
 
             'local' => 'required',
 
-            'quantidade_convidados' => 'required|integer',
+            'quantidade_convidados' => 'required|integer|min:1',
 
-            'observacoes' => 'nullable',
+            'observacoes' => 'nullable|string',
 
             'servicos' => 'nullable|array',
 
-            'servicos.*' => 'exists:servicos,id'
+            'servicos.*.servico_id' => 'required|exists:servicos,id',
+
+            'servicos.*.quantidade' => 'required|integer|min:1',
 
         ]);
 
+        DB::beginTransaction();
 
-        $evento = Evento::create([
+        try {
 
-            'cliente_id' => $dados['cliente_id'],
+            $evento = Evento::create([
 
-            'categoria_evento_id' => $dados['categoria_evento_id'],
+                'cliente_id' => $dados['cliente_id'],
 
-            'data' => $dados['data'],
+                'categoria_evento_id' => $dados['categoria_evento_id'],
 
-            'hora' => $dados['hora'],
+                'data' => $dados['data'],
 
-            'local' => $dados['local'],
+                'hora' => $dados['hora'],
 
-            'quantidade_convidados' => $dados['quantidade_convidados'],
+                'local' => $dados['local'],
 
-            'observacoes' => $dados['observacoes'] ?? null,
+                'quantidade_convidados' => $dados['quantidade_convidados'],
 
-        ]);
+                'observacoes' => $dados['observacoes'] ?? null,
 
+            ]);
 
-        if (!empty($dados['servicos'])) {
+            if (!empty($dados['servicos'])) {
 
-            foreach ($dados['servicos'] as $id) {
+                foreach ($dados['servicos'] as $item) {
 
-                $servico = Servico::findOrFail($id);
+                    $servico = Servico::findOrFail(
+                        $item['servico_id']
+                    );
 
-                EventoServico::create([
+                    $quantidade = (int) $item['quantidade'];
 
-                    'evento_id' => $evento->id,
+                    EventoServico::create([
 
-                    'servico_id' => $servico->id,
+                        'evento_id' => $evento->id,
 
-                    'quantidade' => 1,
+                        'servico_id' => $servico->id,
 
-                    'valor_unitario' => $servico->valor,
+                        'quantidade' => $quantidade,
 
-                    'subtotal' => $servico->valor,
+                        'valor_unitario' => $servico->valor,
 
-                ]);
+                        'subtotal' => $servico->valor * $quantidade,
+
+                    ]);
+                }
             }
+
+            DB::commit();
+
+            return response()->json(
+
+                Evento::with([
+                    'cliente',
+                    'categoria',
+                    'servicos'
+                ])->find($evento->id),
+
+                201
+
+            );
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+
         }
-
-        return response()->json(
-
-            Evento::with([
-                'cliente',
-                'categoria',
-                'servicos'
-            ])->find($evento->id),
-
-            201
-
-        );
     }
 
     public function show($id)
@@ -121,32 +136,135 @@ class EventoController extends Controller
 
     public function update(Request $request, $id)
     {
+        $dados = $request->validate([
 
-        $evento = Evento::findOrFail($id);
+            'cliente_id' => 'required|exists:clientes,id',
 
-        $evento->update($request->all());
+            'categoria_evento_id' => 'required|exists:categorias_eventos,id',
 
-        return response()->json(
+            'data' => 'required|date',
 
-            Evento::with([
-                'cliente',
-                'categoria',
-                'servicos'
-            ])->find($id)
+            'hora' => 'required',
 
-        );
+            'local' => 'required',
+
+            'quantidade_convidados' => 'required|integer|min:1',
+
+            'observacoes' => 'nullable|string',
+
+            'servicos' => 'nullable|array',
+
+            'servicos.*.servico_id' => 'required|exists:servicos,id',
+
+            'servicos.*.quantidade' => 'required|integer|min:1',
+
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            $evento = Evento::findOrFail($id);
+
+            $evento->update([
+
+                'cliente_id' => $dados['cliente_id'],
+
+                'categoria_evento_id' => $dados['categoria_evento_id'],
+
+                'data' => $dados['data'],
+
+                'hora' => $dados['hora'],
+
+                'local' => $dados['local'],
+
+                'quantidade_convidados' => $dados['quantidade_convidados'],
+
+                'observacoes' => $dados['observacoes'] ?? null,
+
+            ]);
+
+            EventoServico::where(
+                'evento_id',
+                $evento->id
+            )->delete();
+
+            if (!empty($dados['servicos'])) {
+
+                foreach ($dados['servicos'] as $item) {
+
+                    $servico = Servico::findOrFail(
+                        $item['servico_id']
+                    );
+
+                    $quantidade = (int) $item['quantidade'];
+
+                    EventoServico::create([
+
+                        'evento_id' => $evento->id,
+
+                        'servico_id' => $servico->id,
+
+                        'quantidade' => $quantidade,
+
+                        'valor_unitario' => $servico->valor,
+
+                        'subtotal' => $servico->valor * $quantidade,
+
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(
+
+                Evento::with([
+                    'cliente',
+                    'categoria',
+                    'servicos'
+                ])->find($evento->id)
+
+            );
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+
+        }
     }
 
     public function destroy($id)
     {
+        DB::beginTransaction();
 
-        EventoServico::where('evento_id', $id)->delete();
+        try {
 
-        Evento::destroy($id);
+            EventoServico::where(
+                'evento_id',
+                $id
+            )->delete();
 
-        return response()->json([
-            'message' => 'Evento removido'
-        ]);
+            Evento::destroy($id);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Evento removido com sucesso.'
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+
+        }
     }
-
 }

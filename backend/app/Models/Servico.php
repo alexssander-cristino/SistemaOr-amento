@@ -13,7 +13,6 @@ class Servico extends Model
 
 
 
-
     protected $fillable = [
 
         'nome',
@@ -25,8 +24,6 @@ class Servico extends Model
         'categoria_id'
 
     ];
-
-
 
 
 
@@ -49,8 +46,6 @@ class Servico extends Model
 
 
 
-
-
     public function eventos()
     {
 
@@ -63,8 +58,6 @@ class Servico extends Model
         );
 
     }
-
-
 
 
 

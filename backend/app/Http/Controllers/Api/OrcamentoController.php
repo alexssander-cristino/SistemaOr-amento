@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 
 use App\Models\Orcamento;
+
 use App\Models\Evento;
+
 use App\Models\OrcamentoServico;
 
 use Illuminate\Http\Request;
@@ -17,44 +19,27 @@ class OrcamentoController extends Controller
 {
 
 
-    /**
-     * Lista todos os orçamentos
-     */
     public function index()
     {
 
 
-        $orcamentos = Orcamento::with([
-
-
-            'evento.cliente',
-
-            'evento.categoria',
-
-            'itens.servico',
-
-            'pagamentos'
-
-
-        ])
-
-        ->orderBy(
-
-            'id',
-
-            'desc'
-
-        )
-
-        ->get();
-
-
-
-
-
         return response()->json(
 
-            $orcamentos
+            Orcamento::with([
+
+                'evento.cliente',
+
+                'evento.categoria',
+
+                'itens.servico',
+
+                'pagamentos'
+
+            ])
+
+            ->orderBy('id','desc')
+
+            ->get()
 
         );
 
@@ -66,12 +51,6 @@ class OrcamentoController extends Controller
 
 
 
-
-
-
-    /**
-     * Criar orçamento automaticamente pelos serviços do evento
-     */
     public function store(Request $request)
     {
 
@@ -79,38 +58,13 @@ class OrcamentoController extends Controller
         $dados = $request->validate([
 
 
-
-            'evento_id'=>[
-
-                'required',
-
-                'exists:eventos,id'
-
-            ],
+            'evento_id'=>'required|exists:eventos,id',
 
 
+            'desconto'=>'nullable|numeric',
 
 
-            'desconto'=>[
-
-                'nullable',
-
-                'numeric'
-
-            ],
-
-
-
-
-
-            'status'=>[
-
-                'required',
-
-                'string'
-
-            ]
-
+            'status'=>'required|string'
 
 
         ]);
@@ -120,29 +74,17 @@ class OrcamentoController extends Controller
 
 
 
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Buscar evento com serviços
-        |--------------------------------------------------------------------------
-        */
-
-
         $evento = Evento::with([
 
-            'servicos'
-
+            'servicos.servico'
 
         ])
 
         ->findOrFail(
 
-            $request->evento_id
+            $dados['evento_id']
 
         );
-
 
 
 
@@ -153,18 +95,13 @@ class OrcamentoController extends Controller
         if($evento->servicos->count() == 0)
         {
 
-
             return response()->json([
-
 
                 'message'=>
 
-                'Este evento não possui serviços cadastrados.'
-
-
+                'Este evento não possui serviços.'
 
             ],400);
-
 
         }
 
@@ -174,43 +111,30 @@ class OrcamentoController extends Controller
 
 
 
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Calcular total
-        |--------------------------------------------------------------------------
-        */
-
-
         $total = 0;
 
 
 
-        foreach($evento->servicos as $servico)
+
+
+        foreach($evento->servicos as $item)
         {
 
 
-            $quantidade =
+            $quantidade = 
 
-            $servico->pivot->quantidade
-
-            ??
-
-            1;
+            $item->quantidade ?? 1;
 
 
 
 
+            $valor = 
 
-            $valor =
-
-            $servico->pivot->valor_unitario
+            $item->valor_unitario
 
             ??
 
-            $servico->valor;
-
+            $item->servico->valor;
 
 
 
@@ -221,7 +145,6 @@ class OrcamentoController extends Controller
             $quantidade * $valor;
 
 
-
         }
 
 
@@ -229,18 +152,16 @@ class OrcamentoController extends Controller
 
 
 
+        $total -= $dados['desconto'] ?? 0;
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Criar orçamento
-        |--------------------------------------------------------------------------
-        */
+
+
+
 
 
         $orcamento = Orcamento::create([
-
 
 
             'evento_id'=>
@@ -251,7 +172,7 @@ class OrcamentoController extends Controller
 
             'desconto'=>
 
-            $request->desconto ?? 0,
+            $dados['desconto'] ?? 0,
 
 
 
@@ -263,8 +184,7 @@ class OrcamentoController extends Controller
 
             'status'=>
 
-            $request->status
-
+            $dados['status']
 
 
         ]);
@@ -277,25 +197,13 @@ class OrcamentoController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Copiar serviços para orçamento
-        |--------------------------------------------------------------------------
-        */
-
-
-        foreach($evento->servicos as $servico)
+        foreach($evento->servicos as $item)
         {
-
 
 
             $quantidade =
 
-            $servico->pivot->quantidade
-
-            ??
-
-            1;
+            $item->quantidade ?? 1;
 
 
 
@@ -303,11 +211,11 @@ class OrcamentoController extends Controller
 
             $valor =
 
-            $servico->pivot->valor_unitario
+            $item->valor_unitario
 
             ??
 
-            $servico->valor;
+            $item->servico->valor;
 
 
 
@@ -320,20 +228,15 @@ class OrcamentoController extends Controller
 
 
 
-
                 'orcamento_id'=>
 
                 $orcamento->id,
 
 
 
-
-
                 'servico_id'=>
 
-                $servico->id,
-
-
+                $item->servico_id,
 
 
 
@@ -343,13 +246,9 @@ class OrcamentoController extends Controller
 
 
 
-
-
                 'valor_unitario'=>
 
                 $valor,
-
-
 
 
 
@@ -359,10 +258,7 @@ class OrcamentoController extends Controller
 
 
 
-
-
             ]);
-
 
 
         }
@@ -375,31 +271,18 @@ class OrcamentoController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Retornar orçamento completo
-        |--------------------------------------------------------------------------
-        */
-
-
         return response()->json(
-
 
 
             Orcamento::with([
 
-
                 'evento.cliente',
-
 
                 'evento.categoria',
 
-
                 'itens.servico',
 
-
                 'pagamentos'
-
 
 
             ])
@@ -407,13 +290,10 @@ class OrcamentoController extends Controller
             ->find($orcamento->id),
 
 
-
             201
 
 
-
         );
-
 
 
     }
@@ -425,40 +305,28 @@ class OrcamentoController extends Controller
 
 
 
-
-
-
-
-    /**
-     * Mostrar um orçamento
-     */
     public function show($id)
     {
 
 
-        $orcamento = Orcamento::with([
-
-
-            'evento.cliente',
-
-            'evento.categoria',
-
-            'itens.servico',
-
-            'pagamentos'
-
-
-        ])
-
-        ->findOrFail($id);
-
-
-
-
-
         return response()->json(
 
-            $orcamento
+
+            Orcamento::with([
+
+                'evento.cliente',
+
+                'evento.categoria',
+
+                'itens.servico',
+
+                'pagamentos'
+
+
+            ])
+
+            ->findOrFail($id)
+
 
         );
 
@@ -472,13 +340,6 @@ class OrcamentoController extends Controller
 
 
 
-
-
-
-
-    /**
-     * Atualizar orçamento
-     */
     public function update(Request $request,$id)
     {
 
@@ -488,9 +349,7 @@ class OrcamentoController extends Controller
 
 
 
-
         $orcamento->update([
-
 
 
             'desconto'=>
@@ -500,8 +359,6 @@ class OrcamentoController extends Controller
             ??
 
             $orcamento->desconto,
-
-
 
 
 
@@ -515,8 +372,6 @@ class OrcamentoController extends Controller
 
 
 
-
-
             'status'=>
 
             $request->status
@@ -526,41 +381,13 @@ class OrcamentoController extends Controller
             $orcamento->status
 
 
-
         ]);
 
 
 
 
 
-
-        return response()->json(
-
-
-
-            Orcamento::with([
-
-
-                'evento.cliente',
-
-
-                'evento.categoria',
-
-
-                'itens.servico',
-
-
-                'pagamentos'
-
-
-            ])
-
-            ->find($id)
-
-
-
-        );
-
+        return response()->json($orcamento);
 
 
     }
@@ -572,14 +399,6 @@ class OrcamentoController extends Controller
 
 
 
-
-
-
-
-
-    /**
-     * Excluir orçamento
-     */
     public function destroy($id)
     {
 
@@ -589,8 +408,6 @@ class OrcamentoController extends Controller
 
 
 
-
-        // Remove serviços vinculados
 
         OrcamentoServico::where(
 
@@ -607,9 +424,7 @@ class OrcamentoController extends Controller
 
 
 
-
         $orcamento->delete();
-
 
 
 
@@ -619,19 +434,15 @@ class OrcamentoController extends Controller
         return response()->json([
 
 
-
             'message'=>
 
             'Orçamento removido com sucesso'
 
 
-
         ]);
 
 
-
     }
-
 
 
 }
