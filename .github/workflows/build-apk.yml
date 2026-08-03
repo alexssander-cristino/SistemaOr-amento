@@ -24,16 +24,15 @@ jobs:
           cache: true
 
       - name: Instalar dependências
+        working-directory: mobile
         run: flutter pub get
 
-      - name: Verificar Flutter
-        run: flutter doctor -v
-
       - name: Gerar APK
+        working-directory: mobile
         run: flutter build apk --release
 
       - name: Salvar APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
