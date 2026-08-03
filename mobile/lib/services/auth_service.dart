@@ -6,7 +6,7 @@ class AuthService {
 
 
 static const String url = 
-"http://192.168.100.166:8000/api/login";
+"https://eventmanager-api-x70d.onrender.com/api/login";
 
 
 

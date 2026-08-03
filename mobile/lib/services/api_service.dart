@@ -10,7 +10,7 @@ class ApiService {
 
 
   static const String baseUrl =
-      "http://192.168.1.36:8000/api";
+      "https://eventmanager-api-x70d.onrender.com/api";
 
 
 
