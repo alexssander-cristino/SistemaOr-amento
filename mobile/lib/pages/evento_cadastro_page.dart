@@ -1,421 +1,216 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
-
-
 class EventoCadastroPage extends StatefulWidget {
-
-
-  const EventoCadastroPage({
-    super.key
-  });
-
-
+  const EventoCadastroPage({super.key});
 
   @override
-  State<EventoCadastroPage> createState()
-      => _EventoCadastroPageState();
-
-
+  State<EventoCadastroPage> createState() => _EventoCadastroPageState();
 }
 
+class _EventoCadastroPageState extends State<EventoCadastroPage> {
 
+  final dataController = TextEditingController();
+  final horaController = TextEditingController();
+  final localController = TextEditingController();
+  final convidadosController = TextEditingController();
+  final observacoesController = TextEditingController();
 
+  List categorias = [];
 
-
-
-
-
-class _EventoCadastroPageState
-    extends State<EventoCadastroPage>{
-
-
-
-  final tipoController =
-      TextEditingController();
-
-
-
-  final dataController =
-      TextEditingController();
-
-
-
-  final horaController =
-      TextEditingController();
-
-
-
-  final localController =
-      TextEditingController();
-
-
-
-  final convidadosController =
-      TextEditingController();
-
-
-
-  final observacoesController =
-      TextEditingController();
-
-
-
+  int? categoriaSelecionada;
 
   bool salvando = false;
-
-
-
-
-
-
-
+  bool carregandoCategorias = true;
 
 
   @override
-  void dispose(){
+  void initState() {
+    super.initState();
+    carregarCategorias();
+  }
 
 
-    tipoController.dispose();
+  Future<void> carregarCategorias() async {
 
-    dataController.dispose();
+    try {
 
-    horaController.dispose();
+      final dados = await ApiService.get(
+        "categoria-eventos",
+      );
 
-    localController.dispose();
+      setState(() {
 
-    convidadosController.dispose();
+        categorias = dados;
 
-    observacoesController.dispose();
+        carregandoCategorias = false;
+
+      });
 
 
-    super.dispose();
+    } catch(e) {
 
+      mostrarMensagem(
+        "Erro ao carregar categorias: $e"
+      );
+
+      setState(() {
+        carregandoCategorias = false;
+      });
+
+    }
 
   }
 
 
 
 
+  Future<void> salvar() async {
 
 
-
-
-
-  Future<void> salvar() async{
-
-
-
-
-
-    if(tipoController.text.trim().isEmpty ||
-       dataController.text.trim().isEmpty){
-
-
+    if(categoriaSelecionada == null ||
+       dataController.text.isEmpty) {
 
       mostrarMensagem(
-          "Preencha os campos obrigatórios"
+        "Selecione a categoria e informe a data"
       );
 
-
       return;
-
 
     }
 
 
 
-
-
-
-
-    setState((){
-
-
+    setState(() {
       salvando = true;
-
-
     });
 
 
 
-
-
-
-
-    try{
-
-
-
+    try {
 
 
       await ApiService.post(
 
-
-
         "eventos",
-
-
-
 
         {
 
-
-
-          "tipo":
-
-          tipoController.text.trim(),
-
-
-
+          "categoria_evento_id":
+              categoriaSelecionada,
 
 
           "data":
-
-          dataController.text.trim(),
-
-
-
+              dataController.text.trim(),
 
 
           "hora":
-
-          horaController.text.trim(),
-
-
-
+              horaController.text.trim(),
 
 
           "local":
-
-          localController.text.trim(),
-
-
-
+              localController.text.trim(),
 
 
           "quantidade_convidados":
-
-          int.tryParse(
-
-              convidadosController.text
-
-          ) ?? 0,
-
-
-
+              int.tryParse(
+                convidadosController.text
+              ) ?? 0,
 
 
           "observacoes":
-
-          observacoesController.text.trim(),
-
-
+              observacoesController.text.trim(),
 
         },
 
-
-
       );
 
 
 
-
-
-
-
-      if(!mounted)
-        return;
-
-
-
-
-
+      if(!mounted) return;
 
 
       mostrarMensagem(
-
-          "Evento cadastrado com sucesso"
-
+        "Evento cadastrado com sucesso"
       );
-
-
-
 
 
       Navigator.pop(context);
 
 
 
-
-
-
     }catch(e){
 
 
-
-
-
       mostrarMensagem(
-
-          "Erro ao cadastrar evento\n$e"
-
+        "Erro ao cadastrar evento\n$e"
       );
-
-
-
 
 
     }finally{
 
 
-
       if(mounted){
 
-
-
-        setState((){
-
-
+        setState(() {
           salvando=false;
-
-
         });
 
-
-
       }
-
 
     }
 
 
-
-
-
-
-
   }
-
-
-
-
-
 
 
 
 
   void mostrarMensagem(String texto){
 
-
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-
-
+    ScaffoldMessenger.of(context).showSnackBar(
 
       SnackBar(
-
-        content:
-
-        Text(texto),
-
-
+        content: Text(texto),
       ),
-
 
     );
 
-
   }
-
-
-
-
-
-
 
 
 
   Widget campo(
-
       TextEditingController controller,
-
       String texto,
-
       IconData icone
-
       ){
-
-
 
     return Padding(
 
-
-
       padding:
+      const EdgeInsets.only(bottom:15),
 
-      const EdgeInsets.only(
+      child: TextField(
 
-          bottom:15
+        controller: controller,
 
-      ),
+        decoration: InputDecoration(
 
+          labelText: texto,
 
-
-      child:
-
-      TextField(
-
-
-
-        controller:
-
-        controller,
-
-
-
-        decoration:
-
-        InputDecoration(
-
-
-
-          labelText:
-
-          texto,
-
-
-
-          prefixIcon:
-
-          Icon(icone),
-
-
+          prefixIcon: Icon(icone),
 
           border:
-
           const OutlineInputBorder(),
-
-
 
         ),
 
-
-
       ),
-
 
     );
 
-
-
   }
-
-
-
-
-
 
 
 
@@ -423,178 +218,156 @@ class _EventoCadastroPageState
   @override
   Widget build(BuildContext context){
 
-
-
     return Scaffold(
 
-
-
-      appBar:
-
-      AppBar(
-
-
+      appBar: AppBar(
 
         title:
-
-        const Text(
-
-            "Novo Evento"
-
-        ),
-
-
+        const Text("Novo Evento"),
 
       ),
-
-
-
-
-
 
 
       body:
 
       SingleChildScrollView(
 
-
-
         padding:
-
         const EdgeInsets.all(20),
-
-
 
 
         child:
 
         Column(
 
-
-
           children:[
 
 
 
+            carregandoCategorias
+
+                ?
+
+            const CircularProgressIndicator()
 
 
-            campo(
+                :
 
-              tipoController,
+            DropdownButtonFormField<int>(
 
-              "Tipo do evento",
 
-              Icons.event,
+              value:
+              categoriaSelecionada,
+
+
+              decoration:
+
+              const InputDecoration(
+
+                labelText:
+                "Categoria do Evento",
+
+                border:
+                OutlineInputBorder(),
+
+              ),
+
+
+
+              items:
+
+              categorias.map((categoria){
+
+
+                return DropdownMenuItem<int>(
+
+
+                  value:
+                  categoria['id'],
+
+
+                  child:
+                  Text(
+                    categoria['nome'],
+                  ),
+
+
+                );
+
+
+              }).toList(),
+
+
+
+              onChanged:(valor){
+
+
+                setState(() {
+
+                  categoriaSelecionada =
+                      valor;
+
+                });
+
+
+              },
+
 
             ),
 
 
 
+            const SizedBox(height:15),
 
 
 
             campo(
-
               dataController,
-
               "Data (AAAA-MM-DD)",
-
               Icons.calendar_today,
-
             ),
 
 
-
-
-
-
             campo(
-
               horaController,
-
               "Horário",
-
               Icons.access_time,
-
             ),
 
 
-
-
-
-
             campo(
-
               localController,
-
               "Local",
-
               Icons.location_on,
-
             ),
 
 
-
-
-
-
             campo(
-
               convidadosController,
-
               "Quantidade convidados",
-
               Icons.people,
-
             ),
-
-
-
-
 
 
             campo(
-
               observacoesController,
-
               "Observações",
-
               Icons.description,
-
             ),
 
 
 
-
-
-
-            const SizedBox(
-
-                height:20
-
-            ),
-
-
-
-
+            const SizedBox(height:20),
 
 
 
             SizedBox(
 
-
-
               width:
-
               double.infinity,
 
-
-
               height:
-
               50,
-
-
 
 
               child:
@@ -602,94 +375,50 @@ class _EventoCadastroPageState
               ElevatedButton(
 
 
-
                 onPressed:
-
                 salvando
-
                     ?
-
                 null
-
                     :
-
                 salvar,
-
-
 
 
                 child:
 
                 salvando
 
-
-
                     ?
 
-
-                const SizedBox(
-
-
-                  height:25,
-
-
-                  width:25,
-
-
-                  child:
-
-                  CircularProgressIndicator(
-
-                    color:
-                    Colors.white,
-
-                  ),
-
-
+                const CircularProgressIndicator(
+                  color: Colors.white,
                 )
-
 
 
                     :
 
-
-
                 const Text(
-
-                    "Salvar Evento"
-
+                  "Salvar Evento",
                 ),
-
 
 
               ),
 
 
-
             )
-
-
-
 
 
           ],
 
 
-
         ),
-
 
 
       ),
 
 
-
     );
 
-
-
   }
-
 
 
 }

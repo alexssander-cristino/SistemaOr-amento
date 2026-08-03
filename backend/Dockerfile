@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-# Dependências do sistema
+# Dependências
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -16,19 +16,16 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-# Instala Composer
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 
-# Pasta da aplicação
 WORKDIR /app
 
 
-# Copia o projeto
 COPY . .
 
 
-# Instala dependências Laravel
 RUN composer install \
     --no-dev \
     --prefer-dist \
@@ -36,9 +33,9 @@ RUN composer install \
     --no-interaction
 
 
-# Cria pastas necessárias do Laravel
+# Pastas Laravel
 RUN mkdir -p \
-    storage/app \
+    storage/app/public \
     storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
@@ -46,14 +43,21 @@ RUN mkdir -p \
     bootstrap/cache
 
 
+# Link storage
+RUN php artisan storage:link || true
+
+
 # Permissões
 RUN chmod -R 777 storage bootstrap/cache
 
 
-# Porta do Render
+# Cache Laravel
+RUN php artisan config:clear || true
+RUN php artisan route:clear || true
+RUN php artisan view:clear || true
+
+
 EXPOSE 10000
 
 
-# Inicialização
-CMD php artisan migrate --force && \
-    php artisan serve --host=0.0.0.0 --port=$PORT
+CMD php artisan serve --host=0.0.0.0 --port=$PORT
