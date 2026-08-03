@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: eventmanager-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
