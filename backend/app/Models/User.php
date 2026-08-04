@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
+
 class User extends Authenticatable
 {
 
@@ -14,8 +15,12 @@ class User extends Authenticatable
     protected $fillable = [
 
         'name',
+
         'email',
-        'password'
+
+        'password',
+
+        'foto'
 
     ];
 
