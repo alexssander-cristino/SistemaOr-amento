@@ -2,16 +2,26 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
 
+
 class CategoriasEventoPage extends StatefulWidget {
 
-  const CategoriasEventoPage({super.key});
+
+  const CategoriasEventoPage({
+    super.key
+  });
+
 
 
   @override
   State<CategoriasEventoPage> createState()
       => _CategoriasEventoPageState();
 
+
 }
+
+
+
+
 
 
 
@@ -19,14 +29,19 @@ class _CategoriasEventoPageState
     extends State<CategoriasEventoPage>{
 
 
-final nome =
+
+final nomeController =
 TextEditingController();
+
 
 
 bool salvando = false;
 
 
+
 List categorias = [];
+
+
 
 
 
@@ -42,18 +57,31 @@ carregar();
 
 
 
+
 Future<void> carregar() async{
+
+
+try{
 
 
 final dados =
 await ApiService.categoriasEvento();
 
 
+
 setState((){
 
-categorias = dados;
+categorias=dados;
 
 });
+
+
+
+}catch(e){
+
+print(e);
+
+}
 
 
 }
@@ -62,10 +90,11 @@ categorias = dados;
 
 
 
+
 Future<void> salvar() async{
 
 
-if(nome.text.trim().isEmpty){
+if(nomeController.text.trim().isEmpty){
 
 return;
 
@@ -85,11 +114,13 @@ try{
 
 
 await ApiService.post(
+
 "categorias-evento",
+
 {
 
 "nome":
-nome.text.trim()
+nomeController.text.trim()
 
 }
 
@@ -97,41 +128,18 @@ nome.text.trim()
 
 
 
-nome.clear();
+nomeController.clear();
+
 
 
 await carregar();
 
 
 
-ScaffoldMessenger.of(context)
-.showSnackBar(
-
-const SnackBar(
-content:
-Text(
-"Categoria cadastrada"
-)
-)
-
-);
-
-
-
 }catch(e){
 
 
-ScaffoldMessenger.of(context)
-.showSnackBar(
-
-SnackBar(
-content:
-Text(
-e.toString()
-)
-)
-
-);
+print(e);
 
 
 }
@@ -165,6 +173,7 @@ appBar:
 AppBar(
 
 title:
+
 const Text(
 "Categorias de Evento"
 ),
@@ -173,26 +182,36 @@ const Text(
 
 
 
+
+
 body:
 
 Padding(
 
+
 padding:
+
 const EdgeInsets.all(20),
+
 
 
 child:
 
 Column(
 
+
+
 children:[
+
 
 
 
 TextField(
 
 controller:
-nome,
+
+nomeController,
+
 
 decoration:
 
@@ -211,6 +230,7 @@ OutlineInputBorder()
 
 
 
+
 const SizedBox(
 height:20
 ),
@@ -218,15 +238,21 @@ height:20
 
 
 
+
+
 SizedBox(
 
+
 width:
+
 double.infinity,
+
 
 
 child:
 
 ElevatedButton(
+
 
 onPressed:
 
@@ -243,9 +269,12 @@ const Text(
 "Cadastrar"
 ),
 
-),
 
 ),
+
+
+),
+
 
 
 
@@ -257,59 +286,74 @@ height:20
 
 
 
+
 Expanded(
+
 
 child:
 
 ListView.builder(
 
+
 itemCount:
+
 categorias.length,
+
 
 
 itemBuilder:(context,index){
 
 
-final item =
-categorias[index];
-
 
 return Card(
+
 
 child:
 
 ListTile(
 
+
 title:
 
 Text(
-item['nome']
-),
+
+categorias[index]['nome']
 
 ),
+
+
+),
+
 
 );
 
 
+
 }
+
 
 ),
 
+
 )
+
+
 
 
 ]
 
 
-)
+),
 
-)
+
+),
 
 
 );
 
 
 }
+
 
 
 }
