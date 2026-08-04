@@ -9,13 +9,20 @@ import '../widgets/grafico_widget.dart';
 
 class HomePage extends StatefulWidget {
 
-  const HomePage({super.key});
+
+  const HomePage({
+    super.key
+  });
+
 
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState()
+      => _HomePageState();
+
 
 }
+
 
 
 
@@ -23,17 +30,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>{
 
 
+
 int clientes = 0;
+
 int eventos = 0;
+
 int servicos = 0;
+
 int orcamentos = 0;
+
 
 
 bool carregando = true;
 
 
+
 Map usuario = {};
+
 String? fotoUsuario;
+
 
 
 
@@ -41,13 +56,14 @@ String? fotoUsuario;
 @override
 void initState(){
 
-  super.initState();
+super.initState();
 
-  carregarDados();
+carregarDados();
 
-  carregarUsuario();
+carregarUsuario();
 
 }
+
 
 
 
@@ -60,29 +76,49 @@ Future<void> carregarDados() async{
 try{
 
 
-final c = await ApiService.clientes();
+final c =
+await ApiService.clientes();
 
-final e = await ApiService.eventos();
 
-final s = await ApiService.servicos();
+final e =
+await ApiService.eventos();
 
-final o = await ApiService.orcamentos();
+
+final s =
+await ApiService.servicos();
+
+
+final o =
+await ApiService.orcamentos();
+
+
+
+
+if(!mounted)
+return;
 
 
 
 setState((){
 
 
-clientes = c.length;
-
-eventos = e.length;
-
-servicos = s.length;
-
-orcamentos = o.length;
+clientes =
+c.length;
 
 
-carregando = false;
+eventos =
+e.length;
+
+
+servicos =
+s.length;
+
+
+orcamentos =
+o.length;
+
+
+carregando=false;
 
 
 });
@@ -95,6 +131,7 @@ carregando = false;
 print(e);
 
 
+
 setState((){
 
 carregando=false;
@@ -105,7 +142,11 @@ carregando=false;
 }
 
 
+
 }
+
+
+
 
 
 
@@ -118,29 +159,40 @@ Future<void> carregarUsuario() async{
 try{
 
 
-final u = await ApiService.usuario();
+final u =
+await ApiService.usuario();
+
+
+
+if(!mounted)
+return;
+
 
 
 setState((){
 
 
-usuario = u;
+usuario=u;
 
-fotoUsuario = u['foto'];
+
+fotoUsuario =
+u['foto'];
 
 
 });
+
 
 
 }catch(e){
 
 
 print(
-"Erro carregando usuário: $e"
+"Erro usuário $e"
 );
 
 
 }
+
 
 
 }
@@ -158,6 +210,7 @@ void abrir(String rota){
 Navigator.pushNamed(
 context,
 rota
+
 ).then((_){
 
 
@@ -170,20 +223,11 @@ carregarUsuario();
 
 
 }
-
-
-
-
-
-
-
-
-
 void menuCadastro(){
 
 
-
 showModalBottomSheet(
+
 
 context: context,
 
@@ -194,7 +238,7 @@ builder:(context){
 return SizedBox(
 
 
-height:300,
+height:380,
 
 
 child:Column(
@@ -282,6 +326,7 @@ abrir('/servicos');
 
 
 
+
 ListTile(
 
 leading:
@@ -290,7 +335,7 @@ const Icon(Icons.category),
 
 title:
 const Text(
-"Cadastrar Categoria"
+"Cadastrar Categoria Serviço"
 ),
 
 
@@ -306,9 +351,36 @@ abrir('/categorias');
 
 
 
+
+
+ListTile(
+
+leading:
+const Icon(Icons.event_available),
+
+
+title:
+const Text(
+"Cadastrar Categoria Evento"
+),
+
+
+onTap:(){
+
+Navigator.pop(context);
+
+abrir('/categorias-evento');
+
+},
+
+),
+
+
+
+
 ]
 
-)
+),
 
 
 );
@@ -361,13 +433,16 @@ fotoUsuario!
 
 return const CircleAvatar(
 
+
 radius:18,
+
 
 child:
 
 Icon(
 Icons.person
 ),
+
 
 );
 
@@ -382,21 +457,17 @@ Icons.person
 
 
 
-@override
-Widget build(BuildContext context){
-
-
-return Scaffold(
+Widget drawerMenu(){
 
 
 
-
-
-drawer: Drawer(
+return Drawer(
 
 
 
-child:ListView(
+child:
+
+ListView(
 
 
 
@@ -407,20 +478,25 @@ children:[
 
 const DrawerHeader(
 
+
 decoration:
 
 BoxDecoration(
 
-color:Colors.blue
+color:
+Colors.blue
 
 ),
+
 
 
 child:
 
 Column(
 
+
 mainAxisAlignment:
+
 MainAxisAlignment.center,
 
 
@@ -434,7 +510,8 @@ Icons.event,
 
 size:60,
 
-color:Colors.white
+color:
+Colors.white
 
 ),
 
@@ -450,7 +527,8 @@ style:
 
 TextStyle(
 
-color:Colors.white,
+color:
+Colors.white,
 
 fontSize:22,
 
@@ -459,8 +537,8 @@ FontWeight.bold
 
 )
 
-
 )
+
 
 
 ]
@@ -470,6 +548,7 @@ FontWeight.bold
 
 
 ),
+
 
 
 
@@ -500,6 +579,7 @@ abrir('/perfil');
 
 
 
+
 ListTile(
 
 leading:
@@ -518,8 +598,8 @@ abrir('/clientes');
 
 },
 
-
 ),
+
 
 
 
@@ -543,8 +623,8 @@ abrir('/eventos');
 
 },
 
-
 ),
+
 
 
 
@@ -568,8 +648,8 @@ abrir('/servicos');
 
 },
 
-
 ),
+
 
 
 
@@ -593,8 +673,8 @@ abrir('/orcamentos');
 
 },
 
-
 ),
+
 
 
 
@@ -608,7 +688,7 @@ const Icon(Icons.category),
 
 title:
 const Text(
-"Categorias"
+"Categorias Serviço"
 ),
 
 
@@ -618,6 +698,30 @@ abrir('/categorias');
 
 },
 
+),
+
+
+
+
+
+
+ListTile(
+
+leading:
+const Icon(Icons.event_available),
+
+
+title:
+const Text(
+"Categorias Evento"
+),
+
+
+onTap:(){
+
+abrir('/categorias-evento');
+
+},
 
 ),
 
@@ -636,16 +740,24 @@ const Divider(),
 ListTile(
 
 leading:
+
 const Icon(
+
 Icons.logout,
-color:Colors.red
+
+color:
+Colors.red
+
 ),
+
 
 
 title:
+
 const Text(
 "Sair"
 ),
+
 
 
 onTap:()async{
@@ -654,16 +766,23 @@ onTap:()async{
 await ApiService.logout();
 
 
+
 Navigator.pushReplacementNamed(
+
 context,
+
 '/login'
+
 );
+
 
 
 },
 
 
-)
+
+),
+
 
 
 
@@ -673,21 +792,39 @@ context,
 )
 
 
-),
+);
+
+
+}
+@override
+Widget build(BuildContext context){
+
+
+return Scaffold(
+
+
+
+drawer:
+
+drawerMenu(),
 
 
 
 
 
 
+appBar:
 
-appBar:AppBar(
+AppBar(
 
 
 title:
+
 const Text(
 "Dashboard"
 ),
+
+
 
 
 actions:[
@@ -696,6 +833,7 @@ actions:[
 
 GestureDetector(
 
+
 onTap:(){
 
 abrir('/perfil');
@@ -703,12 +841,18 @@ abrir('/perfil');
 },
 
 
+
 child:
 
 Padding(
 
+
 padding:
-const EdgeInsets.only(right:15),
+
+const EdgeInsets.only(
+right:15
+),
+
 
 
 child:
@@ -716,7 +860,7 @@ child:
 fotoPerfil(),
 
 
-)
+),
 
 
 )
@@ -727,6 +871,7 @@ fotoPerfil(),
 
 
 ),
+
 
 
 
@@ -736,20 +881,29 @@ fotoPerfil(),
 
 floatingActionButton:
 
+
 FloatingActionButton.extended(
 
 
+
 icon:
-const Icon(Icons.add),
+
+const Icon(
+Icons.add
+),
+
 
 
 label:
+
 const Text(
 "Novo"
 ),
 
 
+
 onPressed:
+
 menuCadastro,
 
 
@@ -764,12 +918,16 @@ menuCadastro,
 body:
 
 
-carregando?
+carregando
+
+
+?
 
 
 const Center(
 
 child:
+
 CircularProgressIndicator()
 
 )
@@ -781,9 +939,11 @@ CircularProgressIndicator()
 RefreshIndicator(
 
 
+
 onRefresh:
 
 carregarDados,
+
 
 
 child:
@@ -794,6 +954,7 @@ ListView(
 
 
 padding:
+
 const EdgeInsets.all(20),
 
 
@@ -804,13 +965,22 @@ children:[
 
 
 
+
+
 GridView.count(
 
 
-crossAxisCount:2,
+
+crossAxisCount:
+
+2,
 
 
-shrinkWrap:true,
+
+shrinkWrap:
+
+true,
+
 
 
 physics:
@@ -819,9 +989,17 @@ const NeverScrollableScrollPhysics(),
 
 
 
-crossAxisSpacing:15,
 
-mainAxisSpacing:15,
+crossAxisSpacing:
+
+15,
+
+
+
+mainAxisSpacing:
+
+15,
+
 
 
 
@@ -833,15 +1011,23 @@ children:[
 
 DashboardCard(
 
-titulo:"Clientes",
+
+titulo:
+
+"Clientes",
+
+
 
 valor:
 
 clientes.toString(),
 
+
+
 icone:
 
 Icons.people,
+
 
 
 onTap:(){
@@ -857,17 +1043,26 @@ abrir('/clientes');
 
 
 
+
 DashboardCard(
 
-titulo:"Eventos",
+
+titulo:
+
+"Eventos",
+
+
 
 valor:
 
 eventos.toString(),
 
+
+
 icone:
 
 Icons.event,
+
 
 
 onTap:(){
@@ -883,17 +1078,27 @@ abrir('/eventos');
 
 
 
+
+
 DashboardCard(
 
-titulo:"Serviços",
+
+titulo:
+
+"Serviços",
+
+
 
 valor:
 
 servicos.toString(),
 
+
+
 icone:
 
 Icons.work,
+
 
 
 onTap:(){
@@ -909,17 +1114,27 @@ abrir('/servicos');
 
 
 
+
+
 DashboardCard(
 
-titulo:"Orçamentos",
+
+titulo:
+
+"Orçamentos",
+
+
 
 valor:
 
 orcamentos.toString(),
 
+
+
 icone:
 
 Icons.attach_money,
+
 
 
 onTap:(){
@@ -934,6 +1149,7 @@ abrir('/orcamentos');
 
 
 
+
 ]
 
 
@@ -944,7 +1160,17 @@ abrir('/orcamentos');
 
 
 
-const SizedBox(height:30),
+
+
+
+const SizedBox(
+
+height:30
+
+),
+
+
+
 
 
 
@@ -952,15 +1178,35 @@ const SizedBox(height:30),
 
 GraficoWidget(
 
-clientes:clientes,
 
-eventos:eventos,
 
-servicos:servicos,
+clientes:
 
-orcamentos:orcamentos,
+clientes,
+
+
+
+eventos:
+
+eventos,
+
+
+
+servicos:
+
+servicos,
+
+
+
+orcamentos:
+
+orcamentos,
+
+
 
 )
+
+
 
 
 
@@ -968,17 +1214,18 @@ orcamentos:orcamentos,
 ]
 
 
-)
+),
 
 
 ),
 
 
+
 );
 
 
-}
-
 
 }
 
+
+}

@@ -12,9 +12,11 @@ import 'pages/eventos_page.dart';
 import 'pages/servicos_page.dart';
 import 'pages/orcamentos_page.dart';
 import 'pages/categorias_page.dart';
+import 'pages/categorias_evento_page.dart';
 import 'pages/configuracoes_page.dart';
 import 'pages/cadastrar_cliente_page.dart';
 import 'pages/evento_cadastro_page.dart';
+
 
 
 
@@ -60,6 +62,7 @@ class MyApp extends StatelessWidget {
 
 
 
+
   @override
   Widget build(BuildContext context) {
 
@@ -74,6 +77,7 @@ class MyApp extends StatelessWidget {
 
 
       title:"EventManager",
+
 
 
 
@@ -114,7 +118,10 @@ class MyApp extends StatelessWidget {
 
 
 
+
       initialRoute:'/splash',
+
+
 
 
 
@@ -129,9 +136,11 @@ class MyApp extends StatelessWidget {
 
 
 
+
         '/splash':
 
         (context)=>const SplashPage(),
+
 
 
 
@@ -147,9 +156,11 @@ class MyApp extends StatelessWidget {
 
 
 
+
         '/register':
 
         (context)=>RegisterPage(),
+
 
 
 
@@ -165,9 +176,11 @@ class MyApp extends StatelessWidget {
 
 
 
+
         '/perfil':
 
         (context)=>PerfilPage(),
+
 
 
 
@@ -183,9 +196,11 @@ class MyApp extends StatelessWidget {
 
 
 
+
         '/eventos':
 
         (context)=>EventosPage(),
+
 
 
 
@@ -201,6 +216,7 @@ class MyApp extends StatelessWidget {
 
 
 
+
         '/orcamentos':
 
         (context)=>OrcamentosPage(),
@@ -210,9 +226,25 @@ class MyApp extends StatelessWidget {
 
 
 
+
+        // Categoria de Serviços
+
         '/categorias':
 
         (context)=>CategoriasPage(),
+
+
+
+
+
+
+
+        // Categoria de Eventos
+
+        '/categorias-evento':
+
+        (context)=>const CategoriasEventoPage(),
+
 
 
 
@@ -228,6 +260,7 @@ class MyApp extends StatelessWidget {
 
 
 
+
         '/cadastrar_cliente':
 
         (context)=>CadastrarClientePage(),
@@ -237,9 +270,12 @@ class MyApp extends StatelessWidget {
 
 
 
+
         '/eventos/cadastro':
 
         (context)=>EventoCadastroPage(),
+
+
 
 
 

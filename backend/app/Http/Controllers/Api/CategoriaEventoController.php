@@ -11,87 +11,61 @@ class CategoriaEventoController extends Controller
 {
 
 
-    public function index()
-    {
+public function index()
+{
 
-        return response()->json(
-            CategoriaEvento::all()
-        );
+return response()->json(
+    CategoriaEvento::all()
+);
 
-    }
-
-
+}
 
 
 
-    public function store(Request $request)
-    {
-
-        $request->validate([
-
-            'nome'=>'required'
-
-        ]);
+public function store(Request $request)
+{
 
 
+$request->validate([
 
-        $categoria = CategoriaEvento::create([
+'nome'=>'required'
 
-            'nome'=>$request->nome
-
-        ]);
+]);
 
 
 
-        return response()->json(
-            $categoria,
-            201
-        );
+$categoria =
+CategoriaEvento::create([
 
-    }
+'nome'=>$request->nome
 
-
+]);
 
 
 
-    public function update(Request $request, $id)
-    {
-
-        $categoria =
-            CategoriaEvento::findOrFail($id);
-
-
-        $categoria->update([
-
-            'nome'=>$request->nome
-
-        ]);
+return response()->json(
+$categoria,
+201
+);
 
 
-        return response()->json(
-            $categoria
-        );
-
-    }
+}
 
 
 
+public function destroy($id)
+{
+
+CategoriaEvento::destroy($id);
 
 
-    public function destroy($id)
-    {
-
-        CategoriaEvento::findOrFail($id)
-            ->delete();
+return response()->json([
+"ok"=>true
+]);
 
 
-        return response()->json([
+}
 
-            'message'=>'Categoria removida'
-
-        ]);
-
-    }
 
 
 }
