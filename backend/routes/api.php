@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-
 /*
 |--------------------------------------------------------------------------
 | Controllers
@@ -11,7 +10,6 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UsuarioController;
-
 use App\Http\Controllers\Api\ClienteController;
 use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\CategoriaEventoController;
@@ -21,31 +19,14 @@ use App\Http\Controllers\Api\OrcamentoController;
 use App\Http\Controllers\Api\OrcamentoServicoController;
 use App\Http\Controllers\Api\PagamentoController;
 
-
-
 /*
 |--------------------------------------------------------------------------
 | AUTENTICAÇÃO
 |--------------------------------------------------------------------------
 */
 
-
-Route::post(
-    '/login',
-    [AuthController::class,'login']
-);
-
-
-
-Route::post(
-    '/register',
-    [AuthController::class,'register']
-);
-
-
-
-
-
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 /*
 |--------------------------------------------------------------------------
@@ -53,205 +34,81 @@ Route::post(
 |--------------------------------------------------------------------------
 */
 
-
-Route::middleware('auth:sanctum')->group(function(){
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Usuário
-|--------------------------------------------------------------------------
-*/
-
-
-Route::get(
-    '/usuario',
-    [UsuarioController::class,'usuario']
-);
-
-
-
-Route::put(
-    '/usuario',
-    [UsuarioController::class,'update']
-);
-
-
-
-Route::post(
-    '/usuario/foto',
-    [UsuarioController::class,'foto']
-);
-
-
-
-Route::post(
-    '/logout',
-    [AuthController::class,'logout']
-);
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Clientes
-|--------------------------------------------------------------------------
-*/
-
-
-Route::apiResource(
-    'clientes',
-    ClienteController::class
-);
-
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Categorias de Eventos
-|--------------------------------------------------------------------------
-*/
-
-
-Route::get(
-    'categorias-evento',
-    [CategoriaEventoController::class,'index']
-);
-
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Eventos
-|--------------------------------------------------------------------------
-*/
-
-
-Route::apiResource(
-    'eventos',
-    EventoController::class
-);
-
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Categorias de Serviços
-|--------------------------------------------------------------------------
-*/
-
-
-Route::apiResource(
-    'categorias',
-    CategoriaServicoController::class
-);
-
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Serviços
-|--------------------------------------------------------------------------
-*/
-
-
-Route::apiResource(
-    'servicos',
-    ServicoController::class
-);
-
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Orçamentos
-|--------------------------------------------------------------------------
-*/
-
-
-Route::apiResource(
-    'orcamentos',
-    OrcamentoController::class
-);
-
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Serviços do orçamento
-|--------------------------------------------------------------------------
-*/
-
-
-Route::apiResource(
-    'orcamento-servicos',
-    OrcamentoServicoController::class
-);
-
-
-
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Pagamentos
-|--------------------------------------------------------------------------
-*/
-
-
-Route::apiResource(
-    'pagamentos',
-    PagamentoController::class
-);
-
-
+Route::middleware('auth:sanctum')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Usuário
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/usuario', [UsuarioController::class, 'usuario']);
+    Route::put('/usuario', [UsuarioController::class, 'update']);
+    Route::post('/usuario/foto', [UsuarioController::class, 'foto']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clientes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::apiResource('clientes', ClienteController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Categorias de Eventos
+    |--------------------------------------------------------------------------
+    */
+
+    Route::apiResource('categorias-evento', CategoriaEventoController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Eventos
+    |--------------------------------------------------------------------------
+    */
+
+    Route::apiResource('eventos', EventoController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Categorias de Serviços
+    |--------------------------------------------------------------------------
+    */
+
+    Route::apiResource('categorias', CategoriaServicoController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Serviços
+    |--------------------------------------------------------------------------
+    */
+
+    Route::apiResource('servicos', ServicoController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Orçamentos
+    |--------------------------------------------------------------------------
+    */
+
+    Route::apiResource('orcamentos', OrcamentoController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Serviços do Orçamento
+    |--------------------------------------------------------------------------
+    */
+
+    Route::apiResource('orcamento-servicos', OrcamentoServicoController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagamentos
+    |--------------------------------------------------------------------------
+    */
+
+    Route::apiResource('pagamentos', PagamentoController::class);
 
 });
