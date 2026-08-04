@@ -1,878 +1,618 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../services/api_service.dart';
-
 
 class EventoCadastroPage extends StatefulWidget {
 
   const EventoCadastroPage({
-    super.key
+    super.key,
   });
 
-
   @override
-  State<EventoCadastroPage> createState()
-      => _EventoCadastroPageState();
-
+  State<EventoCadastroPage> createState() =>
+      _EventoCadastroPageState();
 }
-
-
-
-
 
 class _EventoCadastroPageState
     extends State<EventoCadastroPage> {
 
+  final dataController = TextEditingController();
 
-  final dataController =
-  TextEditingController();
+  final horaController = TextEditingController();
 
-
-  final horaController =
-  TextEditingController();
-
-
-  final localController =
-  TextEditingController();
-
+  final localController = TextEditingController();
 
   final convidadosController =
-  TextEditingController();
-
+      TextEditingController();
 
   final observacoesController =
-  TextEditingController();
-
-
+      TextEditingController();
 
   List clientes = [];
 
   List categorias = [];
 
-
-
   int? clienteSelecionado;
 
   int? categoriaSelecionada;
 
-
+  bool carregando = true;
 
   bool salvando = false;
 
-  bool carregando = true;
-
-
-
-
-
   @override
-  void initState(){
-
+  void initState() {
     super.initState();
-
     carregarDados();
-
   }
 
+  @override
+  void dispose() {
 
+    dataController.dispose();
 
+    horaController.dispose();
 
+    localController.dispose();
 
+    convidadosController.dispose();
 
-  Future<void> carregarDados() async{
+    observacoesController.dispose();
 
+    super.dispose();
+  }
 
-    try{
+  Future<void> carregarDados() async {
 
+    try {
 
-      final listaClientes =
-      await ApiService.clientes();
+      clientes =
+          await ApiService.clientes();
 
+      categorias =
+          await ApiService.categoriasEvento();
 
-      final listaCategorias =
-      await ApiService.categoriasEvento();
+    } catch (e) {
 
+      mostrarMensagem(
+          "Erro ao carregar dados.\n$e");
 
+    }
 
-      setState((){
+    if (mounted) {
 
-
-        clientes = listaClientes;
-
-        categorias = listaCategorias;
+      setState(() {
 
         carregando = false;
 
-
       });
-
-
-
-    }catch(e){
-
-
-      mostrarMensagem(
-          "Erro ao carregar dados: $e"
-      );
-
-
-      setState((){
-
-        carregando=false;
-
-      });
-
 
     }
-
 
   }
 
+  Future<void> selecionarData() async {
 
+    final DateTime? data =
+        await showDatePicker(
 
+      context: context,
 
+      locale: const Locale("pt", "BR"),
 
+      initialDate: DateTime.now(),
 
+      firstDate: DateTime(2024),
 
+      lastDate: DateTime(2100),
 
+    );
 
-  Future<void> salvar() async{
+    if (data != null) {
 
-
-
-    if(clienteSelecionado == null){
-
-
-      mostrarMensagem(
-          "Selecione o cliente"
-      );
-
-
-      return;
-
-
-    }
-
-
-
-    if(categoriaSelecionada == null){
-
-
-      mostrarMensagem(
-          "Selecione a categoria do evento"
-      );
-
-
-      return;
-
+      dataController.text =
+          DateFormat(
+        "yyyy-MM-dd",
+      ).format(data);
 
     }
-
-
-
-
-    if(dataController.text.trim().isEmpty){
-
-
-      mostrarMensagem(
-          "Informe a data"
-      );
-
-
-      return;
-
-
-    }
-
-
-
-
-    setState((){
-
-      salvando=true;
-
-    });
-
-
-
-
-
-    try{
-
-
-
-      await ApiService.post(
-
-
-        "eventos",
-
-
-        {
-
-
-
-          "cliente_id":
-
-          clienteSelecionado,
-
-
-
-
-          "categoria_evento_id":
-
-          categoriaSelecionada,
-
-
-
-
-          "data":
-
-          dataController.text.trim(),
-
-
-
-
-          "hora":
-
-          horaController.text.trim(),
-
-
-
-
-          "local":
-
-          localController.text.trim(),
-
-
-
-
-          "quantidade_convidados":
-
-
-          int.tryParse(
-
-              convidadosController.text
-
-          ) ?? 1,
-
-
-
-
-
-          "observacoes":
-
-          observacoesController.text.trim(),
-
-
-
-        },
-
-
-      );
-
-
-
-
-
-      if(!mounted)
-        return;
-
-
-
-
-      mostrarMensagem(
-
-          "Evento cadastrado com sucesso"
-
-      );
-
-
-
-
-      Navigator.pop(context);
-
-
-
-
-
-    }catch(e){
-
-
-
-      mostrarMensagem(
-
-          "Erro ao cadastrar evento:\n$e"
-
-      );
-
-
-
-    }finally{
-
-
-      if(mounted){
-
-
-        setState((){
-
-          salvando=false;
-
-        });
-
-
-      }
-
-
-    }
-
 
   }
 
+  Future<void> selecionarHora() async {
 
+    final TimeOfDay? hora =
+        await showTimePicker(
 
+      context: context,
 
+      initialTime:
+          TimeOfDay.now(),
 
+    );
 
+    if (hora != null) {
 
+      final agora =
+          DateTime.now();
 
+      final dataHora = DateTime(
 
-  void mostrarMensagem(String texto){
+        agora.year,
 
+        agora.month,
+
+        agora.day,
+
+        hora.hour,
+
+        hora.minute,
+
+      );
+
+      horaController.text =
+          DateFormat(
+        "HH:mm",
+      ).format(dataHora);
+
+    }
+
+  }
+
+  void mostrarMensagem(String texto) {
 
     ScaffoldMessenger.of(context)
         .showSnackBar(
 
-
       SnackBar(
 
-        content:
-        Text(texto),
+        content: Text(texto),
 
       ),
-
 
     );
 
-
   }
 
+  Future<void> salvar() async {
 
+    if (clienteSelecionado == null) {
 
+      mostrarMensagem(
+          "Selecione o cliente.");
 
+      return;
+    }
 
+    if (categoriaSelecionada == null) {
 
+      mostrarMensagem(
+          "Selecione a categoria.");
 
+      return;
+    }
 
+    if (dataController.text.isEmpty) {
 
-  Widget campo(
+      mostrarMensagem(
+          "Selecione a data.");
 
-      TextEditingController controller,
+      return;
+    }
 
-      String label,
+    if (horaController.text.isEmpty) {
 
-      IconData icone,
+      mostrarMensagem(
+          "Selecione a hora.");
 
-      ){
+      return;
+    }
 
+    if (localController.text.trim().isEmpty) {
 
+      mostrarMensagem(
+          "Informe o local.");
 
-    return Padding(
+      return;
+    }
 
+    setState(() {
 
-      padding:
+      salvando = true;
 
-      const EdgeInsets.only(
-          bottom:15
-      ),
+    });
 
+    try {
 
+      await ApiService.post(
 
-      child:
+        "eventos",
 
+        {
 
-      TextField(
+          "cliente_id":
+              clienteSelecionado,
 
+          "categoria_evento_id":
+              categoriaSelecionada,
 
-        controller:
+          "data":
+              dataController.text,
 
-        controller,
+          "hora":
+              horaController.text,
 
+          "local":
+              localController.text.trim(),
 
+          "quantidade_convidados":
 
-        decoration:
+              int.tryParse(
+                    convidadosController.text,
+                  ) ??
+                  1,
 
-        InputDecoration(
+          "observacoes":
+              observacoesController.text,
 
+        },
 
-          labelText:
+      );
 
-          label,
+            if (!mounted) return;
 
+      mostrarMensagem(
+        "Evento cadastrado com sucesso!",
+      );
 
+      Navigator.pop(context);
 
-          prefixIcon:
+    } catch (e) {
 
-          Icon(icone),
+      mostrarMensagem(
+        "Erro ao cadastrar evento:\n$e",
+      );
 
+    } finally {
 
+      if (mounted) {
 
-          border:
+        setState(() {
 
-          const OutlineInputBorder(),
+          salvando = false;
 
+        });
 
-        ),
+      }
 
-
-      ),
-
-
-    );
-
+    }
 
   }
-
-
-
-
-
-
-
-
 
   @override
-  Widget build(BuildContext context){
-
-
+  Widget build(BuildContext context) {
 
     return Scaffold(
 
+      appBar: AppBar(
 
-
-      appBar:
-
-      AppBar(
-
-        title:
-
-        const Text(
-            "Novo Evento"
+        title: const Text(
+          "Novo Evento",
         ),
 
       ),
 
+      body: carregando
 
-
-
-      body:
-
-
-      carregando
-
-
-
-          ?
-
-
-      const Center(
-
-        child:
-
-        CircularProgressIndicator(),
-
-      )
-
-
-
-          :
-
-
-      SingleChildScrollView(
-
-
-        padding:
-
-        const EdgeInsets.all(20),
-
-
-
-        child:
-
-
-        Column(
-
-
-          children:[
-
-
-
-
-
-
-            DropdownButtonFormField<int>(
-
-
-
-              value:
-
-              clienteSelecionado,
-
-
-
-              decoration:
-
-              const InputDecoration(
-
-
-                labelText:
-
-                "Cliente",
-
-
-
-                border:
-
-                OutlineInputBorder(),
-
-
-              ),
-
-
-
-
-              items:
-
-
-              clientes.map((cliente){
-
-
-
-                return DropdownMenuItem<int>(
-
-
-
-                  value:
-
-                  cliente['id'],
-
-
-
-                  child:
-
-                  Text(
-
-                    cliente['nome'],
-
-                  ),
-
-
-                );
-
-
-
-              }).toList(),
-
-
-
-
-
-              onChanged:(valor){
-
-
-
-                setState((){
-
-
-                  clienteSelecionado = valor;
-
-
-                });
-
-
-
-              },
-
-
-            ),
-
-
-
-
-
-            const SizedBox(height:15),
-
-
-
-
-
-
-
-
-            DropdownButtonFormField<int>(
-
-
-
-              value:
-
-              categoriaSelecionada,
-
-
-
-              decoration:
-
-              const InputDecoration(
-
-
-                labelText:
-
-                "Categoria do Evento",
-
-
-
-                border:
-
-                OutlineInputBorder(),
-
-
-              ),
-
-
-
-
-              items:
-
-
-              categorias.map((categoria){
-
-
-
-                return DropdownMenuItem<int>(
-
-
-
-                  value:
-
-                  categoria['id'],
-
-
-
-                  child:
-
-                  Text(
-
-                    categoria['nome'],
-
-                  ),
-
-
-                );
-
-
-
-              }).toList(),
-
-
-
-
-
-              onChanged:(valor){
-
-
-
-                setState((){
-
-
-                  categoriaSelecionada = valor;
-
-
-                });
-
-
-
-              },
-
-
-            ),
-
-
-
-
-
-
-            const SizedBox(height:15),
-
-
-
-
-
-
-
-
-            campo(
-
-              dataController,
-
-              "Data (AAAA-MM-DD)",
-
-              Icons.calendar_today,
-
-            ),
-
-
-
-
-            campo(
-
-              horaController,
-
-              "Hora",
-
-              Icons.access_time,
-
-            ),
-
-
-
-
-
-            campo(
-
-              localController,
-
-              "Local",
-
-              Icons.location_on,
-
-            ),
-
-
-
-
-
-            campo(
-
-              convidadosController,
-
-              "Quantidade convidados",
-
-              Icons.people,
-
-            ),
-
-
-
-
-
-            campo(
-
-              observacoesController,
-
-              "Observações",
-
-              Icons.description,
-
-            ),
-
-
-
-
-
-
-            const SizedBox(height:20),
-
-
-
-
-
-            SizedBox(
-
-
-              width:
-
-              double.infinity,
-
-
-
-              height:
-
-              50,
-
-
-
+          ? const Center(
               child:
-
-
-              ElevatedButton(
-
-
-
-                onPressed:
-
-                salvando
-
-                    ?
-
-                null
-
-                    :
-
-                salvar,
-
-
-
-
-
-                child:
-
-
-                salvando
-
-
-                    ?
-
-
-                const CircularProgressIndicator(
-
-                  color: Colors.white,
-
-                )
-
-
-
-                    :
-
-
-                const Text(
-
-                    "Salvar Evento"
-
-                ),
-
-
-
-              ),
-
-
+                  CircularProgressIndicator(),
             )
 
+          : SingleChildScrollView(
 
+              padding:
+                  const EdgeInsets.all(20),
 
+              child: Column(
 
-          ],
+                children: [
 
+                  DropdownButtonFormField<int>(
 
-        ),
+                    value:
+                        clienteSelecionado,
 
+                    decoration:
+                        const InputDecoration(
 
-      ),
+                      labelText:
+                          "Cliente",
 
+                      border:
+                          OutlineInputBorder(),
 
+                    ),
+
+                    items: clientes
+                        .map<DropdownMenuItem<int>>(
+                            (cliente) {
+
+                      return DropdownMenuItem<int>(
+
+                        value:
+                            cliente["id"],
+
+                        child: Text(
+                          cliente["nome"],
+                        ),
+
+                      );
+
+                    }).toList(),
+
+                    onChanged: (valor) {
+
+                      setState(() {
+
+                        clienteSelecionado =
+                            valor;
+
+                      });
+
+                    },
+
+                  ),
+
+                  const SizedBox(
+                    height: 15,
+                  ),
+
+                  DropdownButtonFormField<int>(
+
+                    value:
+                        categoriaSelecionada,
+
+                    decoration:
+                        const InputDecoration(
+
+                      labelText:
+                          "Categoria",
+
+                      border:
+                          OutlineInputBorder(),
+
+                    ),
+
+                    items: categorias
+                        .map<DropdownMenuItem<int>>(
+                            (categoria) {
+
+                      return DropdownMenuItem<int>(
+
+                        value:
+                            categoria["id"],
+
+                        child: Text(
+                          categoria["nome"],
+                        ),
+
+                      );
+
+                    }).toList(),
+
+                    onChanged: (valor) {
+
+                      setState(() {
+
+                        categoriaSelecionada =
+                            valor;
+
+                      });
+
+                    },
+
+                  ),
+
+                  const SizedBox(
+                    height: 15,
+                  ),
+
+                  TextField(
+
+                    controller:
+                        dataController,
+
+                    readOnly: true,
+
+                    onTap:
+                        selecionarData,
+
+                    decoration:
+                        const InputDecoration(
+
+                      labelText:
+                          "Data",
+
+                      prefixIcon: Icon(
+                        Icons.calendar_today,
+                      ),
+
+                      border:
+                          OutlineInputBorder(),
+
+                    ),
+
+                  ),
+
+                  const SizedBox(
+                    height: 15,
+                  ),
+
+                  TextField(
+
+                    controller:
+                        horaController,
+
+                    readOnly: true,
+
+                    onTap:
+                        selecionarHora,
+
+                    decoration:
+                        const InputDecoration(
+
+                      labelText:
+                          "Hora",
+
+                      prefixIcon: Icon(
+                        Icons.access_time,
+                      ),
+
+                      border:
+                          OutlineInputBorder(),
+
+                    ),
+
+                  ),
+
+                  const SizedBox(
+                    height: 15,
+                  ),
+
+                  TextField(
+
+                    controller:
+                        localController,
+
+                    decoration:
+                        const InputDecoration(
+
+                      labelText:
+                          "Local",
+
+                      prefixIcon:
+                          Icon(Icons.location_on),
+
+                      border:
+                          OutlineInputBorder(),
+
+                    ),
+
+                  ),
+
+                  const SizedBox(
+                    height: 15,
+                  ),
+
+                  TextField(
+
+                    controller:
+                        convidadosController,
+
+                    keyboardType:
+                        TextInputType.number,
+
+                    decoration:
+                        const InputDecoration(
+
+                      labelText:
+                          "Quantidade de convidados",
+
+                      prefixIcon:
+                          Icon(Icons.people),
+
+                      border:
+                          OutlineInputBorder(),
+
+                    ),
+
+                  ),
+
+                  const SizedBox(
+                    height: 15,
+                  ),
+
+                  TextField(
+
+                    controller:
+                        observacoesController,
+
+                    maxLines: 4,
+
+                    decoration:
+                        const InputDecoration(
+
+                      labelText:
+                          "Observações",
+
+                      prefixIcon:
+                          Icon(Icons.description),
+
+                      border:
+                          OutlineInputBorder(),
+
+                    ),
+
+                  ),
+
+                  const SizedBox(
+                    height: 30,
+                  ),
+
+                  SizedBox(
+
+                    width:
+                        double.infinity,
+
+                    height: 50,
+
+                    child:
+                        ElevatedButton(
+
+                      onPressed:
+
+                          salvando
+                              ? null
+                              : salvar,
+
+                      child:
+
+                          salvando
+
+                              ? const SizedBox(
+
+                                  width: 24,
+
+                                  height: 24,
+
+                                  child:
+                                      CircularProgressIndicator(
+
+                                    strokeWidth: 3,
+
+                                    color: Colors.white,
+
+                                  ),
+
+                                )
+
+                              : const Text(
+                                  "Salvar Evento",
+                                ),
+
+                    ),
+
+                  ),
+
+                ],
+
+              ),
+
+            ),
 
     );
 
-
   }
 
-
-
 }
-
