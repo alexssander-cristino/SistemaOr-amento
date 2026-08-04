@@ -1,141 +1,109 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
+
 class EventoCadastroPage extends StatefulWidget {
-  const EventoCadastroPage({super.key});
+
+  const EventoCadastroPage({
+    super.key
+  });
+
 
   @override
-  State<EventoCadastroPage> createState() => _EventoCadastroPageState();
+  State<EventoCadastroPage> createState()
+      => _EventoCadastroPageState();
+
 }
 
-class _EventoCadastroPageState extends State<EventoCadastroPage> {
 
-  final dataController = TextEditingController();
-  final horaController = TextEditingController();
-  final localController = TextEditingController();
-  final convidadosController = TextEditingController();
-  final observacoesController = TextEditingController();
+
+
+
+class _EventoCadastroPageState
+    extends State<EventoCadastroPage> {
+
+
+  final dataController =
+  TextEditingController();
+
+
+  final horaController =
+  TextEditingController();
+
+
+  final localController =
+  TextEditingController();
+
+
+  final convidadosController =
+  TextEditingController();
+
+
+  final observacoesController =
+  TextEditingController();
+
+
+
+  List clientes = [];
 
   List categorias = [];
 
+
+
+  int? clienteSelecionado;
+
   int? categoriaSelecionada;
 
+
+
   bool salvando = false;
-  bool carregandoCategorias = true;
+
+  bool carregando = true;
+
+
+
 
 
   @override
-  void initState() {
+  void initState(){
+
     super.initState();
-    carregarCategorias();
-  }
 
-
-  Future<void> carregarCategorias() async {
-
-    try {
-
-      final dados = await ApiService.get(
-        "categoria-eventos",
-      );
-
-      setState(() {
-
-        categorias = dados;
-
-        carregandoCategorias = false;
-
-      });
-
-
-    } catch(e) {
-
-      mostrarMensagem(
-        "Erro ao carregar categorias: $e"
-      );
-
-      setState(() {
-        carregandoCategorias = false;
-      });
-
-    }
+    carregarDados();
 
   }
 
 
 
 
-  Future<void> salvar() async {
 
 
-    if(categoriaSelecionada == null ||
-       dataController.text.isEmpty) {
-
-      mostrarMensagem(
-        "Selecione a categoria e informe a data"
-      );
-
-      return;
-
-    }
+  Future<void> carregarDados() async{
 
 
+    try{
 
-    setState(() {
-      salvando = true;
-    });
+
+      final listaClientes =
+      await ApiService.clientes();
+
+
+      final listaCategorias =
+      await ApiService.categoriasEvento();
 
 
 
-    try {
+      setState((){
 
 
-      await ApiService.post(
+        clientes = listaClientes;
 
-        "eventos",
+        categorias = listaCategorias;
 
-        {
-
-          "categoria_evento_id":
-              categoriaSelecionada,
+        carregando = false;
 
 
-          "data":
-              dataController.text.trim(),
-
-
-          "hora":
-              horaController.text.trim(),
-
-
-          "local":
-              localController.text.trim(),
-
-
-          "quantidade_convidados":
-              int.tryParse(
-                convidadosController.text
-              ) ?? 0,
-
-
-          "observacoes":
-              observacoesController.text.trim(),
-
-        },
-
-      );
-
-
-
-      if(!mounted) return;
-
-
-      mostrarMensagem(
-        "Evento cadastrado com sucesso"
-      );
-
-
-      Navigator.pop(context);
+      });
 
 
 
@@ -143,20 +111,16 @@ class _EventoCadastroPageState extends State<EventoCadastroPage> {
 
 
       mostrarMensagem(
-        "Erro ao cadastrar evento\n$e"
+          "Erro ao carregar dados: $e"
       );
 
 
-    }finally{
+      setState((){
 
+        carregando=false;
 
-      if(mounted){
+      });
 
-        setState(() {
-          salvando=false;
-        });
-
-      }
 
     }
 
@@ -166,51 +130,311 @@ class _EventoCadastroPageState extends State<EventoCadastroPage> {
 
 
 
+
+
+
+
+
+  Future<void> salvar() async{
+
+
+
+    if(clienteSelecionado == null){
+
+
+      mostrarMensagem(
+          "Selecione o cliente"
+      );
+
+
+      return;
+
+
+    }
+
+
+
+    if(categoriaSelecionada == null){
+
+
+      mostrarMensagem(
+          "Selecione a categoria do evento"
+      );
+
+
+      return;
+
+
+    }
+
+
+
+
+    if(dataController.text.trim().isEmpty){
+
+
+      mostrarMensagem(
+          "Informe a data"
+      );
+
+
+      return;
+
+
+    }
+
+
+
+
+    setState((){
+
+      salvando=true;
+
+    });
+
+
+
+
+
+    try{
+
+
+
+      await ApiService.post(
+
+
+        "eventos",
+
+
+        {
+
+
+
+          "cliente_id":
+
+          clienteSelecionado,
+
+
+
+
+          "categoria_evento_id":
+
+          categoriaSelecionada,
+
+
+
+
+          "data":
+
+          dataController.text.trim(),
+
+
+
+
+          "hora":
+
+          horaController.text.trim(),
+
+
+
+
+          "local":
+
+          localController.text.trim(),
+
+
+
+
+          "quantidade_convidados":
+
+
+          int.tryParse(
+
+              convidadosController.text
+
+          ) ?? 1,
+
+
+
+
+
+          "observacoes":
+
+          observacoesController.text.trim(),
+
+
+
+        },
+
+
+      );
+
+
+
+
+
+      if(!mounted)
+        return;
+
+
+
+
+      mostrarMensagem(
+
+          "Evento cadastrado com sucesso"
+
+      );
+
+
+
+
+      Navigator.pop(context);
+
+
+
+
+
+    }catch(e){
+
+
+
+      mostrarMensagem(
+
+          "Erro ao cadastrar evento:\n$e"
+
+      );
+
+
+
+    }finally{
+
+
+      if(mounted){
+
+
+        setState((){
+
+          salvando=false;
+
+        });
+
+
+      }
+
+
+    }
+
+
+  }
+
+
+
+
+
+
+
+
+
   void mostrarMensagem(String texto){
 
-    ScaffoldMessenger.of(context).showSnackBar(
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+
 
       SnackBar(
-        content: Text(texto),
+
+        content:
+        Text(texto),
+
       ),
+
 
     );
 
+
   }
+
+
+
+
+
+
 
 
 
   Widget campo(
+
       TextEditingController controller,
-      String texto,
-      IconData icone
+
+      String label,
+
+      IconData icone,
+
       ){
+
+
 
     return Padding(
 
+
       padding:
-      const EdgeInsets.only(bottom:15),
 
-      child: TextField(
+      const EdgeInsets.only(
+          bottom:15
+      ),
 
-        controller: controller,
 
-        decoration: InputDecoration(
 
-          labelText: texto,
+      child:
 
-          prefixIcon: Icon(icone),
+
+      TextField(
+
+
+        controller:
+
+        controller,
+
+
+
+        decoration:
+
+        InputDecoration(
+
+
+          labelText:
+
+          label,
+
+
+
+          prefixIcon:
+
+          Icon(icone),
+
+
 
           border:
+
           const OutlineInputBorder(),
+
 
         ),
 
+
       ),
+
 
     );
 
+
   }
+
+
+
+
+
 
 
 
@@ -218,96 +442,151 @@ class _EventoCadastroPageState extends State<EventoCadastroPage> {
   @override
   Widget build(BuildContext context){
 
+
+
     return Scaffold(
 
-      appBar: AppBar(
+
+
+      appBar:
+
+      AppBar(
 
         title:
-        const Text("Novo Evento"),
+
+        const Text(
+            "Novo Evento"
+        ),
 
       ),
 
 
+
+
       body:
+
+
+      carregando
+
+
+
+          ?
+
+
+      const Center(
+
+        child:
+
+        CircularProgressIndicator(),
+
+      )
+
+
+
+          :
+
 
       SingleChildScrollView(
 
+
         padding:
+
         const EdgeInsets.all(20),
+
 
 
         child:
 
+
         Column(
+
 
           children:[
 
 
 
-            carregandoCategorias
-
-                ?
-
-            const CircularProgressIndicator()
 
 
-                :
 
             DropdownButtonFormField<int>(
 
 
+
               value:
-              categoriaSelecionada,
+
+              clienteSelecionado,
+
 
 
               decoration:
 
               const InputDecoration(
 
+
                 labelText:
-                "Categoria do Evento",
+
+                "Cliente",
+
+
 
                 border:
+
                 OutlineInputBorder(),
+
 
               ),
 
 
 
+
               items:
 
-              categorias.map((categoria){
+
+              clientes.map((cliente){
+
 
 
                 return DropdownMenuItem<int>(
 
 
+
                   value:
-                  categoria['id'],
+
+                  cliente['id'],
+
 
 
                   child:
+
                   Text(
-                    categoria['nome'],
+
+                    cliente['nome'],
+
                   ),
 
 
                 );
 
 
+
               }).toList(),
+
+
 
 
 
               onChanged:(valor){
 
 
-                setState(() {
 
-                  categoriaSelecionada =
-                      valor;
+                setState((){
+
+
+                  clienteSelecionado = valor;
+
 
                 });
+
 
 
               },
@@ -317,43 +596,184 @@ class _EventoCadastroPageState extends State<EventoCadastroPage> {
 
 
 
+
+
             const SizedBox(height:15),
 
 
 
+
+
+
+
+
+            DropdownButtonFormField<int>(
+
+
+
+              value:
+
+              categoriaSelecionada,
+
+
+
+              decoration:
+
+              const InputDecoration(
+
+
+                labelText:
+
+                "Categoria do Evento",
+
+
+
+                border:
+
+                OutlineInputBorder(),
+
+
+              ),
+
+
+
+
+              items:
+
+
+              categorias.map((categoria){
+
+
+
+                return DropdownMenuItem<int>(
+
+
+
+                  value:
+
+                  categoria['id'],
+
+
+
+                  child:
+
+                  Text(
+
+                    categoria['nome'],
+
+                  ),
+
+
+                );
+
+
+
+              }).toList(),
+
+
+
+
+
+              onChanged:(valor){
+
+
+
+                setState((){
+
+
+                  categoriaSelecionada = valor;
+
+
+                });
+
+
+
+              },
+
+
+            ),
+
+
+
+
+
+
+            const SizedBox(height:15),
+
+
+
+
+
+
+
+
             campo(
+
               dataController,
+
               "Data (AAAA-MM-DD)",
+
               Icons.calendar_today,
+
             ),
 
 
+
+
             campo(
+
               horaController,
-              "Horário",
+
+              "Hora",
+
               Icons.access_time,
+
             ),
 
 
+
+
+
             campo(
+
               localController,
+
               "Local",
+
               Icons.location_on,
+
             ),
 
 
+
+
+
             campo(
+
               convidadosController,
+
               "Quantidade convidados",
+
               Icons.people,
+
             ),
+
+
+
 
 
             campo(
+
               observacoesController,
+
               "Observações",
+
               Icons.description,
+
             ),
+
+
+
 
 
 
@@ -361,50 +781,80 @@ class _EventoCadastroPageState extends State<EventoCadastroPage> {
 
 
 
+
+
             SizedBox(
 
+
               width:
+
               double.infinity,
 
+
+
               height:
+
               50,
+
 
 
               child:
 
+
               ElevatedButton(
 
 
+
                 onPressed:
+
                 salvando
+
                     ?
+
                 null
+
                     :
+
                 salvar,
+
+
+
 
 
                 child:
 
+
                 salvando
+
 
                     ?
 
+
                 const CircularProgressIndicator(
+
                   color: Colors.white,
+
                 )
+
 
 
                     :
 
+
                 const Text(
-                  "Salvar Evento",
+
+                    "Salvar Evento"
+
                 ),
+
 
 
               ),
 
 
             )
+
+
 
 
           ],
@@ -416,9 +866,13 @@ class _EventoCadastroPageState extends State<EventoCadastroPage> {
       ),
 
 
+
     );
+
 
   }
 
 
+
 }
+
